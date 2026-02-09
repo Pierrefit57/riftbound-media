@@ -1,0 +1,146 @@
+---
+export const prerender = false;
+
+import MainLayout from '../layouts/MainLayout.astro';
+import NewsCard from '../components/NewsCard.astro';
+import { supabase } from '../lib/supabase';
+import { getCollection } from 'astro:content';
+
+// Articles depuis Supabase
+const { data: allNews } = await supabase
+  .from('articles')
+  .select('*')
+  .eq('published', true)
+  .order('created_at', { ascending: false })
+  .limit(6);
+
+const featuredNews = allNews?.filter((n) => n.featured).slice(0, 2) || [];
+const latestNews = allNews || [];
+
+// Règles depuis Content Collections (statique)
+const allRules = await getCollection('rules');
+const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
+---
+
+<MainLayout title="Accueil">
+
+  <!-- Hero -->
+  <section class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-accent-cyan/5 via-transparent to-transparent"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(0,217,255,0.12),transparent)]"></div>
+
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 pt-16 pb-12 md:pt-24 md:pb-16 text-center">
+      <h1 class="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight mb-4 animate-slide-up">
+        <span class="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">RIFTBOUND</span>
+        <br />
+        <span class="bg-gradient-to-r from-accent-cyan to-accent-purple bg-clip-text text-transparent">MEDIA</span>
+      </h1>
+      <p class="text-gray-400 text-lg md:text-xl max-w-xl mx-auto mb-8 animate-fade-in">
+        Votre source francophone pour l'univers Riftbound. Actualités, règles, méta et communauté.
+      </p>
+      <div class="flex flex-wrap gap-3 justify-center animate-fade-in">
+        <a href="/news" class="px-6 py-2.5 rounded-lg bg-accent-cyan text-rift-950 font-semibold text-sm hover:bg-accent-cyan/90 transition-colors shadow-lg shadow-accent-cyan/25 hover:shadow-accent-cyan/40">
+          Dernières Actualités
+        </a>
+        <a href="/rules" class="px-6 py-2.5 rounded-lg bg-white/5 text-white font-semibold text-sm border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all">
+          Règles du Jeu
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured News -->
+  {featuredNews.length > 0 && (
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 mb-16">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-white">À la Une</h2>
+        <a href="/news" class="text-sm text-accent-cyan hover:text-accent-cyan/80 font-medium transition-colors">
+          Voir tout →
+        </a>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {featuredNews.map((article) => (
+          <NewsCard
+            title={article.title}
+            summary={article.summary || ''}
+            image={article.image_url || ''}
+            tags={article.tags || []}
+            author=""
+            pubDate={new Date(article.created_at)}
+            slug={article.slug}
+            featured={true}
+          />
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- All Latest News -->
+  {latestNews.length > 0 && (
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 mb-16">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-white">Dernières Actualités</h2>
+        <a href="/news" class="text-sm text-accent-cyan hover:text-accent-cyan/80 font-medium transition-colors">
+          Tout voir →
+        </a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {latestNews.map((article) => (
+          <NewsCard
+            title={article.title}
+            summary={article.summary || ''}
+            image={article.image_url || ''}
+            tags={article.tags || []}
+            author=""
+            pubDate={new Date(article.created_at)}
+            slug={article.slug}
+          />
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- Rules Preview -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 mb-16">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-bold text-white">Règles du Jeu</h2>
+      <a href="/rules" class="text-sm text-accent-cyan hover:text-accent-cyan/80 font-medium transition-colors">
+        Voir les règles →
+      </a>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {sortedRules.map((rule) => (
+        <a href="/rules" class="group flex items-start gap-4 p-5 rounded-xl bg-surface border border-surface-border hover:border-accent-cyan/30 transition-all duration-300 hover:shadow-lg hover:shadow-accent-cyan/5">
+          <span class="text-3xl flex-shrink-0">{rule.data.icon}</span>
+          <div>
+            <h3 class="text-base font-bold text-white mb-1 group-hover:text-accent-cyan transition-colors">{rule.data.title}</h3>
+            <p class="text-sm text-gray-400 line-clamp-2">{rule.data.summary}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Community CTA -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 mb-8">
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-accent-purple/15 via-surface to-accent-cyan/15 border border-surface-border p-8 md:p-12 text-center">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(168,85,247,0.1),transparent_50%)]"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_50%,rgba(0,217,255,0.1),transparent_50%)]"></div>
+      <div class="relative">
+        <h2 class="text-2xl md:text-3xl font-bold mb-3">Rejoignez la Communauté</h2>
+        <p class="text-gray-400 mb-6 max-w-lg mx-auto">
+          Discutez stratégie, partagez vos decks et restez informés des derniers événements.
+        </p>
+        <div class="flex flex-wrap gap-3 justify-center">
+          <a href="#" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#5865F2] text-white text-sm font-semibold hover:bg-[#4752C4] transition-colors">
+            Discord
+          </a>
+          <a href="#" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white/5 text-white text-sm font-semibold border border-white/10 hover:bg-white/10 transition-all">
+            Twitter / X
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</MainLayout>

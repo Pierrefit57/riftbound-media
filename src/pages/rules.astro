@@ -1,0 +1,69 @@
+---
+import { getCollection } from 'astro:content';
+import MainLayout from '../layouts/MainLayout.astro';
+
+const allRules = await getCollection('rules');
+const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
+
+const renderedRules = await Promise.all(
+  sortedRules.map(async (rule) => {
+    const { Content } = await rule.render();
+    return { data: rule.data, Content };
+  })
+);
+---
+
+<MainLayout title="Règles du Jeu">
+
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 pt-10 pb-16">
+
+    <!-- Page Header -->
+    <div class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-black text-white mb-2">Règles du Jeu</h1>
+      <p class="text-gray-400">Tout ce que vous devez savoir pour maîtriser Riftbound</p>
+    </div>
+
+    <!-- Table of Contents -->
+    <nav class="mb-10 p-5 rounded-xl bg-surface border border-surface-border">
+      <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">Sommaire</h2>
+      <ul class="space-y-2">
+        {sortedRules.map((rule, i) => (
+          <li>
+            <a href={`#section-${i}`} class="flex items-center gap-3 text-sm text-gray-300 hover:text-accent-cyan transition-colors group">
+              <span class="text-lg">{rule.data.icon}</span>
+              <span class="group-hover:translate-x-0.5 transition-transform">{rule.data.title}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <!-- Rules Sections -->
+    <div class="space-y-12">
+      {renderedRules.map(({ data, Content }, i) => (
+        <section id={`section-${i}`} class="scroll-mt-24">
+          <div class="flex items-center gap-3 mb-6 pb-3 border-b border-surface-border">
+            <span class="text-2xl">{data.icon}</span>
+            <h2 class="text-xl font-bold text-white">{data.title}</h2>
+          </div>
+          <div class="prose prose-invert prose-cyan max-w-none
+            prose-headings:font-bold prose-headings:text-white
+            prose-h2:text-lg prose-h2:mt-6 prose-h2:mb-3
+            prose-h3:text-base prose-h3:mt-5 prose-h3:mb-2
+            prose-p:text-gray-300 prose-p:leading-relaxed
+            prose-a:text-accent-cyan prose-a:no-underline hover:prose-a:underline
+            prose-strong:text-white
+            prose-li:text-gray-300
+            prose-blockquote:border-accent-cyan/50 prose-blockquote:bg-accent-cyan/5 prose-blockquote:rounded-r-lg prose-blockquote:py-1 prose-blockquote:px-4
+            prose-table:text-sm
+            prose-th:text-accent-cyan prose-th:font-semibold
+            prose-td:text-gray-300
+            prose-hr:border-surface-border">
+            <Content />
+          </div>
+        </section>
+      ))}
+    </div>
+  </div>
+
+</MainLayout>

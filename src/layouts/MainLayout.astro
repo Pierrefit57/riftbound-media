@@ -1,0 +1,194 @@
+---
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+const currentPath = Astro.url.pathname;
+const user = Astro.locals.user;
+const profile = Astro.locals.profile;
+
+const navLinks = [
+  { href: '/', label: 'Accueil' },
+  { href: '/news', label: 'Actualités' },
+  { href: '/rules', label: 'Règles' },
+];
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Riftbound Media — Votre source d'actualités, guides et lore pour l'univers Riftbound." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title} | Riftbound Media</title>
+  </head>
+  <body class="bg-rift-950 text-gray-100 font-sans min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <header class="sticky top-0 z-50 bg-rift-950/80 backdrop-blur-xl border-b border-surface-border">
+      <nav class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2.5 group">
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-accent-cyan to-accent-purple flex items-center justify-center text-white font-black text-lg shadow-lg shadow-accent-cyan/20 group-hover:shadow-accent-cyan/40 transition-shadow duration-300">
+            R
+          </div>
+          <span class="text-lg font-bold tracking-tight">
+            <span class="text-white">Riftbound</span>
+            <span class="text-accent-cyan"> Media</span>
+          </span>
+        </a>
+
+        <!-- Nav links (desktop) -->
+        <ul class="hidden md:flex items-center gap-1">
+          {navLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class:list={[
+                  'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+                  currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href))
+                    ? 'text-accent-cyan bg-accent-cyan/10'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5',
+                ]}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <!-- Right side: Auth -->
+        <div class="hidden sm:flex items-center gap-3">
+          {user ? (
+            <>
+              {profile && ['admin', 'editor'].includes(profile.role) && (
+                <a href="/admin" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-accent-purple/15 text-accent-purple border border-accent-purple/25 hover:bg-accent-purple/25 transition-colors">
+                  Admin
+                </a>
+              )}
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-accent-cyan to-accent-purple flex items-center justify-center text-xs font-bold text-white">
+                  {profile?.username?.charAt(0)?.toUpperCase() || '?'}
+                </div>
+                <form action="/api/auth/logout" method="POST">
+                  <button type="submit" class="text-xs text-gray-400 hover:text-white transition-colors">
+                    Déconnexion
+                  </button>
+                </form>
+              </div>
+            </>
+          ) : (
+            <a href="/login" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-cyan/10 text-accent-cyan text-sm font-semibold border border-accent-cyan/20 hover:bg-accent-cyan/20 transition-colors">
+              Connexion
+            </a>
+          )}
+        </div>
+
+        <!-- Mobile menu toggle -->
+        <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-400 hover:text-white" aria-label="Menu">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </nav>
+
+      <!-- Mobile menu -->
+      <div id="mobile-menu" class="md:hidden hidden border-t border-surface-border bg-rift-950/95 backdrop-blur-xl">
+        <div class="px-4 py-3 space-y-1">
+          {navLinks.map((link) => (
+            <a
+              href={link.href}
+              class:list={[
+                'block px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
+                currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href))
+                  ? 'text-accent-cyan bg-accent-cyan/10'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5',
+              ]}
+            >
+              {link.label}
+            </a>
+          ))}
+          <hr class="border-surface-border my-2" />
+          {user ? (
+            <form action="/api/auth/logout" method="POST" class="px-4 py-2">
+              <button type="submit" class="text-sm text-gray-400 hover:text-white">Déconnexion</button>
+            </form>
+          ) : (
+            <a href="/login" class="block px-4 py-2.5 rounded-lg text-sm font-medium text-accent-cyan">
+              Connexion
+            </a>
+          )}
+        </div>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="flex-1">
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-surface-border mt-20">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+          <div class="sm:col-span-2 md:col-span-1">
+            <a href="/" class="flex items-center gap-2 mb-3">
+              <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-cyan to-accent-purple flex items-center justify-center text-white font-black text-sm">R</div>
+              <span class="text-sm font-bold"><span class="text-white">Riftbound</span> <span class="text-accent-cyan">Media</span></span>
+            </a>
+            <p class="text-gray-500 text-sm leading-relaxed">
+              Votre source francophone pour l'univers Riftbound. Actualités, guides et communauté.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-4">Contenu</h4>
+            <ul class="space-y-2.5">
+              <li><a href="/news" class="text-sm text-gray-500 hover:text-accent-cyan transition-colors">Actualités</a></li>
+              <li><a href="/rules" class="text-sm text-gray-500 hover:text-accent-cyan transition-colors">Règles du Jeu</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-4">Communauté</h4>
+            <ul class="space-y-2.5">
+              <li><a href="#" class="text-sm text-gray-500 hover:text-accent-cyan transition-colors">Discord</a></li>
+              <li><a href="#" class="text-sm text-gray-500 hover:text-accent-cyan transition-colors">Twitter / X</a></li>
+              <li><a href="#" class="text-sm text-gray-500 hover:text-accent-cyan transition-colors">YouTube</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-4">Ressources</h4>
+            <ul class="space-y-2.5">
+              <li><a href="#" class="text-sm text-gray-500 hover:text-accent-cyan transition-colors">À propos</a></li>
+              <li><a href="#" class="text-sm text-gray-500 hover:text-accent-cyan transition-colors">Contact</a></li>
+              <li><a href="#" class="text-sm text-gray-500 hover:text-accent-cyan transition-colors">Mentions Légales</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mt-10 pt-6 border-t border-surface-border flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p class="text-xs text-gray-600">
+            &copy; 2026 Riftbound Media. Site communautaire non-officiel.
+          </p>
+          <div class="flex items-center gap-1.5 text-xs text-gray-600">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-glow-pulse"></span>
+            Tous les systèmes opérationnels
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      const btn = document.getElementById('mobile-menu-btn');
+      const menu = document.getElementById('mobile-menu');
+      btn?.addEventListener('click', () => menu?.classList.toggle('hidden'));
+    </script>
+  </body>
+</html>

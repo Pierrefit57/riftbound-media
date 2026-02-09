@@ -1,0 +1,105 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { supabase } from '../../../lib/supabase';
+
+// Gérer la suppression
+if (Astro.request.method === 'POST') {
+  const formData = await Astro.request.formData();
+  const action = formData.get('action');
+  const articleId = formData.get('id') as string;
+
+  if (action === 'delete' && articleId) {
+    await supabase.from('articles').delete().eq('id', articleId);
+  }
+
+  if (action === 'toggle-publish' && articleId) {
+    const { data: article } = await supabase
+      .from('articles')
+      .select('published')
+      .eq('id', articleId)
+      .single();
+
+    if (article) {
+      await supabase
+        .from('articles')
+        .update({ published: !article.published })
+        .eq('id', articleId);
+    }
+  }
+}
+
+const { data: articles } = await supabase
+  .from('articles')
+  .select('id, title, slug, published, featured, created_at, summary')
+  .order('created_at', { ascending: false });
+---
+
+<AdminLayout title="Articles" activeItem="articles">
+  <div class="space-y-4">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+      <p class="text-sm text-gray-400">{articles?.length || 0} article(s)</p>
+      <a href="/admin/articles/new" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-cyan text-rift-950 text-sm font-semibold hover:bg-accent-cyan/90 transition-colors">
+        + Nouvel article
+      </a>
+    </div>
+
+    <!-- Articles list -->
+    <div class="space-y-2">
+      {articles && articles.length > 0 ? (
+        articles.map((article) => (
+          <div class="flex items-center justify-between gap-4 p-4 bg-surface rounded-xl border border-surface-border hover:border-surface-border/80 transition-colors">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <h3 class="text-sm font-bold text-white truncate">{article.title}</h3>
+                {article.featured && (
+                  <span class="px-1.5 py-0.5 text-[10px] font-medium rounded bg-accent-gold/20 text-accent-gold">★ Featured</span>
+                )}
+              </div>
+              <div class="flex items-center gap-3 text-xs text-gray-500">
+                <span class:list={[
+                  'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium',
+                  article.published
+                    ? 'bg-emerald-500/15 text-emerald-400'
+                    : 'bg-amber-500/15 text-amber-400'
+                ]}>
+                  {article.published ? '● Publié' : '○ Brouillon'}
+                </span>
+                <span>/{article.slug}</span>
+                <span>{new Date(article.created_at).toLocaleDateString('fr-FR')}</span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <form method="POST">
+                <input type="hidden" name="id" value={article.id} />
+                <input type="hidden" name="action" value="toggle-publish" />
+                <button type="submit" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 text-gray-300 hover:bg-white/10 border border-surface-border transition-colors">
+                  {article.published ? 'Dépublier' : 'Publier'}
+                </button>
+              </form>
+              <a href={`/admin/articles/${article.id}`} class="px-3 py-1.5 rounded-lg text-xs font-medium bg-accent-cyan/10 text-accent-cyan hover:bg-accent-cyan/20 transition-colors">
+                Éditer
+              </a>
+              <form method="POST" onsubmit="return confirm('Supprimer cet article ?')">
+                <input type="hidden" name="id" value={article.id} />
+                <input type="hidden" name="action" value="delete" />
+                <button type="submit" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors">
+                  Supprimer
+                </button>
+              </form>
+            </div>
+          </div>
+        ))
+      ) : (
+        <div class="text-center py-12 text-gray-500">
+          <p class="text-lg mb-2">Aucun article</p>
+          <p class="text-sm">Créez votre premier article pour commencer.</p>
+        </div>
+      )}
+    </div>
+  </div>
+</AdminLayout>

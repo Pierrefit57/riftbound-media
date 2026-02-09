@@ -1,0 +1,69 @@
+---
+export const prerender = false;
+
+import MainLayout from '../../layouts/MainLayout.astro';
+import NewsCard from '../../components/NewsCard.astro';
+import { supabase } from '../../lib/supabase';
+
+const { data: allNews } = await supabase
+  .from('articles')
+  .select('*')
+  .eq('published', true)
+  .order('created_at', { ascending: false });
+
+const featuredNews = allNews?.filter((n) => n.featured).slice(0, 2) || [];
+const regularNews = allNews || [];
+---
+
+<MainLayout title="Actualités">
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-10 pb-16">
+
+    <div class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-black text-white mb-2">Actualités</h1>
+      <p class="text-gray-400">Restez informé des dernières nouvelles et annonces de l'univers Riftbound</p>
+    </div>
+
+    {featuredNews.length > 0 && (
+      <section class="mb-12">
+        <h2 class="text-lg font-bold text-accent-cyan mb-5">À la Une</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {featuredNews.map((article) => (
+            <NewsCard
+              title={article.title}
+              summary={article.summary || ''}
+              image={article.image_url || ''}
+              tags={article.tags || []}
+              author=""
+              pubDate={new Date(article.created_at)}
+              slug={article.slug}
+              featured={true}
+            />
+          ))}
+        </div>
+      </section>
+    )}
+
+    <section>
+      <h2 class="text-lg font-bold text-white mb-5">Toutes les Actualités</h2>
+      {regularNews.length > 0 ? (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {regularNews.map((article) => (
+            <NewsCard
+              title={article.title}
+              summary={article.summary || ''}
+              image={article.image_url || ''}
+              tags={article.tags || []}
+              author=""
+              pubDate={new Date(article.created_at)}
+              slug={article.slug}
+            />
+          ))}
+        </div>
+      ) : (
+        <p class="text-center text-gray-500 py-12">Aucun article publié pour le moment.</p>
+      )}
+    </section>
+  </div>
+
+</MainLayout>
