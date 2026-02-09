@@ -17,62 +17,86 @@ const formattedDate = pubDate.toLocaleDateString('fr-FR', {
   month: 'long',
   year: 'numeric',
 });
+
+// Tag color mapping based on content
+function getTagStyle(tag: string): string {
+  const t = tag.toLowerCase();
+  if (t.includes('lore') || t.includes('événement')) return 'bg-domain-chaos/10 text-domain-chaos border-domain-chaos/20';
+  if (t.includes('compétitif') || t.includes('tournoi')) return 'bg-accent-spirit/10 text-accent-spirit border-accent-spirit/20';
+  if (t.includes('patch') || t.includes('équilibrage')) return 'bg-accent-forge/10 text-accent-forge border-accent-forge/20';
+  if (t.includes('interview')) return 'bg-accent-sakura/15 text-accent-sakura border-accent-sakura/25';
+  if (t.includes('carte') || t.includes('cartes')) return 'bg-domain-mind/10 text-domain-mind border-domain-mind/20';
+  if (t.includes('mise à jour')) return 'bg-domain-calm/10 text-domain-calm border-domain-calm/20';
+  return 'bg-accent-spirit/8 text-accent-spirit/80 border-accent-spirit/15';
+}
 ---
 
 {featured ? (
-  <a href={`/news/${slug}`} class="group block relative overflow-hidden rounded-xl border border-surface-border bg-surface hover:border-accent-cyan/40 transition-all duration-300 hover:shadow-2xl hover:shadow-accent-cyan/10">
-    <div class="relative h-56 md:h-64 bg-gradient-to-br from-accent-cyan/20 via-surface to-accent-purple/20 overflow-hidden">
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(0,217,255,0.15),transparent_60%)]"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.15),transparent_60%)]"></div>
-      <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-surface to-transparent"></div>
+  <a href={`/news/${slug}`} class="group block relative overflow-hidden rounded-2xl border border-rift-200/80 bg-white/70 hover:border-accent-sakura/40 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-0.5">
+    <!-- Card image area -->
+    <div class="relative h-56 md:h-64 overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-accent-sakura/15 via-rift-100 to-accent-forge/10"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(232,128,154,0.15),transparent_60%)]"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_60%,rgba(201,168,76,0.1),transparent_60%)]"></div>
+      <!-- Dot pattern -->
+      <div class="absolute inset-0 opacity-[0.04]" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22><circle cx=%2220%22 cy=%2220%22 r=%221.5%22 fill=%22%23c93545%22/></svg>'); background-size: 40px 40px;"></div>
+      <!-- Featured badge -->
+      <div class="absolute top-4 left-4 z-10">
+        <span class="px-3 py-1 text-xs font-display font-semibold uppercase tracking-wider bg-accent-forge text-white rounded-full shadow-forge">
+          ✦ À la Une
+        </span>
+      </div>
+      <div class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white/70 to-transparent"></div>
     </div>
     <div class="p-5 md:p-6">
       <div class="flex flex-wrap gap-2 mb-3">
         {tags.map((tag) => (
-          <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/20">
+          <span class={`px-2.5 py-0.5 text-xs font-medium rounded-full border ${getTagStyle(tag)}`}>
             {tag}
           </span>
         ))}
       </div>
-      <h3 class="text-xl md:text-2xl font-bold text-white mb-2 group-hover:text-accent-cyan transition-colors duration-200 line-clamp-2">
+      <h3 class="text-xl md:text-2xl font-display font-bold text-rift-900 mb-2 group-hover:text-accent-spirit transition-colors duration-300 line-clamp-2">
         {title}
       </h3>
-      <p class="text-gray-400 text-sm mb-4 line-clamp-2">
+      <p class="text-rift-500 text-sm mb-4 line-clamp-2 leading-relaxed">
         {summary}
       </p>
-      <div class="flex items-center justify-between text-xs text-gray-500">
+      <div class="flex items-center justify-between text-xs text-rift-400">
         <span>{author}</span>
         <span>{formattedDate}</span>
       </div>
-      <span class="mt-3 inline-flex items-center text-sm font-semibold text-accent-cyan group-hover:gap-2 gap-1 transition-all duration-200">
+      <span class="mt-4 inline-flex items-center text-sm font-semibold text-accent-spirit group-hover:gap-2.5 gap-1.5 transition-all duration-300">
         Lire la suite
-        <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
         </svg>
       </span>
     </div>
   </a>
 ) : (
-  <a href={`/news/${slug}`} class="group block overflow-hidden rounded-xl border border-surface-border bg-surface hover:border-accent-cyan/40 transition-all duration-300 hover:shadow-xl hover:shadow-accent-cyan/10 hover:-translate-y-1">
-    <div class="relative h-44 bg-gradient-to-br from-accent-purple/20 via-surface to-accent-cyan/10 overflow-hidden">
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,217,255,0.1),transparent_70%)]"></div>
-      <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-surface to-transparent"></div>
+  <a href={`/news/${slug}`} class="group block overflow-hidden rounded-2xl border border-rift-200/80 bg-white/60 hover:border-accent-sakura/30 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1">
+    <div class="relative h-44 overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-accent-sakura/10 via-rift-100 to-accent-forge/8"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(232,128,154,0.1),transparent_70%)]"></div>
+      <div class="absolute inset-0 opacity-[0.03]" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2230%22 height=%2230%22><circle cx=%2215%22 cy=%2215%22 r=%221%22 fill=%22%23c93545%22/></svg>'); background-size: 30px 30px;"></div>
+      <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white/60 to-transparent"></div>
     </div>
     <div class="p-4 md:p-5">
       <div class="flex flex-wrap gap-1.5 mb-2">
         {tags.map((tag) => (
-          <span class="px-2 py-0.5 text-[11px] font-medium rounded-full bg-accent-cyan/10 text-accent-cyan/80 border border-accent-cyan/15">
+          <span class={`px-2 py-0.5 text-[11px] font-medium rounded-full border ${getTagStyle(tag)}`}>
             {tag}
           </span>
         ))}
       </div>
-      <h3 class="text-base font-bold text-white mb-1.5 group-hover:text-accent-cyan transition-colors duration-200 line-clamp-2">
+      <h3 class="text-base font-display font-bold text-rift-900 mb-1.5 group-hover:text-accent-spirit transition-colors duration-300 line-clamp-2">
         {title}
       </h3>
-      <p class="text-gray-400 text-sm mb-3 line-clamp-2">
+      <p class="text-rift-500 text-sm mb-3 line-clamp-2 leading-relaxed">
         {summary}
       </p>
-      <div class="flex items-center justify-between text-xs text-gray-500">
+      <div class="flex items-center justify-between text-xs text-rift-400">
         <span>{author}</span>
         <span>{formattedDate}</span>
       </div>

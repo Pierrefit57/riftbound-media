@@ -27,13 +27,22 @@ const formattedDate = new Date(article.created_at).toLocaleDateString('fr-FR', {
 });
 
 const authorName = article.profiles?.username || 'Équipe Riftbound';
+
+function getTagStyle(tag: string): string {
+  const t = tag.toLowerCase();
+  if (t.includes('lore') || t.includes('événement')) return 'bg-domain-chaos/10 text-domain-chaos border-domain-chaos/20';
+  if (t.includes('compétitif') || t.includes('tournoi')) return 'bg-accent-spirit/10 text-accent-spirit border-accent-spirit/20';
+  if (t.includes('patch') || t.includes('équilibrage')) return 'bg-accent-forge/10 text-accent-forge border-accent-forge/20';
+  if (t.includes('interview')) return 'bg-accent-sakura/15 text-accent-sakura border-accent-sakura/25';
+  return 'bg-accent-spirit/8 text-accent-spirit/80 border-accent-spirit/15';
+}
 ---
 
 <MainLayout title={article.title}>
 
   <article class="max-w-3xl mx-auto px-4 sm:px-6 pt-10 pb-16">
 
-    <a href="/news" class="inline-flex items-center gap-1.5 text-sm text-accent-cyan hover:text-accent-cyan/80 font-medium mb-8 transition-colors group">
+    <a href="/news" class="inline-flex items-center gap-1.5 text-sm text-accent-spirit hover:text-accent-forge font-medium mb-8 transition-colors duration-300 group">
       <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
       </svg>
@@ -43,52 +52,53 @@ const authorName = article.profiles?.username || 'Équipe Riftbound';
     <header class="mb-8">
       <div class="flex flex-wrap gap-2 mb-4">
         {article.tags?.map((tag: string) => (
-          <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/20">
+          <span class={`px-2.5 py-0.5 text-xs font-medium rounded-full border ${getTagStyle(tag)}`}>
             {tag}
           </span>
         ))}
       </div>
 
-      <h1 class="text-3xl md:text-4xl font-black text-white mb-4 leading-tight">
+      <h1 class="text-3xl md:text-4xl font-display font-bold text-rift-900 mb-4 leading-tight">
         {article.title}
       </h1>
 
-      <div class="flex items-center gap-3 text-sm text-gray-400">
+      <div class="flex items-center gap-3 text-sm text-rift-500">
         <div class="flex items-center gap-2">
-          <div class="w-7 h-7 rounded-full bg-gradient-to-br from-accent-cyan to-accent-purple flex items-center justify-center text-[10px] font-bold text-white">
+          <div class="w-7 h-7 rounded-full bg-gradient-to-br from-accent-spirit to-accent-sakura flex items-center justify-center text-[10px] font-bold text-white">
             {authorName.charAt(0)}
           </div>
           <span>{authorName}</span>
         </div>
-        <span class="text-gray-600">·</span>
+        <span class="text-rift-300">·</span>
         <span>Publié le {formattedDate}</span>
       </div>
     </header>
 
     <!-- Hero image placeholder -->
-    <div class="relative w-full h-56 md:h-72 rounded-xl overflow-hidden mb-8 bg-gradient-to-br from-accent-cyan/20 via-surface to-accent-purple/20">
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(0,217,255,0.15),transparent_60%)]"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.15),transparent_60%)]"></div>
+    <div class="relative w-full h-56 md:h-72 rounded-2xl overflow-hidden mb-8">
+      <div class="absolute inset-0 bg-gradient-to-br from-accent-sakura/15 via-rift-100 to-accent-forge/10"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(232,128,154,0.12),transparent_60%)]"></div>
+      <div class="absolute inset-0 opacity-[0.04]" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22><circle cx=%2220%22 cy=%2220%22 r=%221.5%22 fill=%22%23c93545%22/></svg>'); background-size: 40px 40px;"></div>
     </div>
 
-    <div class="prose prose-invert prose-cyan max-w-none
-      prose-headings:font-bold prose-headings:text-white
+    <div class="prose max-w-none
+      prose-headings:font-display prose-headings:font-bold prose-headings:text-rift-900
       prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4
       prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3
-      prose-p:text-gray-300 prose-p:leading-relaxed
-      prose-a:text-accent-cyan prose-a:no-underline hover:prose-a:underline
-      prose-strong:text-white
-      prose-li:text-gray-300
-      prose-blockquote:border-accent-cyan/50 prose-blockquote:text-gray-400
+      prose-p:text-rift-700 prose-p:leading-relaxed
+      prose-a:text-accent-spirit prose-a:no-underline hover:prose-a:text-accent-forge hover:prose-a:underline
+      prose-strong:text-rift-900
+      prose-li:text-rift-700
+      prose-blockquote:border-accent-sakura/50 prose-blockquote:text-rift-500
       prose-table:text-sm
-      prose-th:text-accent-cyan prose-th:font-semibold
-      prose-td:text-gray-300
-      prose-hr:border-surface-border"
+      prose-th:text-accent-forge prose-th:font-semibold
+      prose-td:text-rift-700
+      prose-hr:border-rift-200"
       set:html={htmlContent}
     />
 
-    <div class="mt-12 pt-8 border-t border-surface-border">
-      <a href="/news" class="inline-flex items-center gap-1.5 text-sm text-accent-cyan hover:text-accent-cyan/80 font-medium transition-colors group">
+    <div class="mt-12 pt-8 border-t border-rift-200">
+      <a href="/news" class="inline-flex items-center gap-1.5 text-sm text-accent-spirit hover:text-accent-forge font-medium transition-colors duration-300 group">
         <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
         </svg>

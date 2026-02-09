@@ -23,23 +23,107 @@ const navLinks = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <meta name="generator" content={Astro.generator} />
     <title>{title} | Riftbound Media</title>
+    <style>
+      /* Rose petals falling */
+      .petals-container {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 1;
+        overflow: hidden;
+      }
+      .petal {
+        position: absolute;
+        width: 12px;
+        height: 10px;
+        border-radius: 50% 0 50% 50%;
+        opacity: 0;
+      }
+      .petal:nth-child(1) { left: 5%; background: rgba(255,70,150,0.9); animation: petal-fall 11s linear 0s infinite; width: 14px; height: 12px; }
+      .petal:nth-child(2) { left: 12%; background: rgba(255,90,160,0.8); animation: petal-fall-2 15s linear 2s infinite; width: 11px; height: 9px; }
+      .petal:nth-child(3) { left: 20%; background: rgba(255,60,140,0.85); animation: petal-fall 13s linear 4s infinite; width: 13px; height: 11px; }
+      .petal:nth-child(4) { left: 28%; background: rgba(255,80,155,0.75); animation: petal-fall-2 17s linear 1s infinite; width: 10px; height: 9px; }
+      .petal:nth-child(5) { left: 35%; background: rgba(255,65,145,0.9); animation: petal-fall 12s linear 6s infinite; width: 15px; height: 12px; }
+      .petal:nth-child(6) { left: 42%; background: rgba(255,85,155,0.8); animation: petal-fall-2 14s linear 3s infinite; width: 12px; height: 10px; }
+      .petal:nth-child(7) { left: 50%; background: rgba(255,75,148,0.75); animation: petal-fall 16s linear 5s infinite; width: 11px; height: 9px; }
+      .petal:nth-child(8) { left: 58%; background: rgba(255,60,140,0.85); animation: petal-fall-2 13s linear 7s infinite; width: 14px; height: 11px; }
+      .petal:nth-child(9) { left: 65%; background: rgba(255,90,160,0.8); animation: petal-fall 11s linear 2s infinite; width: 13px; height: 10px; }
+      .petal:nth-child(10) { left: 72%; background: rgba(255,70,150,0.9); animation: petal-fall-2 18s linear 8s infinite; width: 10px; height: 8px; }
+      .petal:nth-child(11) { left: 78%; background: rgba(255,65,142,0.85); animation: petal-fall 14s linear 1s infinite; width: 15px; height: 12px; }
+      .petal:nth-child(12) { left: 85%; background: rgba(255,85,155,0.75); animation: petal-fall-2 12s linear 4s infinite; width: 12px; height: 10px; }
+      .petal:nth-child(13) { left: 92%; background: rgba(255,75,148,0.8); animation: petal-fall 15s linear 9s infinite; width: 11px; height: 9px; }
+      .petal:nth-child(14) { left: 15%; background: rgba(255,60,140,0.85); animation: petal-fall-2 16s linear 6s infinite; width: 13px; height: 11px; }
+      .petal:nth-child(15) { left: 45%; background: rgba(255,70,150,0.9); animation: petal-fall 10s linear 3s infinite; width: 14px; height: 12px; }
+      .petal:nth-child(16) { left: 70%; background: rgba(255,90,160,0.85); animation: petal-fall-2 11s linear 5s infinite; width: 12px; height: 10px; }
+
+      @keyframes petal-fall {
+        0% { transform: translateY(-10vh) translateX(0) rotate(0deg) scale(0.8); opacity: 0; }
+        10% { opacity: 0.8; }
+        50% { transform: translateY(50vh) translateX(40px) rotate(180deg) scale(1); }
+        90% { opacity: 0.4; }
+        100% { transform: translateY(110vh) translateX(80px) rotate(360deg) scale(0.6); opacity: 0; }
+      }
+      @keyframes petal-fall-2 {
+        0% { transform: translateY(-10vh) translateX(0) rotate(0deg) scale(0.7); opacity: 0; }
+        10% { opacity: 0.7; }
+        50% { transform: translateY(50vh) translateX(-50px) rotate(-180deg) scale(1); }
+        90% { opacity: 0.3; }
+        100% { transform: translateY(110vh) translateX(-60px) rotate(-360deg) scale(0.5); opacity: 0; }
+      }
+
+      /* Nav link underline animation */
+      .nav-link::after {
+        content: '';
+        display: block;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #c93545, #c9a84c);
+        transition: width 0.3s ease;
+        margin-top: 2px;
+        border-radius: 999px;
+      }
+      .nav-link-active::after,
+      .nav-link:hover::after {
+        width: 100%;
+      }
+    </style>
   </head>
-  <body class="bg-rift-950 text-gray-100 font-sans min-h-screen flex flex-col">
+  <body class="bg-rift-50 text-rift-900 font-sans min-h-screen flex flex-col relative">
+
+    <!-- Falling Petals -->
+    <div class="petals-container">
+      <div class="petal"></div>
+      <div class="petal"></div>
+      <div class="petal"></div>
+      <div class="petal"></div>
+      <div class="petal"></div>
+      <div class="petal"></div>
+      <div class="petal"></div>
+      <div class="petal"></div>
+      <div class="petal"></div>
+      <div class="petal"></div>
+      <div class="petal"></div>
+      <div class="petal"></div>
+      <div class="petal"></div>
+      <div class="petal"></div>
+      <div class="petal"></div>
+      <div class="petal"></div>
+    </div>
 
     <!-- Navbar -->
-    <header class="sticky top-0 z-50 bg-rift-950/80 backdrop-blur-xl border-b border-surface-border">
+    <header class="sticky top-0 z-50 bg-rift-50/80 backdrop-blur-xl border-b border-rift-200/60">
       <nav class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <!-- Logo -->
         <a href="/" class="flex items-center gap-2.5 group">
-          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-accent-cyan to-accent-purple flex items-center justify-center text-white font-black text-lg shadow-lg shadow-accent-cyan/20 group-hover:shadow-accent-cyan/40 transition-shadow duration-300">
+          <div class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-accent-spirit to-accent-sakura flex items-center justify-center text-white font-display font-bold text-lg shadow-spirit group-hover:scale-105 transition-transform duration-300">
             R
           </div>
           <span class="text-lg font-bold tracking-tight">
-            <span class="text-white">Riftbound</span>
-            <span class="text-accent-cyan"> Media</span>
+            <span class="text-rift-900">Riftbound</span>
+            <span class="text-accent-spirit"> Media</span>
           </span>
         </a>
 
@@ -50,10 +134,10 @@ const navLinks = [
               <a
                 href={link.href}
                 class:list={[
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+                  'nav-link px-4 py-2 text-sm font-medium transition-all duration-200',
                   currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href))
-                    ? 'text-accent-cyan bg-accent-cyan/10'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5',
+                    ? 'nav-link-active text-accent-spirit'
+                    : 'text-rift-600 hover:text-rift-900',
                 ]}
               >
                 {link.label}
@@ -67,30 +151,30 @@ const navLinks = [
           {user ? (
             <>
               {profile && ['admin', 'editor'].includes(profile.role) && (
-                <a href="/admin" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-accent-purple/15 text-accent-purple border border-accent-purple/25 hover:bg-accent-purple/25 transition-colors">
-                  Admin
+                <a href="/admin" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-accent-forge/10 text-accent-forge border border-accent-forge/25 hover:bg-accent-forge/20 transition-all duration-300">
+                  ✦ Admin
                 </a>
               )}
               <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-accent-cyan to-accent-purple flex items-center justify-center text-xs font-bold text-white">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-accent-spirit to-accent-sakura flex items-center justify-center text-xs font-bold text-white">
                   {profile?.username?.charAt(0)?.toUpperCase() || '?'}
                 </div>
                 <form action="/api/auth/logout" method="POST">
-                  <button type="submit" class="text-xs text-gray-400 hover:text-white transition-colors">
+                  <button type="submit" class="text-xs text-rift-400 hover:text-accent-spirit transition-colors duration-200">
                     Déconnexion
                   </button>
                 </form>
               </div>
             </>
           ) : (
-            <a href="/login" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-cyan/10 text-accent-cyan text-sm font-semibold border border-accent-cyan/20 hover:bg-accent-cyan/20 transition-colors">
+            <a href="/login" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-spirit text-white text-sm font-semibold hover:bg-accent-spirit/90 shadow-spirit hover:shadow-lg transition-all duration-300">
               Connexion
             </a>
           )}
         </div>
 
         <!-- Mobile menu toggle -->
-        <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-400 hover:text-white" aria-label="Menu">
+        <button id="mobile-menu-btn" class="md:hidden p-2 text-rift-600 hover:text-accent-spirit transition-colors" aria-label="Menu">
           <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
@@ -98,7 +182,7 @@ const navLinks = [
       </nav>
 
       <!-- Mobile menu -->
-      <div id="mobile-menu" class="md:hidden hidden border-t border-surface-border bg-rift-950/95 backdrop-blur-xl">
+      <div id="mobile-menu" class="md:hidden hidden border-t border-rift-200/60 bg-rift-50/95 backdrop-blur-xl">
         <div class="px-4 py-3 space-y-1">
           {navLinks.map((link) => (
             <a
@@ -106,20 +190,20 @@ const navLinks = [
               class:list={[
                 'block px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
                 currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href))
-                  ? 'text-accent-cyan bg-accent-cyan/10'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5',
+                  ? 'text-accent-spirit bg-accent-spirit/5'
+                  : 'text-rift-600 hover:text-rift-900 hover:bg-rift-100',
               ]}
             >
               {link.label}
             </a>
           ))}
-          <hr class="border-surface-border my-2" />
+          <hr class="border-rift-200 my-2" />
           {user ? (
             <form action="/api/auth/logout" method="POST" class="px-4 py-2">
-              <button type="submit" class="text-sm text-gray-400 hover:text-white">Déconnexion</button>
+              <button type="submit" class="text-sm text-rift-500 hover:text-accent-spirit">Déconnexion</button>
             </form>
           ) : (
-            <a href="/login" class="block px-4 py-2.5 rounded-lg text-sm font-medium text-accent-cyan">
+            <a href="/login" class="block px-4 py-2.5 rounded-lg text-sm font-semibold text-accent-spirit">
               Connexion
             </a>
           )}
@@ -128,57 +212,59 @@ const navLinks = [
     </header>
 
     <!-- Main -->
-    <main class="flex-1">
+    <main class="flex-1 relative z-10">
       <slot />
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-surface-border mt-20">
+    <footer class="relative z-10 border-t border-rift-200/60 mt-20 bg-rift-100/50">
+      <div class="h-px bg-gradient-to-r from-transparent via-accent-forge/30 to-transparent"></div>
+
       <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12">
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
           <div class="sm:col-span-2 md:col-span-1">
             <a href="/" class="flex items-center gap-2 mb-3">
-              <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-cyan to-accent-purple flex items-center justify-center text-white font-black text-sm">R</div>
-              <span class="text-sm font-bold"><span class="text-white">Riftbound</span> <span class="text-accent-cyan">Media</span></span>
+              <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-spirit to-accent-sakura flex items-center justify-center text-white font-display font-bold text-sm">R</div>
+              <span class="text-sm font-bold"><span class="text-rift-900">Riftbound</span> <span class="text-accent-spirit">Media</span></span>
             </a>
-            <p class="text-gray-500 text-sm leading-relaxed">
+            <p class="text-rift-500 text-sm leading-relaxed">
               Votre source francophone pour l'univers Riftbound. Actualités, guides et communauté.
             </p>
           </div>
 
           <div>
-            <h4 class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-4">Contenu</h4>
+            <h4 class="text-xs font-display font-semibold uppercase tracking-widest text-accent-forge mb-4">Contenu</h4>
             <ul class="space-y-2.5">
-              <li><a href="/news" class="text-sm text-gray-500 hover:text-accent-cyan transition-colors">Actualités</a></li>
-              <li><a href="/rules" class="text-sm text-gray-500 hover:text-accent-cyan transition-colors">Règles du Jeu</a></li>
+              <li><a href="/news" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">Actualités</a></li>
+              <li><a href="/rules" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">Règles du Jeu</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-4">Communauté</h4>
+            <h4 class="text-xs font-display font-semibold uppercase tracking-widest text-accent-forge mb-4">Communauté</h4>
             <ul class="space-y-2.5">
-              <li><a href="#" class="text-sm text-gray-500 hover:text-accent-cyan transition-colors">Discord</a></li>
-              <li><a href="#" class="text-sm text-gray-500 hover:text-accent-cyan transition-colors">Twitter / X</a></li>
-              <li><a href="#" class="text-sm text-gray-500 hover:text-accent-cyan transition-colors">YouTube</a></li>
+              <li><a href="#" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">Discord</a></li>
+              <li><a href="#" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">Twitter / X</a></li>
+              <li><a href="#" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">YouTube</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-4">Ressources</h4>
+            <h4 class="text-xs font-display font-semibold uppercase tracking-widest text-accent-forge mb-4">Ressources</h4>
             <ul class="space-y-2.5">
-              <li><a href="#" class="text-sm text-gray-500 hover:text-accent-cyan transition-colors">À propos</a></li>
-              <li><a href="#" class="text-sm text-gray-500 hover:text-accent-cyan transition-colors">Contact</a></li>
-              <li><a href="#" class="text-sm text-gray-500 hover:text-accent-cyan transition-colors">Mentions Légales</a></li>
+              <li><a href="#" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">À propos</a></li>
+              <li><a href="#" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">Contact</a></li>
+              <li><a href="#" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">Mentions Légales</a></li>
             </ul>
           </div>
         </div>
 
-        <div class="mt-10 pt-6 border-t border-surface-border flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p class="text-xs text-gray-600">
+        <div class="mt-10 pt-6 border-t border-rift-200/60 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p class="text-xs text-rift-400">
             &copy; 2026 Riftbound Media. Site communautaire non-officiel.
           </p>
-          <div class="flex items-center gap-1.5 text-xs text-gray-600">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-glow-pulse"></span>
+          <div class="flex items-center gap-1.5 text-xs text-rift-400">
+            <span class="w-2 h-2 rounded-full bg-domain-calm"></span>
             Tous les systèmes opérationnels
           </div>
         </div>

@@ -19,15 +19,22 @@ const regularNews = allNews || [];
 
   <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-10 pb-16">
 
-    <div class="mb-10">
-      <h1 class="text-3xl md:text-4xl font-black text-white mb-2">Actualités</h1>
-      <p class="text-gray-400">Restez informé des dernières nouvelles et annonces de l'univers Riftbound</p>
+    <div class="mb-12">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="h-px w-8 bg-gradient-to-r from-transparent to-accent-forge/50"></div>
+        <span class="text-accent-forge text-xs font-display tracking-[0.2em] uppercase">Actualités</span>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-display font-bold text-rift-900 mb-3">Dernières Nouvelles</h1>
+      <p class="text-rift-500 leading-relaxed">Restez informé des dernières nouvelles et annonces de l'univers Riftbound</p>
     </div>
 
     {featuredNews.length > 0 && (
-      <section class="mb-12">
-        <h2 class="text-lg font-bold text-accent-cyan mb-5">À la Une</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <section class="mb-14">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-1 h-6 rounded-full bg-gradient-to-b from-accent-spirit to-accent-sakura"></div>
+          <h2 class="text-lg font-display font-bold text-rift-900">À la Une</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           {featuredNews.map((article) => (
             <NewsCard
               title={article.title}
@@ -45,9 +52,12 @@ const regularNews = allNews || [];
     )}
 
     <section>
-      <h2 class="text-lg font-bold text-white mb-5">Toutes les Actualités</h2>
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-1 h-6 rounded-full bg-gradient-to-b from-accent-forge to-accent-sakura"></div>
+        <h2 class="text-lg font-display font-bold text-rift-900">Toutes les Actualités</h2>
+      </div>
       {regularNews.length > 0 ? (
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {regularNews.map((article) => (
             <NewsCard
               title={article.title}
@@ -61,7 +71,9 @@ const regularNews = allNews || [];
           ))}
         </div>
       ) : (
-        <p class="text-center text-gray-500 py-12">Aucun article publié pour le moment.</p>
+        <div class="text-center py-16">
+          <p class="text-rift-400 font-display">Aucun article publié pour le moment.</p>
+        </div>
       )}
     </section>
   </div>
