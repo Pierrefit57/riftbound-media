@@ -14,6 +14,13 @@ export function createServiceClient() {
     });
 }
 
+// Créer un client frais pour vérifier une session (évite les conflits de state)
+export function createAuthClient() {
+    return createClient(supabaseUrl, supabaseAnonKey, {
+        auth: { autoRefreshToken: false, persistSession: false },
+    });
+}
+
 // Helper : récupérer la session depuis les cookies d'une requête
 export async function getSession(request: Request) {
     const cookies = parseCookies(request.headers.get('cookie') || '');
@@ -22,7 +29,8 @@ export async function getSession(request: Request) {
 
     if (!accessToken || !refreshToken) return null;
 
-    const { data, error } = await supabase.auth.setSession({
+    const authClient = createAuthClient();
+    const { data, error } = await authClient.auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken,
     });
@@ -32,12 +40,18 @@ export async function getSession(request: Request) {
 }
 
 // Helper : récupérer le profil utilisateur (avec rôle)
+// Utilise le service client pour bypasser les RLS et garantir la lecture du rôle
 export async function getUserProfile(userId: string) {
-    const { data } = await supabase
+    const serviceClient = createServiceClient();
+    const { data, error } = await serviceClient
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
+    if (error) {
+        console.error('Erreur getUserProfile:', error.message);
+        return null;
+    }
     return data;
 }
 

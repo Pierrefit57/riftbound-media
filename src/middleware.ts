@@ -1,5 +1,5 @@
 import { defineMiddleware } from 'astro:middleware';
-import { supabase, getUserProfile } from './lib/supabase';
+import { createAuthClient, getUserProfile } from './lib/supabase';
 
 export const onRequest = defineMiddleware(async (context, next) => {
     // Récupérer les tokens depuis les cookies
@@ -13,20 +13,23 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
         // Protéger les routes admin
         if (context.url.pathname.startsWith('/admin')) {
+            console.log('[auth] Pas de tokens, redirect /login');
             return context.redirect('/login');
         }
 
         return next();
     }
 
-    // Vérifier/restaurer la session
-    const { data, error } = await supabase.auth.setSession({
+    // Vérifier/restaurer la session avec un client frais
+    const authClient = createAuthClient();
+    const { data, error } = await authClient.auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken,
     });
 
     if (error || !data.session) {
         // Session invalide → nettoyer les cookies
+        console.log('[auth] Session invalide:', error?.message);
         context.cookies.delete('sb-access-token', { path: '/' });
         context.cookies.delete('sb-refresh-token', { path: '/' });
         context.locals.user = null;
@@ -60,16 +63,19 @@ export const onRequest = defineMiddleware(async (context, next) => {
         });
     }
 
-    // Charger le profil (rôle)
+    // Charger le profil (rôle) via le service client
     const profile = await getUserProfile(data.session.user.id);
     context.locals.profile = profile;
+    console.log('[auth] User:', data.session.user.email, '| Rôle:', profile?.role);
 
     // Protéger les routes admin — seuls admin et editor
     if (context.url.pathname.startsWith('/admin')) {
         if (!profile || !['admin', 'editor'].includes(profile.role)) {
+            console.log('[auth] Accès admin refusé, rôle:', profile?.role);
             return context.redirect('/');
         }
     }
 
     return next();
 });
+
