@@ -78,20 +78,7 @@ const navLinks = [
       }
 
       /* Nav link underline animation */
-      .nav-link::after {
-        content: '';
-        display: block;
-        width: 0;
-        height: 2px;
-        background: linear-gradient(90deg, #e39ea6, #c9a84c);
-        transition: width 0.3s ease;
-        margin-top: 2px;
-        border-radius: 999px;
-      }
-      .nav-link-active::after,
-      .nav-link:hover::after {
-        width: 100%;
-      }
+      /* Nav link underline animation removed for centering */
     </style>
   </head>
   <body class="bg-rift-900 text-rift-100 font-sans min-h-screen flex flex-col relative">
@@ -118,45 +105,49 @@ const navLinks = [
 
     <!-- Navbar -->
     <header class="sticky top-0 z-50 bg-rift-900/95 backdrop-blur-sm border-b border-rift-700/50">
-      <nav class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+      <nav class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between relative">
         <!-- Logo -->
         <a href="/" class="flex items-center gap-3 group">
           <img src="/riftbound-logo.png" alt="Riftbound" class="w-12 h-12 rounded-xl object-contain group-hover:scale-105 transition-transform duration-300" />
-          <span class="text-xl font-bold tracking-tight">
-            <span class="text-rift-900">Riftbound</span>
-            <span class="text-accent-spirit"> Media</span>
+          <span class="font-display font-bold text-xl tracking-wider text-rift-50 group-hover:text-accent-spirit transition-colors duration-300">
+            RIFTBOUND <span class="text-accent-spirit">MEDIA</span>
           </span>
         </a>
 
-        <!-- Nav links (desktop) -->
-        <ul class="hidden md:flex items-center gap-1">
+        <!-- Desktop Nav -->
+        <div class="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
           {navLinks.map((link) => (
-            <li>
+            <div class="relative group">
               <a
                 href={link.href}
                 class:list={[
                   'nav-link px-5 py-2.5 text-base font-medium transition-all duration-200',
                   currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href))
-                    ? 'nav-link-active text-white'
-                    : 'text-rift-300 hover:text-white',
+                    ? 'nav-link-active text-rift-50'
+                    : 'text-rift-300 hover:text-rift-50',
                 ]}
               >
                 {link.label}
               </a>
-            </li>
+              {/* Hover line */}
+              <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-accent-spirit group-hover:w-full transition-all duration-300"></span>
+            </div>
           ))}
-        </ul>
+        </div>
 
         <!-- Right side: Auth -->
         <div class="hidden sm:flex items-center gap-3">
           {user ? (
             <>
               {profile && ['admin', 'editor'].includes(profile.role) && (
-                <a href="/admin" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-black/5 text-black border border-black/20 hover:bg-black/10 transition-all duration-300">
-                  ✦ Admin
+                <a href="/admin" class="px-3 py-1 rounded-full bg-rift-800 text-rift-50 text-xs font-semibold hover:bg-rift-700 transition-colors border border-rift-700">
+                  Admin
                 </a>
               )}
-              <a href="/account" class="flex items-center gap-2.5 group">
+              <a href="/account" class="flex items-center gap-3 pl-4 border-l border-rift-700/50 group">
+                <div class="text-right hidden sm:block">
+                  <p class="text-sm font-display font-bold text-rift-50 group-hover:text-accent-spirit transition-colors">{profile?.username || 'Mon Compte'}</p>
+                </div>
                 {profile?.avatar_url ? (
                   <img src={profile.avatar_url} alt="Avatar" class="w-9 h-9 rounded-full object-cover group-hover:scale-105 transition-transform duration-200" />
                 ) : (
@@ -164,9 +155,6 @@ const navLinks = [
                     {profile?.username?.charAt(0)?.toUpperCase() || '?'}
                   </div>
                 )}
-                <span class="text-sm font-medium text-black group-hover:text-rift-700 transition-colors duration-200">
-                  {profile?.username || 'Mon compte'}
-                </span>
               </a>
             </>
           ) : (
