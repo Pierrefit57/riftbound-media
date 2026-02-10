@@ -12,6 +12,7 @@
   "dependencies": {
     "@astrojs/node": "^8.3.4",
     "@astrojs/tailwind": "^5.1.1",
+    "@astrojs/vercel": "^9.0.4",
     "@supabase/supabase-js": "^2.47.12",
     "@tailwindcss/typography": "^0.5.15",
     "astro": "^4.16.18",
