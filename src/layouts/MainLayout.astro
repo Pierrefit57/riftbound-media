@@ -16,7 +16,7 @@ const navLinks = [
 ---
 
 <!doctype html>
-<html lang="fr">
+<html lang="fr" class="bg-rift-900">
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content="Riftbound Media — Votre source d'actualités, guides et lore pour l'univers Riftbound." />
@@ -27,6 +27,9 @@ const navLinks = [
     <meta name="generator" content={Astro.generator} />
     <title>{title} | Riftbound Media</title>
     <style>
+      :root {
+        color-scheme: light;
+      }
       /* Rose petals falling */
       .petals-container {
         position: fixed;
@@ -42,35 +45,35 @@ const navLinks = [
         border-radius: 50% 0 50% 50%;
         opacity: 0;
       }
-      .petal:nth-child(1) { left: 5%; background: rgba(255,70,150,0.9); animation: petal-fall 11s linear 0s infinite; width: 14px; height: 12px; }
-      .petal:nth-child(2) { left: 12%; background: rgba(255,90,160,0.8); animation: petal-fall-2 15s linear 2s infinite; width: 11px; height: 9px; }
-      .petal:nth-child(3) { left: 20%; background: rgba(255,60,140,0.85); animation: petal-fall 13s linear 4s infinite; width: 13px; height: 11px; }
-      .petal:nth-child(4) { left: 28%; background: rgba(255,80,155,0.75); animation: petal-fall-2 17s linear 1s infinite; width: 10px; height: 9px; }
-      .petal:nth-child(5) { left: 35%; background: rgba(255,65,145,0.9); animation: petal-fall 12s linear 6s infinite; width: 15px; height: 12px; }
-      .petal:nth-child(6) { left: 42%; background: rgba(255,85,155,0.8); animation: petal-fall-2 14s linear 3s infinite; width: 12px; height: 10px; }
-      .petal:nth-child(7) { left: 50%; background: rgba(255,75,148,0.75); animation: petal-fall 16s linear 5s infinite; width: 11px; height: 9px; }
-      .petal:nth-child(8) { left: 58%; background: rgba(255,60,140,0.85); animation: petal-fall-2 13s linear 7s infinite; width: 14px; height: 11px; }
-      .petal:nth-child(9) { left: 65%; background: rgba(255,90,160,0.8); animation: petal-fall 11s linear 2s infinite; width: 13px; height: 10px; }
-      .petal:nth-child(10) { left: 72%; background: rgba(255,70,150,0.9); animation: petal-fall-2 18s linear 8s infinite; width: 10px; height: 8px; }
-      .petal:nth-child(11) { left: 78%; background: rgba(255,65,142,0.85); animation: petal-fall 14s linear 1s infinite; width: 15px; height: 12px; }
-      .petal:nth-child(12) { left: 85%; background: rgba(255,85,155,0.75); animation: petal-fall-2 12s linear 4s infinite; width: 12px; height: 10px; }
-      .petal:nth-child(13) { left: 92%; background: rgba(255,75,148,0.8); animation: petal-fall 15s linear 9s infinite; width: 11px; height: 9px; }
-      .petal:nth-child(14) { left: 15%; background: rgba(255,60,140,0.85); animation: petal-fall-2 16s linear 6s infinite; width: 13px; height: 11px; }
-      .petal:nth-child(15) { left: 45%; background: rgba(255,70,150,0.9); animation: petal-fall 10s linear 3s infinite; width: 14px; height: 12px; }
-      .petal:nth-child(16) { left: 70%; background: rgba(255,90,160,0.85); animation: petal-fall-2 11s linear 5s infinite; width: 12px; height: 10px; }
+      .petal:nth-child(1) { left: 5%; background: #E8B0B3; animation: petal-fall 11s linear 0s infinite; width: 16px; height: 14px; }
+      .petal:nth-child(2) { left: 12%; background: #E8B0B3; animation: petal-fall-2 15s linear 2s infinite; width: 13px; height: 11px; }
+      .petal:nth-child(3) { left: 20%; background: #E8B0B3; animation: petal-fall 13s linear 4s infinite; width: 15px; height: 13px; }
+      .petal:nth-child(4) { left: 28%; background: #E8B0B3; animation: petal-fall-2 17s linear 1s infinite; width: 12px; height: 10px; }
+      .petal:nth-child(5) { left: 35%; background: #E8B0B3; animation: petal-fall 12s linear 6s infinite; width: 17px; height: 14px; }
+      .petal:nth-child(6) { left: 42%; background: #E8B0B3; animation: petal-fall-2 14s linear 3s infinite; width: 14px; height: 12px; }
+      .petal:nth-child(7) { left: 50%; background: #E8B0B3; animation: petal-fall 16s linear 5s infinite; width: 13px; height: 11px; }
+      .petal:nth-child(8) { left: 58%; background: #E8B0B3; animation: petal-fall-2 13s linear 7s infinite; width: 16px; height: 13px; }
+      .petal:nth-child(9) { left: 65%; background: #E8B0B3; animation: petal-fall 11s linear 2s infinite; width: 15px; height: 12px; }
+      .petal:nth-child(10) { left: 72%; background: #E8B0B3; animation: petal-fall-2 18s linear 8s infinite; width: 12px; height: 10px; }
+      .petal:nth-child(11) { left: 78%; background: #E8B0B3; animation: petal-fall 14s linear 1s infinite; width: 17px; height: 14px; }
+      .petal:nth-child(12) { left: 85%; background: #E8B0B3; animation: petal-fall-2 12s linear 4s infinite; width: 14px; height: 12px; }
+      .petal:nth-child(13) { left: 92%; background: #E8B0B3; animation: petal-fall 15s linear 9s infinite; width: 13px; height: 11px; }
+      .petal:nth-child(14) { left: 15%; background: #E8B0B3; animation: petal-fall-2 16s linear 6s infinite; width: 15px; height: 13px; }
+      .petal:nth-child(15) { left: 45%; background: #E8B0B3; animation: petal-fall 10s linear 3s infinite; width: 16px; height: 14px; }
+      .petal:nth-child(16) { left: 70%; background: #E8B0B3; animation: petal-fall-2 11s linear 5s infinite; width: 14px; height: 12px; }
 
       @keyframes petal-fall {
         0% { transform: translateY(-10vh) translateX(0) rotate(0deg) scale(0.8); opacity: 0; }
-        10% { opacity: 0.8; }
-        50% { transform: translateY(50vh) translateX(40px) rotate(180deg) scale(1); }
-        90% { opacity: 0.4; }
+        8% { opacity: 1; }
+        50% { transform: translateY(50vh) translateX(40px) rotate(180deg) scale(1); opacity: 0.9; }
+        85% { opacity: 0.6; }
         100% { transform: translateY(110vh) translateX(80px) rotate(360deg) scale(0.6); opacity: 0; }
       }
       @keyframes petal-fall-2 {
         0% { transform: translateY(-10vh) translateX(0) rotate(0deg) scale(0.7); opacity: 0; }
-        10% { opacity: 0.7; }
-        50% { transform: translateY(50vh) translateX(-50px) rotate(-180deg) scale(1); }
-        90% { opacity: 0.3; }
+        8% { opacity: 1; }
+        50% { transform: translateY(50vh) translateX(-50px) rotate(-180deg) scale(1); opacity: 0.85; }
+        85% { opacity: 0.5; }
         100% { transform: translateY(110vh) translateX(-60px) rotate(-360deg) scale(0.5); opacity: 0; }
       }
 
@@ -80,7 +83,7 @@ const navLinks = [
         display: block;
         width: 0;
         height: 2px;
-        background: linear-gradient(90deg, #c93545, #c9a84c);
+        background: linear-gradient(90deg, #e39ea6, #c9a84c);
         transition: width 0.3s ease;
         margin-top: 2px;
         border-radius: 999px;
@@ -91,7 +94,7 @@ const navLinks = [
       }
     </style>
   </head>
-  <body class="bg-rift-50 text-rift-900 font-sans min-h-screen flex flex-col relative">
+  <body class="bg-rift-900 text-rift-100 font-sans min-h-screen flex flex-col relative">
 
     <!-- Falling Petals -->
     <div class="petals-container">
@@ -114,14 +117,12 @@ const navLinks = [
     </div>
 
     <!-- Navbar -->
-    <header class="sticky top-0 z-50 bg-rift-50/80 backdrop-blur-xl border-b border-rift-200/60">
-      <nav class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <header class="sticky top-0 z-50 bg-rift-900/95 backdrop-blur-sm border-b border-rift-700/50">
+      <nav class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
         <!-- Logo -->
-        <a href="/" class="flex items-center gap-2.5 group">
-          <div class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-accent-spirit to-accent-sakura flex items-center justify-center text-white font-display font-bold text-lg shadow-spirit group-hover:scale-105 transition-transform duration-300">
-            R
-          </div>
-          <span class="text-lg font-bold tracking-tight">
+        <a href="/" class="flex items-center gap-3 group">
+          <img src="/riftbound-logo.png" alt="Riftbound" class="w-12 h-12 rounded-xl object-contain group-hover:scale-105 transition-transform duration-300" />
+          <span class="text-xl font-bold tracking-tight">
             <span class="text-rift-900">Riftbound</span>
             <span class="text-accent-spirit"> Media</span>
           </span>
@@ -134,10 +135,10 @@ const navLinks = [
               <a
                 href={link.href}
                 class:list={[
-                  'nav-link px-4 py-2 text-sm font-medium transition-all duration-200',
+                  'nav-link px-5 py-2.5 text-base font-medium transition-all duration-200',
                   currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href))
-                    ? 'nav-link-active text-accent-spirit'
-                    : 'text-rift-600 hover:text-rift-900',
+                    ? 'nav-link-active text-white'
+                    : 'text-rift-300 hover:text-white',
                 ]}
               >
                 {link.label}
@@ -151,23 +152,25 @@ const navLinks = [
           {user ? (
             <>
               {profile && ['admin', 'editor'].includes(profile.role) && (
-                <a href="/admin" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-accent-forge/10 text-accent-forge border border-accent-forge/25 hover:bg-accent-forge/20 transition-all duration-300">
+                <a href="/admin" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-black/5 text-black border border-black/20 hover:bg-black/10 transition-all duration-300">
                   ✦ Admin
                 </a>
               )}
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-accent-spirit to-accent-sakura flex items-center justify-center text-xs font-bold text-white">
-                  {profile?.username?.charAt(0)?.toUpperCase() || '?'}
-                </div>
-                <form action="/api/auth/logout" method="POST">
-                  <button type="submit" class="text-xs text-rift-400 hover:text-accent-spirit transition-colors duration-200">
-                    Déconnexion
-                  </button>
-                </form>
-              </div>
+              <a href="/account" class="flex items-center gap-2.5 group">
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Avatar" class="w-9 h-9 rounded-full object-cover group-hover:scale-105 transition-transform duration-200" />
+                ) : (
+                  <div class="w-9 h-9 rounded-full bg-gradient-to-br from-accent-spirit to-accent-sakura flex items-center justify-center text-sm font-bold text-white group-hover:scale-105 transition-transform duration-200">
+                    {profile?.username?.charAt(0)?.toUpperCase() || '?'}
+                  </div>
+                )}
+                <span class="text-sm font-medium text-black group-hover:text-rift-700 transition-colors duration-200">
+                  {profile?.username || 'Mon compte'}
+                </span>
+              </a>
             </>
           ) : (
-            <a href="/login" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-spirit text-white text-sm font-semibold hover:bg-accent-spirit/90 shadow-spirit hover:shadow-lg transition-all duration-300">
+            <a href="/login" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent-spirit text-white text-sm font-semibold hover:bg-accent-spirit/90 shadow-spirit hover:shadow-lg transition-all duration-300">
               Connexion
             </a>
           )}
@@ -182,7 +185,7 @@ const navLinks = [
       </nav>
 
       <!-- Mobile menu -->
-      <div id="mobile-menu" class="md:hidden hidden border-t border-rift-200/60 bg-rift-50/95 backdrop-blur-xl">
+      <div id="mobile-menu" class="md:hidden hidden border-t border-rift-700/50 bg-rift-900">
         <div class="px-4 py-3 space-y-1">
           {navLinks.map((link) => (
             <a
@@ -224,7 +227,7 @@ const navLinks = [
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
           <div class="sm:col-span-2 md:col-span-1">
             <a href="/" class="flex items-center gap-2 mb-3">
-              <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-spirit to-accent-sakura flex items-center justify-center text-white font-display font-bold text-sm">R</div>
+              <img src="/riftbound-logo.png" alt="Riftbound" class="w-8 h-8 rounded-lg object-contain" />
               <span class="text-sm font-bold"><span class="text-rift-900">Riftbound</span> <span class="text-accent-spirit">Media</span></span>
             </a>
             <p class="text-rift-500 text-sm leading-relaxed">
@@ -243,9 +246,9 @@ const navLinks = [
           <div>
             <h4 class="text-xs font-display font-semibold uppercase tracking-widest text-accent-forge mb-4">Communauté</h4>
             <ul class="space-y-2.5">
-              <li><a href="#" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">Discord</a></li>
-              <li><a href="#" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">Twitter / X</a></li>
-              <li><a href="#" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">YouTube</a></li>
+              <li><a href="#" class="inline-flex items-center gap-2 text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>Discord</a></li>
+              <li><a href="#" class="inline-flex items-center gap-2 text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>X (Twitter)</a></li>
+              <li><a href="#" class="inline-flex items-center gap-2 text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>YouTube</a></li>
             </ul>
           </div>
 
@@ -263,9 +266,10 @@ const navLinks = [
           <p class="text-xs text-rift-400">
             &copy; 2026 Riftbound Media. Site communautaire non-officiel.
           </p>
-          <div class="flex items-center gap-1.5 text-xs text-rift-400">
-            <span class="w-2 h-2 rounded-full bg-domain-calm"></span>
-            Tous les systèmes opérationnels
+          <div class="flex items-center gap-3">
+            <a href="#" class="text-rift-400 hover:text-accent-spirit transition-colors"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg></a>
+            <a href="#" class="text-rift-400 hover:text-accent-spirit transition-colors"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+            <a href="#" class="text-rift-400 hover:text-accent-spirit transition-colors"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
           </div>
         </div>
       </div>

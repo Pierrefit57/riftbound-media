@@ -10,36 +10,36 @@ export default {
             colors: {
                 // Fond beige chaud Spiritforged
                 'rift': {
-                    50: '#d5b8a4',
-                    100: '#d0b29c',
-                    200: '#c4a08a',
-                    300: '#d9b796',
-                    400: '#c99b70',
-                    500: '#b07d50',
-                    600: '#a56b3f',
-                    700: '#7a4e2e',
-                    800: '#4a2f1c',
+                    50: '#917D6E',      // Assombri de 20% supplémentaire (était #B69C8A)
+                    100: '#B69C8A',     // Ancien 50, pour référence
+                    200: '#c09f88',
+                    300: '#b8956e',
+                    400: '#a5804f',
+                    500: '#8b6a3e',
+                    600: '#755836',
+                    700: '#5a432a',
+                    800: '#3d2d1c',
                     900: '#2a1a10',
                     950: '#1a100a',
                 },
                 // Surfaces claires
                 'surface': {
-                    DEFAULT: '#fff8f0',
-                    light: '#ffffff',
-                    darker: '#f3e8da',
+                    DEFAULT: '#f5ece3',
+                    light: '#faf6f1',
+                    darker: '#e8ddd1',
                     border: 'rgba(180, 140, 100, 0.2)',
                 },
                 // Accents Spiritforged
                 'accent': {
-                    spirit: '#c93545',      // Cramoisi (rubans d'Irelia)
-                    sakura: '#e8809a',       // Rose pétale
+                    spirit: '#A53254',      // Nouveau rose foncé (était #E8B0B3)
+                    sakura: '#E8B0B3',       // Rose pétale clair (inchangé pour les pétales)
                     forge: '#c9a84c',        // Or doré (cadre)
                     steel: '#7a8599',        // Acier/argent (lames)
-                    glow: '#f5d0d8',         // Lueur rose douce
+                    glow: '#f0d0d5',         // Lueur rose douce
                 },
                 // Domains du jeu
                 'domain': {
-                    fury: '#c93545',
+                    fury: '#e39ea6',
                     calm: '#4a9e6d',
                     mind: '#4a7ec9',
                     body: '#d48a3c',
@@ -48,13 +48,13 @@ export default {
                 },
             },
             backgroundImage: {
-                'spirit-radial': 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(232,128,154,0.15), transparent)',
+                'spirit-radial': 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(227,158,166,0.15), transparent)',
                 'forge-radial': 'radial-gradient(ellipse 60% 40% at 50% 120%, rgba(201,168,76,0.1), transparent)',
             },
             boxShadow: {
-                'spirit': '0 4px 20px rgba(201,53,69,0.1)',
+                'spirit': '0 4px 20px rgba(227,158,166,0.15)',
                 'forge': '0 4px 20px rgba(201,168,76,0.1)',
-                'sakura': '0 4px 20px rgba(232,128,154,0.15)',
+                'sakura': '0 4px 20px rgba(237,184,190,0.2)',
                 'card': '0 2px 12px rgba(42,26,16,0.06)',
                 'card-hover': '0 8px 30px rgba(42,26,16,0.1)',
             },

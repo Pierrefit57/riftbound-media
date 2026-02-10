@@ -206,3 +206,38 @@ Le patch 3.2 est maintenant disponible !
   true,
   false
 );
+
+-- ============================================================
+-- 6. Storage : Policies pour le bucket article-images
+-- Créer le bucket manuellement dans le dashboard Supabase
+-- (Storage → New Bucket → article-images, Public)
+-- ============================================================
+
+-- Tout le monde peut voir les images
+create policy "Public read access for article images"
+  on storage.objects for select
+  using (bucket_id = 'article-images');
+
+-- Les admins et éditeurs peuvent uploader des images
+create policy "Admins and editors can upload article images"
+  on storage.objects for insert
+  with check (
+    bucket_id = 'article-images'
+    and exists (
+      select 1 from public.profiles
+      where profiles.id = auth.uid()
+      and profiles.role in ('admin', 'editor')
+    )
+  );
+
+-- Les admins peuvent supprimer des images
+create policy "Admins can delete article images"
+  on storage.objects for delete
+  using (
+    bucket_id = 'article-images'
+    and exists (
+      select 1 from public.profiles
+      where profiles.id = auth.uid()
+      and profiles.role = 'admin'
+    )
+  );

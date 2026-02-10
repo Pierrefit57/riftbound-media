@@ -1,0 +1,236 @@
+---
+export const prerender = false;
+
+import MainLayout from '../layouts/MainLayout.astro';
+import { createServiceClient } from '../lib/supabase';
+
+const user = Astro.locals.user;
+const profile = Astro.locals.profile;
+
+if (!user) {
+  return Astro.redirect('/login');
+}
+
+let successMsg = '';
+let errorMsg = '';
+
+if (Astro.request.method === 'POST') {
+  const formData = await Astro.request.formData();
+  const action = formData.get('action') as string;
+
+  if (action === 'update-avatar') {
+    const file = formData.get('avatar') as File;
+    if (file && file.size > 0) {
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        errorMsg = 'Format non supporté. Utilisez JPG, PNG ou WebP.';
+      } else if (file.size > 2 * 1024 * 1024) {
+        errorMsg = 'Image trop lourde (max 2 Mo).';
+      } else {
+        const supabase = createServiceClient();
+        const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
+        const fileName = `${user.id}-${Date.now()}.${ext}`;
+        const filePath = `avatars/${fileName}`;
+
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = new Uint8Array(arrayBuffer);
+
+        const { error: uploadError } = await supabase.storage
+          .from('article-images')
+          .upload(filePath, buffer, {
+            contentType: file.type,
+            upsert: true,
+          });
+
+        if (uploadError) {
+          console.error('[account] Avatar upload error:', uploadError);
+          errorMsg = 'Erreur lors de l\'upload de l\'avatar.';
+        } else {
+          const { data: { publicUrl } } = supabase.storage
+            .from('article-images')
+            .getPublicUrl(filePath);
+
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ avatar_url: publicUrl })
+            .eq('id', user.id);
+
+          if (updateError) {
+            errorMsg = 'Erreur lors de la mise à jour du profil.';
+          } else {
+            successMsg = 'Photo de profil mise à jour !';
+          }
+        }
+      }
+    }
+  }
+
+  if (action === 'update-username') {
+    const newUsername = formData.get('username') as string;
+    if (newUsername && newUsername.length >= 2 && newUsername.length <= 30) {
+      const supabase = createServiceClient();
+      const { error } = await supabase
+        .from('profiles')
+        .update({ username: newUsername })
+        .eq('id', user.id);
+
+      if (error) {
+        errorMsg = error.code === '23505'
+          ? 'Ce nom d\'utilisateur est déjà pris.'
+          : 'Erreur lors de la mise à jour.';
+      } else {
+        successMsg = 'Nom d\'utilisateur mis à jour !';
+      }
+    } else {
+      errorMsg = 'Le nom doit contenir entre 2 et 30 caractères.';
+    }
+  }
+}
+
+// Recharger le profil après modification
+const supabase = createServiceClient();
+const { data: freshProfile } = await supabase
+  .from('profiles')
+  .select('*')
+  .eq('id', user.id)
+  .single();
+
+const displayProfile = freshProfile || profile;
+const joinDate = new Date(displayProfile?.created_at).toLocaleDateString('fr-FR', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+
+function getRoleBadge(role: string) {
+  switch (role) {
+    case 'admin': return { label: 'Administrateur', class: 'bg-accent-forge/10 text-accent-forge border-accent-forge/25' };
+    case 'editor': return { label: 'Rédacteur', class: 'bg-accent-spirit/10 text-accent-spirit border-accent-spirit/25' };
+    default: return { label: 'Membre', class: 'bg-rift-200/50 text-rift-600 border-rift-300/50' };
+  }
+}
+
+const roleBadge = getRoleBadge(displayProfile?.role || 'user');
+---
+
+<MainLayout title="Mon compte">
+
+  <!-- Hero banner -->
+  <div class="relative overflow-hidden" style="background-color: #D0B19C;">
+    <div class="absolute inset-0 bg-gradient-to-br from-accent-spirit/10 via-accent-sakura/8 to-accent-forge/10"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(227,158,166,0.08),transparent_60%)]"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(201,168,76,0.06),transparent_60%)]"></div>
+    <div class="h-40 md:h-52"></div>
+  </div>
+
+  <div class="max-w-xl mx-auto px-4 sm:px-6 -mt-20 pb-16 relative z-10">
+
+    {successMsg && (
+      <div class="p-4 mb-6 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-medium flex items-center gap-2 shadow-sm animate-slide-up">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        {successMsg}
+      </div>
+    )}
+
+    {errorMsg && (
+      <div class="p-4 mb-6 rounded-2xl bg-red-50 border border-red-200 text-red-600 text-sm font-medium flex items-center gap-2 shadow-sm animate-slide-up">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>
+        {errorMsg}
+      </div>
+    )}
+
+    <!-- Main Profile Card -->
+    <div class="rounded-3xl border border-rift-200/80 bg-white/80 backdrop-blur-sm shadow-lg overflow-hidden">
+
+      <!-- Avatar section — centered -->
+      <div class="flex flex-col items-center pt-8 pb-6 px-6">
+        <!-- Avatar -->
+        <form method="POST" enctype="multipart/form-data" id="avatar-form" class="relative group mb-5">
+          <input type="hidden" name="action" value="update-avatar" />
+          <div class="w-28 h-28 aspect-square rounded-full border-4 border-white shadow-xl bg-gradient-to-br from-accent-spirit to-accent-sakura overflow-hidden ring-4 ring-accent-sakura/10">
+            {displayProfile?.avatar_url ? (
+              <img src={displayProfile.avatar_url} alt="Avatar" class="w-full h-full object-cover aspect-square" />
+            ) : (
+              <div class="w-full h-full flex items-center justify-center text-4xl font-bold text-white">
+                {displayProfile?.username?.charAt(0)?.toUpperCase() || '?'}
+              </div>
+            )}
+          </div>
+          <label class="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/40 transition-all duration-300 cursor-pointer flex items-center justify-center">
+            <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center gap-1">
+              <svg class="w-6 h-6 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
+              </svg>
+              <span class="text-[10px] text-white font-medium tracking-wide uppercase">Modifier</span>
+            </div>
+            <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="document.getElementById('avatar-form').submit()" />
+          </label>
+        </form>
+
+        <!-- Username & info -->
+        <h1 class="text-2xl font-display font-bold text-rift-900 mb-2">{displayProfile?.username || 'Utilisateur'}</h1>
+        <span class={`px-3 py-1 text-xs font-semibold rounded-full border mb-4 ${roleBadge.class}`}>
+          {roleBadge.label}
+        </span>
+
+        <!-- Info grid -->
+        <div class="w-full max-w-sm grid grid-cols-2 gap-3 mt-2">
+          <div class="rounded-xl bg-rift-50/80 border border-rift-200/60 p-3.5 text-center">
+            <p class="text-[11px] uppercase tracking-wider text-rift-400 font-medium mb-1">Email</p>
+            <p class="text-sm text-rift-700 font-medium truncate">{user.email}</p>
+          </div>
+          <div class="rounded-xl bg-rift-50/80 border border-rift-200/60 p-3.5 text-center">
+            <p class="text-[11px] uppercase tracking-wider text-rift-400 font-medium mb-1">Membre depuis</p>
+            <p class="text-sm text-rift-700 font-medium">{joinDate}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="h-px bg-gradient-to-r from-transparent via-rift-200/80 to-transparent mx-6"></div>
+
+      <!-- Settings section -->
+      <div class="p-6 space-y-5">
+
+        <!-- Change Username -->
+        <div>
+          <h3 class="text-sm font-display font-bold text-rift-900 mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-accent-spirit" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+            Nom d'utilisateur
+          </h3>
+          <form method="POST" class="flex gap-2.5">
+            <input type="hidden" name="action" value="update-username" />
+            <input type="text" name="username" value={displayProfile?.username || ''} required minlength="2" maxlength="30"
+              class="flex-1 px-4 py-2.5 rounded-xl bg-rift-50 border border-rift-200/80 text-rift-900 placeholder-rift-400 focus:outline-none focus:border-accent-spirit/50 focus:ring-2 focus:ring-accent-spirit/20 transition-all text-sm"
+              placeholder="Nouveau nom"
+            />
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-accent-spirit text-white text-sm font-semibold hover:bg-accent-spirit/90 transition-all shadow-spirit hover:shadow-lg hover:-translate-y-0.5">
+              Enregistrer
+            </button>
+          </form>
+        </div>
+
+        <!-- Divider -->
+        <div class="h-px bg-rift-200/50"></div>
+
+        <!-- Logout -->
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-display font-bold text-rift-900 flex items-center gap-2">
+              <svg class="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
+              Déconnexion
+            </h3>
+            <p class="text-xs text-rift-400 mt-0.5">Fermer votre session</p>
+          </div>
+          <form action="/api/auth/logout" method="POST">
+            <button type="submit" class="px-4 py-2 rounded-xl bg-red-50 text-red-600 text-sm font-semibold border border-red-200/80 hover:bg-red-100 hover:border-red-300 transition-all hover:-translate-y-0.5">
+              Se déconnecter
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</MainLayout>

@@ -2,10 +2,12 @@
 export const prerender = false;
 
 import AdminLayout from '../../../layouts/AdminLayout.astro';
-import { supabase } from '../../../lib/supabase';
+import { createServiceClient } from '../../../lib/supabase';
 
 const { id } = Astro.params;
 let errorMsg = '';
+
+const supabase = createServiceClient();
 
 // Charger l'article
 const { data: article, error: fetchError } = await supabase
@@ -25,13 +27,14 @@ if (Astro.request.method === 'POST') {
   const slug = (formData.get('slug') as string).toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
   const content = formData.get('content') as string;
   const summary = formData.get('summary') as string;
+  const image_url = formData.get('image_url') as string || '';
   const tags = (formData.get('tags') as string).split(',').map((t) => t.trim()).filter(Boolean);
   const featured = formData.get('featured') === 'on';
   const published = formData.get('published') === 'on';
 
   const { error } = await supabase
     .from('articles')
-    .update({ title, slug, content, summary, tags, featured, published })
+    .update({ title, slug, content, summary, image_url, tags, featured, published })
     .eq('id', id);
 
   if (error) {
@@ -70,6 +73,45 @@ if (Astro.request.method === 'POST') {
           <input type="text" id="slug" name="slug" required value={article.slug}
             class="flex-1 px-4 py-2.5 rounded-lg bg-rift-950 border border-surface-border text-white focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors"
           />
+        </div>
+      </div>
+
+      <!-- Image -->
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1.5">Image de couverture</label>
+        <input type="hidden" id="image_url" name="image_url" value={article.image_url || ''} />
+
+        <div id="image-upload-zone"
+          class="relative w-full min-h-[180px] rounded-xl border-2 border-dashed border-surface-border bg-rift-950/50 hover:border-accent-cyan/40 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-3 overflow-hidden">
+
+          <!-- Preview (visible si image existante) -->
+          <div id="image-preview" class:list={[article.image_url ? '' : 'hidden', 'absolute inset-0']}>
+            <img id="preview-img" class="w-full h-full object-cover" src={article.image_url || ''} alt="Preview" />
+            <div class="absolute inset-0 bg-gradient-to-t from-rift-950/80 to-transparent"></div>
+            <button type="button" id="remove-image-btn"
+              class="absolute top-3 right-3 w-8 h-8 rounded-full bg-red-500/80 hover:bg-red-500 text-white flex items-center justify-center text-lg transition-colors z-10">
+              ×
+            </button>
+          </div>
+
+          <!-- Upload prompt -->
+          <div id="upload-prompt" class:list={[article.image_url ? 'hidden' : '', 'flex flex-col items-center gap-2 py-4']}>
+            <div class="w-12 h-12 rounded-xl bg-accent-cyan/10 flex items-center justify-center text-accent-cyan">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v13.5A1.5 1.5 0 003.75 21z" />
+              </svg>
+            </div>
+            <p class="text-sm text-gray-400">Glissez une image ici ou <span class="text-accent-cyan font-medium">cliquez pour parcourir</span></p>
+            <p class="text-xs text-gray-600">JPG, PNG, WebP ou GIF — Max 5 Mo</p>
+          </div>
+
+          <!-- Loading spinner -->
+          <div id="upload-loading" class="hidden flex flex-col items-center gap-2 py-4">
+            <div class="w-8 h-8 border-2 border-accent-cyan/30 border-t-accent-cyan rounded-full animate-spin"></div>
+            <p class="text-sm text-gray-400">Upload en cours...</p>
+          </div>
+
+          <input type="file" id="image-file-input" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden" />
         </div>
       </div>
 
@@ -117,4 +159,93 @@ if (Astro.request.method === 'POST') {
       </div>
     </form>
   </div>
+
+  <script>
+    // Image upload
+    const zone = document.getElementById('image-upload-zone')!;
+    const fileInput = document.getElementById('image-file-input') as HTMLInputElement;
+    const imageUrlInput = document.getElementById('image_url') as HTMLInputElement;
+    const preview = document.getElementById('image-preview')!;
+    const previewImg = document.getElementById('preview-img') as HTMLImageElement;
+    const uploadPrompt = document.getElementById('upload-prompt')!;
+    const uploadLoading = document.getElementById('upload-loading')!;
+    const removeBtn = document.getElementById('remove-image-btn')!;
+
+    zone.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('#remove-image-btn')) return;
+      fileInput.click();
+    });
+
+    zone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      zone.classList.add('border-accent-cyan/60', 'bg-accent-cyan/5');
+    });
+
+    zone.addEventListener('dragleave', () => {
+      zone.classList.remove('border-accent-cyan/60', 'bg-accent-cyan/5');
+    });
+
+    zone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      zone.classList.remove('border-accent-cyan/60', 'bg-accent-cyan/5');
+      const file = e.dataTransfer?.files[0];
+      if (file) uploadImage(file);
+    });
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files?.[0];
+      if (file) uploadImage(file);
+    });
+
+    removeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      imageUrlInput.value = '';
+      preview.classList.add('hidden');
+      uploadPrompt.classList.remove('hidden');
+    });
+
+    async function uploadImage(file: File) {
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Format non supporté. Utilisez JPG, PNG, WebP ou GIF.');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image trop lourde (max 5 Mo).');
+        return;
+      }
+
+      uploadPrompt.classList.add('hidden');
+      preview.classList.add('hidden');
+      uploadLoading.classList.remove('hidden');
+
+      try {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const res = await fetch('/api/upload-image', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert(data.error || 'Erreur lors de l\'upload');
+          uploadLoading.classList.add('hidden');
+          uploadPrompt.classList.remove('hidden');
+          return;
+        }
+
+        imageUrlInput.value = data.url;
+        previewImg.src = data.url;
+        uploadLoading.classList.add('hidden');
+        preview.classList.remove('hidden');
+      } catch (err) {
+        alert('Erreur réseau lors de l\'upload');
+        uploadLoading.classList.add('hidden');
+        uploadPrompt.classList.remove('hidden');
+      }
+    }
+  </script>
 </AdminLayout>

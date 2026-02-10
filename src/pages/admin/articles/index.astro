@@ -2,7 +2,9 @@
 export const prerender = false;
 
 import AdminLayout from '../../../layouts/AdminLayout.astro';
-import { supabase } from '../../../lib/supabase';
+import { createServiceClient } from '../../../lib/supabase';
+
+const supabase = createServiceClient();
 
 // Gérer la suppression
 if (Astro.request.method === 'POST') {

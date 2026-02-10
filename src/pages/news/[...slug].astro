@@ -74,11 +74,17 @@ function getTagStyle(tag: string): string {
       </div>
     </header>
 
-    <!-- Hero image placeholder -->
+    <!-- Hero image -->
     <div class="relative w-full h-56 md:h-72 rounded-2xl overflow-hidden mb-8">
-      <div class="absolute inset-0 bg-gradient-to-br from-accent-sakura/15 via-rift-100 to-accent-forge/10"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(232,128,154,0.12),transparent_60%)]"></div>
-      <div class="absolute inset-0 opacity-[0.04]" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22><circle cx=%2220%22 cy=%2220%22 r=%221.5%22 fill=%22%23c93545%22/></svg>'); background-size: 40px 40px;"></div>
+      {article.image_url ? (
+        <img src={article.image_url} alt={article.title} class="w-full h-full object-cover" />
+      ) : (
+        <>
+          <div class="absolute inset-0 bg-gradient-to-br from-accent-sakura/15 via-rift-100 to-accent-forge/10"></div>
+          <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(227,158,166,0.12),transparent_60%)]"></div>
+          <div class="absolute inset-0 opacity-[0.04]" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22><circle cx=%2220%22 cy=%2220%22 r=%221.5%22 fill=%22%23e39ea6%22/></svg>'); background-size: 40px 40px;"></div>
+        </>
+      )}
     </div>
 
     <div class="prose max-w-none
