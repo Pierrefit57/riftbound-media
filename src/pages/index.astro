@@ -105,11 +105,11 @@ const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
       {sortedRules.map((rule) => (
-        <a href="/rules" class="group flex items-start gap-4 p-5 rounded-2xl bg-white/60 border border-rift-200/60 hover:border-accent-sakura/40 transition-all duration-300 hover:shadow-sakura hover:-translate-y-0.5">
+        <a href="/rules" class="group flex items-start gap-4 p-5 rounded-2xl bg-rift-800/40 border border-rift-700/50 hover:border-accent-spirit/40 transition-all duration-300 hover:shadow-spirit hover:-translate-y-0.5">
           <span class="text-3xl flex-shrink-0 group-hover:scale-110 transition-transform duration-300">{rule.data.icon}</span>
           <div>
             <h3 class="text-base font-display font-bold text-rift-100 mb-1 group-hover:text-accent-spirit transition-colors duration-300">{rule.data.title}</h3>
-            <p class="text-sm text-rift-400 line-clamp-2 leading-relaxed">{rule.data.summary}</p>
+            <p class="text-sm text-rift-300 line-clamp-2 leading-relaxed">{rule.data.summary}</p>
           </div>
         </a>
       ))}
@@ -118,22 +118,22 @@ const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
 
   <!-- Community CTA -->
   <section class="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
-    <div class="relative overflow-hidden rounded-2xl border border-accent-sakura/20 p-8 md:p-12 text-center bg-gradient-to-br from-white/80 via-accent-glow/20 to-white/80">
+    <div class="relative overflow-hidden rounded-2xl border border-rift-700/50 p-8 md:p-12 text-center bg-gradient-to-br from-rift-900/80 via-rift-800/50 to-rift-900/80">
       <!-- Decorative -->
       <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent-forge/30 to-transparent"></div>
 
       <div class="relative">
         <span class="text-accent-forge text-xs font-display tracking-[0.2em] uppercase mb-4 block">Communauté</span>
-        <h2 class="text-2xl md:text-3xl font-display font-bold mb-4 text-rift-900">Rejoignez la Communauté</h2>
-        <p class="text-rift-600 mb-8 max-w-lg mx-auto leading-relaxed">
+        <h2 class="text-2xl md:text-3xl font-display font-bold mb-4 text-rift-100">Rejoignez la Communauté</h2>
+        <p class="text-rift-300 mb-8 max-w-lg mx-auto leading-relaxed">
           Discutez stratégie, partagez vos decks et restez informés des derniers événements.
         </p>
         <div class="flex flex-wrap gap-4 justify-center">
           <a href="#" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#5865F2] text-white text-sm font-semibold hover:bg-[#4752C4] transition-all duration-300 shadow-lg shadow-[#5865F2]/20 hover:-translate-y-0.5">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-3.6751 1.5152.07.07 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.057 19.9 19.9 0 005.9936 3.03.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.3101-1.274-.6629-1.8703-.9132a.077.077 0 01-.009-.1363c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.006.1376 12.2949 12.2949 0 01-1.873.9142.076.076 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.993a.076.076 0 00.0842.0286 19.839 19.839 0 006.0028-3.03.077.077 0 00.0321-.0544c.5-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9554 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
             Discord
           </a>
-          <a href="#" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-rift-700 text-sm font-semibold border border-rift-300 bg-white/60 hover:border-accent-spirit hover:text-accent-spirit transition-all duration-300">
+          <a href="#" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-rift-300 text-sm font-semibold border border-rift-600 bg-rift-800/60 hover:border-accent-spirit hover:text-accent-spirit transition-all duration-300">
             Twitter / X
           </a>
         </div>

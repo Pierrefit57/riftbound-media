@@ -34,7 +34,7 @@ function getTagStyle(tag: string): string {
 ---
 
 {featured ? (
-  <a href={`/news/${slug}`} class="group block relative overflow-hidden rounded-2xl border border-rift-200/80 bg-rift-50 hover:border-accent-sakura/40 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-0.5">
+  <a href={`/news/${slug}`} class="group block relative overflow-hidden rounded-2xl border border-rift-700/50 bg-rift-800 hover:border-accent-spirit/40 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-0.5">
     <!-- Card image area -->
     <div class="relative h-40 md:h-52 overflow-hidden">
       {hasImage ? (
@@ -42,9 +42,9 @@ function getTagStyle(tag: string): string {
       ) : (
         <>
           <div class="absolute inset-0 bg-gradient-to-br from-accent-sakura/15 via-rift-900 to-accent-forge/10"></div>
-          <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(227,158,166,0.15),transparent_60%)]"></div>
-          <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_60%,rgba(201,168,76,0.1),transparent_60%)]"></div>
-          <div class="absolute inset-0 opacity-[0.04]" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22><circle cx=%2220%22 cy=%2220%22 r=%221.5%22 fill=%22%23e39ea6%22/></svg>'); background-size: 40px 40px;"></div>
+          <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,107,53,0.15),transparent_60%)]"></div>
+          <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_60%,rgba(250,188,42,0.1),transparent_60%)]"></div>
+          <div class="absolute inset-0 opacity-[0.04]" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22><circle cx=%2220%22 cy=%2220%22 r=%221.5%22 fill=%22%23ff6b35%22/></svg>'); background-size: 40px 40px;"></div>
         </>
       )}
       <!-- Featured badge -->
@@ -62,13 +62,13 @@ function getTagStyle(tag: string): string {
           </span>
         ))}
       </div>
-      <h3 class="text-xl md:text-2xl font-display font-bold text-rift-900 mb-2 group-hover:text-accent-spirit transition-colors duration-300 line-clamp-2 uppercase tracking-wide">
+      <h3 class="text-xl md:text-2xl font-display font-bold text-rift-50 mb-2 group-hover:text-accent-spirit transition-colors duration-300 line-clamp-2 uppercase tracking-wide">
         {title}
       </h3>
-      <p class="text-rift-800 text-sm mb-4 line-clamp-2 leading-relaxed">
+      <p class="text-rift-200 text-sm mb-4 line-clamp-2 leading-relaxed">
         {summary}
       </p>
-      <div class="flex items-center justify-between text-xs text-rift-600">
+      <div class="flex items-center justify-between text-xs text-rift-400">
         <span>{author}</span>
         <span>{formattedDate}</span>
       </div>
@@ -81,15 +81,15 @@ function getTagStyle(tag: string): string {
     </div>
   </a>
 ) : (
-  <a href={`/news/${slug}`} class="group block overflow-hidden rounded-2xl border border-rift-200/80 bg-rift-50 hover:border-accent-sakura/30 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1">
+  <a href={`/news/${slug}`} class="group block overflow-hidden rounded-2xl border border-rift-700/50 bg-rift-800 hover:border-accent-spirit/30 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1">
     <div class="relative h-36 overflow-hidden">
       {hasImage ? (
         <img src={image} alt={title} class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
       ) : (
         <>
           <div class="absolute inset-0 bg-gradient-to-br from-accent-sakura/10 via-rift-900 to-accent-forge/8"></div>
-          <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(227,158,166,0.1),transparent_70%)]"></div>
-          <div class="absolute inset-0 opacity-[0.03]" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2230%22 height=%2230%22><circle cx=%2215%22 cy=%2215%22 r=%221%22 fill=%22%23e39ea6%22/></svg>'); background-size: 30px 30px;"></div>
+          <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,107,53,0.1),transparent_70%)]"></div>
+          <div class="absolute inset-0 opacity-[0.03]" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2230%22 height=%2230%22><circle cx=%2215%22 cy=%2215%22 r=%221%22 fill=%22%23ff6b35%22/></svg>'); background-size: 30px 30px;"></div>
         </>
       )}
     </div>
@@ -101,13 +101,13 @@ function getTagStyle(tag: string): string {
           </span>
         ))}
       </div>
-      <h3 class="text-base font-display font-bold text-rift-900 mb-1.5 group-hover:text-accent-spirit transition-colors duration-300 line-clamp-2 uppercase tracking-wide">
+      <h3 class="text-base font-display font-bold text-rift-50 mb-1.5 group-hover:text-accent-spirit transition-colors duration-300 line-clamp-2 uppercase tracking-wide">
         {title}
       </h3>
-      <p class="text-rift-800 text-sm mb-3 line-clamp-2 leading-relaxed">
+      <p class="text-rift-200 text-sm mb-3 line-clamp-2 leading-relaxed">
         {summary}
       </p>
-      <div class="flex items-center justify-between text-xs text-rift-600">
+      <div class="flex items-center justify-between text-xs text-rift-400">
         <span>{author}</span>
         <span>{formattedDate}</span>
       </div>

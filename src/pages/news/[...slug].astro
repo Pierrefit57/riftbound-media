@@ -30,11 +30,11 @@ const authorName = article.profiles?.username || 'Équipe Riftbound';
 
 function getTagStyle(tag: string): string {
   const t = tag.toLowerCase();
-  if (t.includes('lore') || t.includes('événement')) return 'bg-domain-chaos/10 text-domain-chaos border-domain-chaos/20';
-  if (t.includes('compétitif') || t.includes('tournoi')) return 'bg-accent-spirit/10 text-accent-spirit border-accent-spirit/20';
-  if (t.includes('patch') || t.includes('équilibrage')) return 'bg-accent-forge/10 text-accent-forge border-accent-forge/20';
-  if (t.includes('interview')) return 'bg-accent-sakura/15 text-accent-sakura border-accent-sakura/25';
-  return 'bg-accent-spirit/8 text-accent-spirit/80 border-accent-spirit/15';
+  if (t.includes('lore') || t.includes('événement')) return 'bg-domain-chaos/20 text-domain-chaos border-domain-chaos/30';
+  if (t.includes('compétitif') || t.includes('tournoi')) return 'bg-accent-spirit/20 text-accent-spirit border-accent-spirit/30';
+  if (t.includes('patch') || t.includes('équilibrage')) return 'bg-accent-forge/20 text-accent-forge border-accent-forge/30';
+  if (t.includes('interview')) return 'bg-accent-sakura/20 text-accent-sakura border-accent-sakura/30';
+  return 'bg-rift-800 text-rift-300 border-rift-700';
 }
 ---
 
@@ -58,7 +58,7 @@ function getTagStyle(tag: string): string {
         ))}
       </div>
 
-      <h1 class="text-3xl md:text-4xl font-display font-bold text-rift-900 mb-4 leading-tight">
+      <h1 class="text-3xl md:text-4xl font-display font-bold text-rift-50 mb-4 leading-tight">
         {article.title}
       </h1>
 
@@ -87,19 +87,19 @@ function getTagStyle(tag: string): string {
       )}
     </div>
 
-    <div class="prose max-w-none
-      prose-headings:font-display prose-headings:font-bold prose-headings:text-rift-900
+    <div class="prose prose-invert prose-orange max-w-none
+      prose-headings:font-display prose-headings:font-bold prose-headings:text-rift-50
       prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4
       prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3
-      prose-p:text-rift-700 prose-p:leading-relaxed
+      prose-p:text-rift-200 prose-p:leading-relaxed
       prose-a:text-accent-spirit prose-a:no-underline hover:prose-a:text-accent-forge hover:prose-a:underline
-      prose-strong:text-rift-900
-      prose-li:text-rift-700
-      prose-blockquote:border-accent-sakura/50 prose-blockquote:text-rift-500
+      prose-strong:text-rift-50
+      prose-li:text-rift-200
+      prose-blockquote:border-accent-sakura/50 prose-blockquote:text-rift-300 prose-blockquote:bg-rift-800/30 prose-blockquote:rounded-r-lg prose-blockquote:py-1 prose-blockquote:px-4
       prose-table:text-sm
       prose-th:text-accent-forge prose-th:font-semibold
-      prose-td:text-rift-700
-      prose-hr:border-rift-200"
+      prose-td:text-rift-200
+      prose-hr:border-rift-700/50"
       set:html={htmlContent}
     />
 

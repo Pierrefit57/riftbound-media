@@ -8,43 +8,43 @@ export default {
                 display: ['Cinzel', 'Georgia', 'serif'],
             },
             colors: {
-                // Fond beige chaud Spiritforged
+                // Fond Bleu Nuit & Orange (Nouveau Thème)
                 'rift': {
-                    50: '#917D6E',      // Assombri de 20% supplémentaire (était #B69C8A)
-                    100: '#B69C8A',     // Ancien 50, pour référence
-                    200: '#c09f88',
-                    300: '#b8956e',
-                    400: '#a5804f',
-                    500: '#8b6a3e',
-                    600: '#755836',
-                    700: '#5a432a',
-                    800: '#3d2d1c',
-                    900: '#2a1a10',
-                    950: '#1a100a',
+                    50: '#ffffff',       // Blanc pur (Texte principal)
+                    100: '#f0f4f8',      // Gris très clair (Texte secondaire)
+                    200: '#d9e2ec',      // Gris clair
+                    300: '#bcccdc',      // Gris bleuté
+                    400: '#9fb3c8',      // Bleu gris moyen
+                    500: '#829ab1',      // Bleu gris foncé
+                    600: '#627d98',      // Bleu acier
+                    700: '#334e68',      // Bleu nuit clair (Bordures)
+                    800: '#1c2541',      // Bleu nuit moyen (Cartes)
+                    900: '#0a1128',      // Bleu nuit profond (Fond principal)
+                    950: '#050914',      // Noir bleuté (Fond sombre)
                 },
-                // Surfaces claires
+                // Surfaces claires (Adaptées au thème sombre)
                 'surface': {
-                    DEFAULT: '#f5ece3',
-                    light: '#faf6f1',
-                    darker: '#e8ddd1',
-                    border: 'rgba(180, 140, 100, 0.2)',
+                    DEFAULT: '#1c2541',  // Fond de carte (Bleu sombre)
+                    light: '#3a506b',    // Fond de carte survol
+                    darker: '#0a1128',   // Fond principal
+                    border: 'rgba(255, 107, 53, 0.2)', // Bordure orange subtile
                 },
-                // Accents Spiritforged
+                // Accents Orange & Or
                 'accent': {
-                    spirit: '#A53254',      // Nouveau rose foncé (était #E8B0B3)
-                    sakura: '#E8B0B3',       // Rose pétale clair (inchangé pour les pétales)
-                    forge: '#c9a84c',        // Or doré (cadre)
-                    steel: '#7a8599',        // Acier/argent (lames)
-                    glow: '#f0d0d5',         // Lueur rose douce
+                    spirit: '#E9870F',       // Orange spécifique demandé
+                    sakura: '#ffbca1',       // Pêche clair (Pétales / Highlights)
+                    forge: '#fabc2a',        // Or doré
+                    steel: '#7a8599',        // Acier
+                    glow: '#ffddd2',         // Lueur orange douce
                 },
                 // Domains du jeu
                 'domain': {
-                    fury: '#e39ea6',
-                    calm: '#4a9e6d',
-                    mind: '#4a7ec9',
-                    body: '#d48a3c',
-                    chaos: '#8a4ec9',
-                    order: '#c9a84c',
+                    fury: '#E9870F',     // Orange
+                    calm: '#4a9e6d',     // Vert
+                    mind: '#4a7ec9',     // Bleu
+                    body: '#d48a3c',     // Bronze
+                    chaos: '#8a4ec9',    // Violet
+                    order: '#fabc2a',    // Or
                 },
             },
             backgroundImage: {

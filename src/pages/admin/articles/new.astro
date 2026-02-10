@@ -44,7 +44,7 @@ if (Astro.request.method === 'POST') {
 <AdminLayout title="Nouvel Article" activeItem="articles">
   <div class="max-w-3xl">
 
-    <a href="/admin/articles" class="inline-flex items-center gap-1 text-sm text-accent-cyan hover:underline mb-6">
+    <a href="/admin/articles" class="inline-flex items-center gap-1 text-sm text-accent-cyan hover:underline mb-6 transition-colors">
       ← Retour aux articles
     </a>
 
@@ -57,20 +57,20 @@ if (Astro.request.method === 'POST') {
 
       <!-- Titre -->
       <div>
-        <label for="title" class="block text-sm font-medium text-gray-300 mb-1.5">Titre</label>
+        <label for="title" class="block text-sm font-medium text-rift-300 mb-1.5">Titre</label>
         <input type="text" id="title" name="title" required
-          class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-surface-border text-white placeholder-gray-500 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors"
+          class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 placeholder-rift-500 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors"
           placeholder="Titre de l'article"
         />
       </div>
 
       <!-- Slug -->
       <div>
-        <label for="slug" class="block text-sm font-medium text-gray-300 mb-1.5">Slug (URL)</label>
+        <label for="slug" class="block text-sm font-medium text-rift-300 mb-1.5">Slug (URL)</label>
         <div class="flex items-center gap-2">
-          <span class="text-sm text-gray-500">/news/</span>
+          <span class="text-sm text-rift-500">/news/</span>
           <input type="text" id="slug" name="slug" required
-            class="flex-1 px-4 py-2.5 rounded-lg bg-rift-950 border border-surface-border text-white placeholder-gray-500 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors"
+            class="flex-1 px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 placeholder-rift-500 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors"
             placeholder="mon-article"
           />
         </div>
@@ -78,11 +78,11 @@ if (Astro.request.method === 'POST') {
 
       <!-- Image -->
       <div>
-        <label class="block text-sm font-medium text-gray-300 mb-1.5">Image de couverture</label>
+        <label class="block text-sm font-medium text-rift-300 mb-1.5">Image de couverture</label>
         <input type="hidden" id="image_url" name="image_url" value="" />
 
         <div id="image-upload-zone"
-          class="relative w-full min-h-[180px] rounded-xl border-2 border-dashed border-surface-border bg-rift-950/50 hover:border-accent-cyan/40 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-3 overflow-hidden">
+          class="relative w-full min-h-[180px] rounded-xl border-2 border-dashed border-rift-700/50 bg-rift-900/30 hover:border-accent-cyan/40 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-3 overflow-hidden">
 
           <!-- Preview -->
           <div id="image-preview" class="hidden absolute inset-0">
@@ -101,14 +101,19 @@ if (Astro.request.method === 'POST') {
                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v13.5A1.5 1.5 0 003.75 21z" />
               </svg>
             </div>
-            <p class="text-sm text-gray-400">Glissez une image ici ou <span class="text-accent-cyan font-medium">cliquez pour parcourir</span></p>
-            <p class="text-xs text-gray-600">JPG, PNG, WebP ou GIF — Max 5 Mo</p>
+            <div class="w-12 h-12 rounded-xl bg-accent-cyan/10 flex items-center justify-center text-accent-cyan">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v13.5A1.5 1.5 0 003.75 21z" />
+              </svg>
+            </div>
+            <p class="text-sm text-rift-400">Glissez une image ici ou <span class="text-accent-cyan font-medium">cliquez pour parcourir</span></p>
+            <p class="text-xs text-rift-500">JPG, PNG, WebP ou GIF — Max 5 Mo</p>
           </div>
 
           <!-- Loading spinner -->
           <div id="upload-loading" class="hidden flex flex-col items-center gap-2 py-4">
             <div class="w-8 h-8 border-2 border-accent-cyan/30 border-t-accent-cyan rounded-full animate-spin"></div>
-            <p class="text-sm text-gray-400">Upload en cours...</p>
+            <p class="text-sm text-rift-400">Upload en cours...</p>
           </div>
 
           <input type="file" id="image-file-input" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden" />
@@ -117,49 +122,59 @@ if (Astro.request.method === 'POST') {
 
       <!-- Résumé -->
       <div>
-        <label for="summary" class="block text-sm font-medium text-gray-300 mb-1.5">Résumé</label>
+        <label for="summary" class="block text-sm font-medium text-rift-300 mb-1.5">Résumé</label>
         <textarea id="summary" name="summary" rows="2"
-          class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-surface-border text-white placeholder-gray-500 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors resize-none"
+          class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 placeholder-rift-500 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors resize-none"
           placeholder="Résumé affiché dans les cards de news..."
         ></textarea>
       </div>
 
       <!-- Tags -->
       <div>
-        <label for="tags" class="block text-sm font-medium text-gray-300 mb-1.5">Tags <span class="text-gray-500">(séparés par des virgules)</span></label>
+        <label for="tags" class="block text-sm font-medium text-rift-300 mb-1.5">Tags <span class="text-rift-500">(séparés par des virgules)</span></label>
         <input type="text" id="tags" name="tags"
-          class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-surface-border text-white placeholder-gray-500 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors"
+          class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 placeholder-rift-500 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors"
           placeholder="Mise à jour, Lore, Événement"
         />
       </div>
 
       <!-- Contenu Markdown -->
       <div>
-        <label for="content" class="block text-sm font-medium text-gray-300 mb-1.5">Contenu <span class="text-gray-500">(Markdown)</span></label>
+        <div class="flex items-center justify-between mb-1.5">
+          <label for="content" class="block text-sm font-medium text-rift-300">Contenu <span class="text-rift-500">(Markdown)</span></label>
+          <button type="button" id="insert-content-image-btn" class="text-xs text-accent-cyan hover:text-accent-cyan/80 font-medium flex items-center gap-1.5 px-2 py-1 bg-accent-cyan/10 rounded-md transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Insérer une image
+          </button>
+          <input type="file" id="content-image-input" accept="image/*" class="hidden" />
+          <div id="content-upload-loading" class="hidden text-xs text-accent-cyan animate-pulse">Upload...</div>
+        </div>
         <textarea id="content" name="content" rows="16" required
-          class="w-full px-4 py-3 rounded-lg bg-rift-950 border border-surface-border text-white placeholder-gray-500 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors font-mono text-sm leading-relaxed resize-y"
+          class="w-full px-4 py-3 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 placeholder-rift-500 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors font-mono text-sm leading-relaxed resize-y"
           placeholder="# Mon Article&#10;&#10;Le contenu en **markdown**..."
         ></textarea>
       </div>
 
       <!-- Options -->
       <div class="flex items-center gap-6">
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" name="featured" class="w-4 h-4 rounded border-surface-border bg-rift-950 text-accent-cyan focus:ring-accent-cyan/30" />
-          <span class="text-sm text-gray-300">Article à la une</span>
+        <label class="flex items-center gap-2 cursor-pointer group">
+          <input type="checkbox" name="featured" class="w-4 h-4 rounded border-rift-700 bg-rift-950 text-accent-cyan focus:ring-accent-cyan/30 checked:bg-accent-cyan checked:border-accent-cyan transition-colors" />
+          <span class="text-sm text-rift-300 group-hover:text-rift-100 transition-colors">Article à la une</span>
         </label>
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" name="published" class="w-4 h-4 rounded border-surface-border bg-rift-950 text-accent-cyan focus:ring-accent-cyan/30" />
-          <span class="text-sm text-gray-300">Publier immédiatement</span>
+        <label class="flex items-center gap-2 cursor-pointer group">
+          <input type="checkbox" name="published" class="w-4 h-4 rounded border-rift-700 bg-rift-950 text-accent-cyan focus:ring-accent-cyan/30 checked:bg-accent-cyan checked:border-accent-cyan transition-colors" />
+          <span class="text-sm text-rift-300 group-hover:text-rift-100 transition-colors">Publier immédiatement</span>
         </label>
       </div>
 
       <!-- Submit -->
       <div class="flex gap-3 pt-2">
-        <button type="submit" class="px-6 py-2.5 rounded-lg bg-accent-cyan text-rift-950 font-semibold text-sm hover:bg-accent-cyan/90 transition-colors">
+        <button type="submit" class="px-6 py-2.5 rounded-lg bg-accent-cyan text-rift-950 font-semibold text-sm hover:bg-accent-cyan/90 transition-colors shadow-lg shadow-accent-cyan/20 hover:-translate-y-0.5 transform duration-200">
           Créer l'article
         </button>
-        <a href="/admin/articles" class="px-6 py-2.5 rounded-lg bg-white/5 text-gray-300 font-medium text-sm border border-surface-border hover:bg-white/10 transition-colors">
+        <a href="/admin/articles" class="px-6 py-2.5 rounded-lg bg-rift-800 text-rift-300 font-medium text-sm border border-rift-700 hover:bg-rift-700 hover:text-rift-100 transition-colors">
           Annuler
         </a>
       </div>
@@ -231,22 +246,58 @@ if (Astro.request.method === 'POST') {
       uploadPrompt.classList.remove('hidden');
     });
 
-    async function uploadImage(file: File) {
-      // Validate
+    // Insert Image in Content
+    const insertContentBtn = document.getElementById('insert-content-image-btn');
+    const contentInput = document.getElementById('content-image-input') as HTMLInputElement;
+    const contentLoading = document.getElementById('content-upload-loading');
+    const contentTextarea = document.getElementById('content') as HTMLTextAreaElement;
+
+    insertContentBtn?.addEventListener('click', () => contentInput.click());
+
+    contentInput?.addEventListener('change', async () => {
+      const file = contentInput.files?.[0];
+      if (!file) return;
+
+      // Show loading
+      insertContentBtn?.classList.add('hidden');
+      contentLoading?.classList.remove('hidden');
+
+      const url = await uploadImageAndGetUrl(file);
+
+      // Hide loading
+      insertContentBtn?.classList.remove('hidden');
+      contentLoading?.classList.add('hidden');
+
+      if (url) {
+        const markdown = `\n![Image description](${url})\n`;
+        const start = contentTextarea.selectionStart;
+        const end = contentTextarea.selectionEnd;
+        const text = contentTextarea.value;
+        const before = text.substring(0, start);
+        const after = text.substring(end);
+        
+        contentTextarea.value = before + markdown + after;
+        
+        // Reset cursor
+        const newCursorPos = start + markdown.length;
+        contentTextarea.focus();
+        contentTextarea.setSelectionRange(newCursorPos, newCursorPos);
+      }
+      
+      // Reset input
+      contentInput.value = '';
+    });
+
+    async function uploadImageAndGetUrl(file: File): Promise<string | null> {
       const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
       if (!allowedTypes.includes(file.type)) {
         alert('Format non supporté. Utilisez JPG, PNG, WebP ou GIF.');
-        return;
+        return null;
       }
       if (file.size > 5 * 1024 * 1024) {
         alert('Image trop lourde (max 5 Mo).');
-        return;
+        return null;
       }
-
-      // Show loading
-      uploadPrompt.classList.add('hidden');
-      preview.classList.add('hidden');
-      uploadLoading.classList.remove('hidden');
 
       try {
         const formData = new FormData();
@@ -261,18 +312,29 @@ if (Astro.request.method === 'POST') {
 
         if (!res.ok) {
           alert(data.error || 'Erreur lors de l\'upload');
-          uploadLoading.classList.add('hidden');
-          uploadPrompt.classList.remove('hidden');
-          return;
+          return null;
         }
-
-        // Success — show preview
-        imageUrlInput.value = data.url;
-        previewImg.src = data.url;
-        uploadLoading.classList.add('hidden');
-        preview.classList.remove('hidden');
+        return data.url;
       } catch (err) {
         alert('Erreur réseau lors de l\'upload');
+        return null;
+      }
+    }
+
+    async function uploadImage(file: File) {
+      uploadPrompt.classList.add('hidden');
+      preview.classList.add('hidden');
+      uploadLoading.classList.remove('hidden');
+
+      const url = await uploadImageAndGetUrl(file);
+
+      if (url) {
+        imageUrlInput.value = url;
+        previewImg.src = url;
+        uploadLoading.classList.add('hidden');
+        preview.classList.remove('hidden');
+      } else {
+        // Error handled in helper function, just reset UI
         uploadLoading.classList.add('hidden');
         uploadPrompt.classList.remove('hidden');
       }

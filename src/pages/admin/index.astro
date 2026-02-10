@@ -18,30 +18,30 @@ const draftCount = totalArticles - publishedCount;
   <div class="space-y-6">
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="bg-white/70 rounded-2xl border border-rift-200/80 p-5 shadow-card hover:shadow-card-hover transition-shadow duration-300">
-        <p class="text-sm text-rift-500 mb-1 font-display">Total Articles</p>
-        <p class="text-3xl font-bold text-rift-900">{totalArticles}</p>
+      <div class="bg-rift-800/50 rounded-2xl border border-rift-700/50 p-5 shadow-card hover:shadow-card-hover transition-shadow duration-300">
+        <p class="text-sm text-rift-400 mb-1 font-display">Total Articles</p>
+        <p class="text-3xl font-bold text-rift-100">{totalArticles}</p>
       </div>
-      <div class="bg-white/70 rounded-2xl border border-rift-200/80 p-5 shadow-card hover:shadow-card-hover transition-shadow duration-300">
-        <p class="text-sm text-rift-500 mb-1 font-display">Publiés</p>
+      <div class="bg-rift-800/50 rounded-2xl border border-rift-700/50 p-5 shadow-card hover:shadow-card-hover transition-shadow duration-300">
+        <p class="text-sm text-rift-400 mb-1 font-display">Publiés</p>
         <p class="text-3xl font-bold text-domain-calm">{publishedCount}</p>
       </div>
-      <div class="bg-white/70 rounded-2xl border border-rift-200/80 p-5 shadow-card hover:shadow-card-hover transition-shadow duration-300">
-        <p class="text-sm text-rift-500 mb-1 font-display">Brouillons</p>
+      <div class="bg-rift-800/50 rounded-2xl border border-rift-700/50 p-5 shadow-card hover:shadow-card-hover transition-shadow duration-300">
+        <p class="text-sm text-rift-400 mb-1 font-display">Brouillons</p>
         <p class="text-3xl font-bold text-accent-forge">{draftCount}</p>
       </div>
     </div>
 
-    <div class="bg-white/70 rounded-2xl border border-rift-200/80 p-5 shadow-card">
-      <h2 class="text-base font-display font-bold text-rift-900 mb-4">Actions rapides</h2>
+    <div class="bg-rift-800/50 rounded-2xl border border-rift-700/50 p-5 shadow-card">
+      <h2 class="text-base font-display font-bold text-rift-100 mb-4">Actions rapides</h2>
       <div class="flex flex-wrap gap-3">
         <a href="/admin/articles/new" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent-spirit text-white text-sm font-semibold hover:bg-accent-spirit/90 shadow-spirit transition-all duration-300 hover:-translate-y-0.5">
           ✦ Nouvel article
         </a>
-        <a href="/admin/articles" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-rift-700 text-sm font-medium border border-rift-200 bg-white/60 hover:border-accent-spirit/30 hover:text-accent-spirit transition-all duration-300">
+        <a href="/admin/articles" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-rift-300 text-sm font-medium border border-rift-700 bg-rift-800/60 hover:border-accent-spirit/30 hover:text-accent-spirit transition-all duration-300">
           Gérer les articles
         </a>
-        <a href="/" target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-rift-700 text-sm font-medium border border-rift-200 bg-white/60 hover:border-accent-forge/30 hover:text-accent-forge transition-all duration-300">
+        <a href="/" target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-rift-300 text-sm font-medium border border-rift-700 bg-rift-800/60 hover:border-accent-forge/30 hover:text-accent-forge transition-all duration-300">
           Voir le site ↗
         </a>
       </div>
