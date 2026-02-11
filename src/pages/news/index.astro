@@ -24,15 +24,15 @@ const regularNews = allNews || [];
         <div class="h-px w-8 bg-gradient-to-r from-transparent to-accent-forge/50"></div>
         <span class="text-accent-forge text-xs font-display tracking-[0.2em] uppercase">Actualités</span>
       </div>
-      <h1 class="text-3xl md:text-4xl font-display font-bold text-rift-900 mb-3">Dernières Nouvelles</h1>
-      <p class="text-rift-500 leading-relaxed">Restez informé des dernières nouvelles et annonces de l'univers Riftbound</p>
+      <h1 class="text-3xl md:text-4xl font-display font-bold text-rift-100 mb-3">Dernières Nouvelles</h1>
+      <p class="text-rift-300 leading-relaxed">Restez informé des dernières nouvelles et annonces de l'univers Riftbound</p>
     </div>
 
     {featuredNews.length > 0 && (
       <section class="mb-14">
         <div class="flex items-center gap-3 mb-6">
           <div class="w-1 h-6 rounded-full bg-gradient-to-b from-accent-spirit to-accent-sakura"></div>
-          <h2 class="text-lg font-display font-bold text-rift-900">À la Une</h2>
+          <h2 class="text-lg font-display font-bold text-rift-100">À la Une</h2>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           {featuredNews.map((article) => (
@@ -54,7 +54,7 @@ const regularNews = allNews || [];
     <section>
       <div class="flex items-center gap-3 mb-6">
         <div class="w-1 h-6 rounded-full bg-gradient-to-b from-accent-forge to-accent-sakura"></div>
-        <h2 class="text-lg font-display font-bold text-rift-900">Toutes les Actualités</h2>
+        <h2 class="text-lg font-display font-bold text-rift-100">Toutes les Actualités</h2>
       </div>
       {regularNews.length > 0 ? (
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

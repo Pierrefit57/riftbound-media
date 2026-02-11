@@ -1,9 +1,10 @@
 ---
 interface Props {
   title: string;
+  petalMode?: 'full' | 'sides';
 }
 
-const { title } = Astro.props;
+const { title, petalMode = 'full' } = Astro.props;
 const currentPath = Astro.url.pathname;
 const user = Astro.locals.user;
 const profile = Astro.locals.profile;
@@ -13,6 +14,8 @@ const navLinks = [
   { href: '/news', label: 'Actualités' },
   { href: '/rules', label: 'Règles' },
 ];
+
+
 ---
 
 <!doctype html>
@@ -23,7 +26,7 @@ const navLinks = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <meta name="generator" content={Astro.generator} />
     <title>{title} | Riftbound Media</title>
     <style>
@@ -77,31 +80,53 @@ const navLinks = [
         100% { transform: translateY(110vh) translateX(-60px) rotate(-360deg) scale(0.5); opacity: 0; }
       }
 
+      .petal-static {
+        position: absolute;
+        width: 14px;
+        height: 12px;
+        background: #ffbca1;
+        border-radius: 50% 0 50% 50%;
+      }
+
+      /* Side only mode: Hide center petals */
+      .petals-sides-only .petal:nth-child(5), /* 35% */
+      .petals-sides-only .petal:nth-child(6), /* 42% */
+      .petals-sides-only .petal:nth-child(7), /* 50% */
+      .petals-sides-only .petal:nth-child(8), /* 58% */
+      .petals-sides-only .petal:nth-child(9), /* 65% */
+      .petals-sides-only .petal:nth-child(15) /* 45% */
+      {
+        display: none;
+      }
+
       /* Nav link underline animation */
       /* Nav link underline animation removed for centering */
     </style>
   </head>
   <body class="bg-rift-900 text-rift-100 font-sans min-h-screen flex flex-col relative">
 
-    <!-- Falling Petals -->
-    <div class="petals-container">
-      <div class="petal"></div>
-      <div class="petal"></div>
-      <div class="petal"></div>
-      <div class="petal"></div>
-      <div class="petal"></div>
-      <div class="petal"></div>
-      <div class="petal"></div>
-      <div class="petal"></div>
-      <div class="petal"></div>
-      <div class="petal"></div>
-      <div class="petal"></div>
-      <div class="petal"></div>
-      <div class="petal"></div>
-      <div class="petal"></div>
-      <div class="petal"></div>
-      <div class="petal"></div>
-    </div>
+    <!-- Falling Petals (Home Only) -->
+    {currentPath === '/' ? (
+      <div class="petals-container">
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+        <div class="petal"></div>
+      </div>
+
+    ) : null}
 
     <!-- Navbar -->
     <header class="sticky top-0 z-50 bg-rift-900/95 backdrop-blur-sm border-b border-rift-700/50">

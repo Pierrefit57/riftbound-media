@@ -1,6 +1,8 @@
 ---
-import { getCollection } from 'astro:content';
+export const prerender = false;
+
 import MainLayout from '../layouts/MainLayout.astro';
+import { getCollection } from 'astro:content';
 
 const allRules = await getCollection('rules');
 const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
@@ -13,57 +15,145 @@ const renderedRules = await Promise.all(
 );
 ---
 
-<MainLayout title="Règles du Jeu">
+<MainLayout title="Règles du Jeu" petalMode="sides">
 
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 pt-10 pb-16">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-10 pb-16">
 
-    <!-- Page Header -->
-    <div class="mb-10">
-      <h1 class="text-3xl md:text-4xl font-display font-bold text-rift-100 mb-2">Règles du Jeu</h1>
-      <p class="text-rift-300">Tout ce que vous devez savoir pour maîtriser Riftbound</p>
+    <div class="mb-12 text-center">
+      <div class="flex items-center justify-center gap-3 mb-3">
+        <div class="h-px w-8 bg-gradient-to-r from-transparent to-accent-forge/50"></div>
+        <span class="text-accent-forge text-xs font-display tracking-[0.2em] uppercase">Règles</span>
+        <div class="h-px w-8 bg-gradient-to-l from-transparent to-accent-forge/50"></div>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-display font-bold text-rift-100 mb-3">Règles du Jeu</h1>
+      <p class="text-rift-300 leading-relaxed max-w-2xl mx-auto">Tout ce que vous devez savoir pour jouer à Riftbound. Des bases aux règles de tournoi.</p>
     </div>
 
-    <!-- Table of Contents -->
-    <nav class="mb-10 p-5 rounded-xl bg-rift-800/50 border border-rift-700/50">
-      <h2 class="text-sm font-display font-semibold uppercase tracking-wider text-accent-forge mb-3">Sommaire</h2>
-      <ul class="space-y-2">
-        {sortedRules.map((rule, i) => (
-          <li>
-            <a href={`#section-${i}`} class="flex items-center gap-3 text-sm text-rift-300 hover:text-accent-spirit transition-colors group">
-              <span class="text-lg">{rule.data.icon}</span>
-              <span class="group-hover:translate-x-0.5 transition-transform">{rule.data.title}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-
-    <!-- Rules Sections -->
-    <div class="space-y-12">
-      {renderedRules.map(({ data, Content }, i) => (
-        <section id={`section-${i}`} class="scroll-mt-24">
-          <div class="flex items-center gap-3 mb-6 pb-3 border-b border-rift-700/50">
-            <span class="text-2xl">{data.icon}</span>
-            <h2 class="text-xl font-display font-bold text-rift-100">{data.title}</h2>
-          </div>
-          <div class="prose prose-invert prose-orange max-w-none
-            prose-headings:font-display prose-headings:font-bold prose-headings:text-rift-100
-            prose-h2:text-lg prose-h2:mt-6 prose-h2:mb-3
-            prose-h3:text-base prose-h3:mt-5 prose-h3:mb-2
-            prose-p:text-rift-300 prose-p:leading-relaxed
-            prose-a:text-accent-spirit prose-a:no-underline hover:prose-a:underline
-            prose-strong:text-rift-100
-            prose-li:text-rift-300
-            prose-blockquote:border-accent-spirit/50 prose-blockquote:bg-accent-spirit/5 prose-blockquote:rounded-r-lg prose-blockquote:py-1 prose-blockquote:px-4
-            prose-table:text-sm
-            prose-th:text-accent-spirit prose-th:font-semibold
-            prose-td:text-rift-300
-            prose-hr:border-rift-700/50">
-            <Content />
-          </div>
-        </section>
-      ))}
+    <!-- Tabs Navigation -->
+    <div class="flex flex-wrap justify-center gap-2 mb-10" id="rules-tabs">
+      <button 
+        class="tab-btn active px-6 py-2.5 rounded-xl font-display font-bold text-sm transition-all duration-300 border border-transparent"
+        data-target="#core-rules"
+      >
+        Core Rules
+      </button>
+      <button 
+        class="tab-btn px-6 py-2.5 rounded-xl font-display font-bold text-sm transition-all duration-300 border border-transparent"
+        data-target="#tournament-rules"
+      >
+        Tournament Rules
+      </button>
+      <button 
+        class="tab-btn px-6 py-2.5 rounded-xl font-display font-bold text-sm transition-all duration-300 border border-transparent"
+        data-target="#erratas"
+      >
+        Erratas
+      </button>
     </div>
+
+    <!-- Core Rules Content -->
+    <div id="core-rules" class="rules-content animate-fade-in flex flex-col md:flex-row gap-8 items-start">
+       <!-- Sidebar Navigation -->
+       <div class="w-full md:w-64 flex-shrink-0 sticky top-24 bg-rift-800/50 backdrop-blur-sm border border-rift-700/50 rounded-xl p-4 hidden md:block">
+         <h3 class="text-xs font-display font-bold uppercase tracking-widest text-accent-forge mb-4">Navigation</h3>
+         <ul class="space-y-2">
+           {sortedRules.map((rule) => (
+             <li>
+               <a href={`#section-${rule.data.order}`} class="block py-1.5 px-3 rounded-lg text-sm text-rift-300 hover:text-white hover:bg-rift-700/50 transition-colors border-l-2 border-transparent hover:border-accent-spirit">
+                 {rule.data.order.toString().padStart(3, '0')}. {rule.data.title}
+               </a>
+             </li>
+           ))}
+         </ul>
+       </div>
+
+       <!-- Main Content -->
+       <div class="flex-1 space-y-16">
+         {renderedRules.map(({ data, Content }) => (
+           <section id={`section-${data.order}`} class="scroll-mt-28 bg-rift-800/20 rounded-2xl p-6 md:p-8 border border-rift-700/30">
+             <div class="flex items-center gap-4 mb-8 pb-4 border-b border-rift-700/50">
+               <span class="text-3xl">{data.icon}</span>
+               <div>
+                 <span class="block text-xs font-mono text-accent-spirit mb-1">{data.order.toString().padStart(3, '0')}</span>
+                 <h2 class="text-2xl md:text-3xl font-display font-bold text-rift-100">{data.title}</h2>
+               </div>
+             </div>
+             
+             <div class="prose prose-invert prose-orange max-w-none
+               prose-headings:font-display prose-headings:font-bold prose-headings:text-rift-100
+               prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4 prose-h3:text-accent-forge
+               prose-h4:text-lg prose-h4:mt-6 prose-h4:mb-3 prose-h4:text-rift-200
+               prose-p:text-rift-300 prose-p:leading-relaxed prose-p:mb-4
+               prose-ul:text-rift-300 prose-ul:list-disc prose-ul:ml-4
+               prose-li:mb-1
+               prose-strong:text-rift-100 prose-strong:font-semibold
+               prose-em:text-accent-sakura/90
+               prose-blockquote:border-l-4 prose-blockquote:border-accent-spirit/50 prose-blockquote:bg-rift-800/50 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-lg">
+               <Content />
+             </div>
+           </section>
+         ))}
+       </div>
+    </div>
+
+    <!-- Tournament Rules Content -->
+    <div id="tournament-rules" class="rules-content hidden animate-fade-in">
+        <div class="bg-rift-800/50 border border-rift-700/50 rounded-2xl p-8 text-center text-rift-300">
+            <h2 class="text-2xl font-display font-bold text-accent-forge mb-4">Règles de Tournoi</h2>
+            <p>Le contenu des Tournament Rules sera disponible prochainement.</p>
+        </div>
+    </div>
+
+    <!-- Erratas Content -->
+    <div id="erratas" class="rules-content hidden animate-fade-in">
+        <div class="bg-rift-800/50 border border-rift-700/50 rounded-2xl p-8 text-center text-rift-300">
+            <h2 class="text-2xl font-display font-bold text-accent-sakura mb-4">Erratas & FAQ</h2>
+            <p>Le contenu des Erratas sera disponible prochainement.</p>
+        </div>
+    </div>
+
   </div>
 
 </MainLayout>
+
+<style>
+  /* Tab Styles */
+  .tab-btn {
+    @apply bg-rift-800 text-rift-400 hover:text-rift-100;
+  }
+  
+  .tab-btn:hover {
+    @apply bg-rift-700/80;
+  }
+
+  /* Active Tab Styles - varying colors could be nice, let's Stick to Orange for now for consistency */
+  .tab-btn.active {
+    @apply bg-accent-spirit text-white shadow-spirit;
+  }
+
+  /* Specific colors for specific tabs if active? Optional enhancement. For now uniform active state. */
+  
+  /* Content formatting would go here */
+</style>
+
+<script>
+  const buttons = document.querySelectorAll('.tab-btn');
+  const contents = document.querySelectorAll('.rules-content');
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // 1. Remove active class from all buttons
+      buttons.forEach(b => b.classList.remove('active'));
+      // 2. Add active class to clicked button
+      btn.classList.add('active');
+
+      // 3. Hide all content
+      contents.forEach(c => c.classList.add('hidden'));
+
+      // 4. Show target content
+      const targetId = (btn as HTMLElement).dataset.target;
+      const targetContent = document.querySelector(targetId!);
+      targetContent?.classList.remove('hidden');
+    });
+  });
+</script>

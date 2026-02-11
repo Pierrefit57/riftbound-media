@@ -5,7 +5,7 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Inter', 'system-ui', 'sans-serif'],
-                display: ['Cinzel', 'Georgia', 'serif'],
+                display: ['Outfit', 'sans-serif'],
             },
             colors: {
                 // Fond Bleu Nuit & Orange (Nouveau Thème)
