@@ -2,9 +2,10 @@
 interface Props {
   title: string;
   petalMode?: 'full' | 'sides';
+  petals?: boolean;
 }
 
-const { title, petalMode = 'full' } = Astro.props;
+const { title, petalMode = 'full', petals = false } = Astro.props;
 const currentPath = Astro.url.pathname;
 const user = Astro.locals.user;
 const profile = Astro.locals.profile;
@@ -105,8 +106,12 @@ const navLinks = [
   </head>
   <body class="bg-rift-900 text-rift-100 font-sans min-h-screen flex flex-col relative">
 
-    <!-- Falling Petals (Home Only) -->
-    {currentPath === '/' ? (
+    <!-- Global Background Shading (Pink/Gold) -->
+    <div class="absolute inset-0 h-[800px] bg-spirit-radial pointer-events-none z-0"></div>
+    <div class="absolute inset-0 h-[800px] bg-forge-radial pointer-events-none z-0"></div>
+
+    <!-- Falling Petals (Home Only or Requested) -->
+    {(currentPath === '/' || petals) ? (
       <div class="petals-container">
         <div class="petal"></div>
         <div class="petal"></div>
@@ -169,9 +174,16 @@ const navLinks = [
                   Admin
                 </a>
               )}
+              
+              <!-- Mon Compte Button (Left of separator) -->
+              <a href="/account" class="px-3 py-1 rounded-full bg-rift-800 text-rift-50 text-xs font-semibold hover:bg-rift-700 transition-colors border border-rift-700">
+                Mon Compte
+              </a>
+
+              <!-- User Info Block (Right of separator) -->
               <a href="/account" class="flex items-center gap-3 pl-4 border-l border-rift-700/50 group">
                 <div class="text-right hidden sm:block">
-                  <p class="text-sm font-display font-bold text-rift-50 group-hover:text-accent-spirit transition-colors">{profile?.username || 'Mon Compte'}</p>
+                  <p class="text-sm font-display font-bold text-rift-50 group-hover:text-accent-spirit transition-colors">{profile?.username}</p>
                 </div>
                 {profile?.avatar_url ? (
                   <img src={profile.avatar_url} alt="Avatar" class="w-9 h-9 rounded-full object-cover group-hover:scale-105 transition-transform duration-200" />
@@ -233,31 +245,31 @@ const navLinks = [
     </main>
 
     <!-- Footer -->
-    <footer class="relative z-10 border-t border-rift-800 mt-20 bg-rift-950">
+    <footer class="relative z-10 border-t border-rift-800 mt-20 bg-rift-900">
       <div class="h-px bg-gradient-to-r from-transparent via-accent-forge/30 to-transparent"></div>
 
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-12 pb-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
           <div class="sm:col-span-2 md:col-span-1">
             <a href="/" class="flex items-center gap-2 mb-3">
               <img src="/riftbound-logo.png" alt="Riftbound" class="w-8 h-8 rounded-lg object-contain" />
-              <span class="text-sm font-bold"><span class="text-rift-900">Riftbound</span> <span class="text-accent-spirit">Media</span></span>
+              <span class="text-sm font-bold"><span class="text-rift-50">Riftbound</span> <span class="text-accent-spirit">Media</span></span>
             </a>
             <p class="text-rift-500 text-sm leading-relaxed">
               Votre source francophone pour l'univers Riftbound. Actualités, guides et communauté.
             </p>
           </div>
 
-          <div>
-            <h4 class="text-xs font-display font-semibold uppercase tracking-widest text-accent-forge mb-4">Contenu</h4>
+          <div class="pt-2">
+            <h4 class="text-xs font-display font-semibold uppercase tracking-widest text-accent-spirit mb-4">Contenu</h4>
             <ul class="space-y-2.5">
               <li><a href="/news" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">Actualités</a></li>
               <li><a href="/rules" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">Règles du Jeu</a></li>
             </ul>
           </div>
 
-          <div>
-            <h4 class="text-xs font-display font-semibold uppercase tracking-widest text-accent-forge mb-4">Communauté</h4>
+          <div class="pt-2">
+            <h4 class="text-xs font-display font-semibold uppercase tracking-widest text-accent-spirit mb-4">Communauté</h4>
             <ul class="space-y-2.5">
               <li><a href="#" class="inline-flex items-center gap-2 text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-3.6751 1.5152.07.07 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.057 19.9 19.9 0 005.9936 3.03.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.3101-1.274-.6629-1.8703-.9132a.077.077 0 01-.009-.1363c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1376 12.2949 12.2949 0 01-1.873.9142.076.076 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286 19.839 19.839 0 006.0028-3.03.077.077 0 00.0321-.0544c.5-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9554 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>Discord</a></li>
               <li><a href="#" class="inline-flex items-center gap-2 text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>X (Twitter)</a></li>
@@ -265,8 +277,8 @@ const navLinks = [
             </ul>
           </div>
 
-          <div>
-            <h4 class="text-xs font-display font-semibold uppercase tracking-widest text-accent-forge mb-4">Ressources</h4>
+          <div class="pt-2">
+            <h4 class="text-xs font-display font-semibold uppercase tracking-widest text-accent-spirit mb-4">Ressources</h4>
             <ul class="space-y-2.5">
               <li><a href="#" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">À propos</a></li>
               <li><a href="#" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">Contact</a></li>
@@ -275,9 +287,9 @@ const navLinks = [
           </div>
         </div>
 
-        <div class="mt-10 pt-6 border-t border-rift-200/60 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="mt-8 pt-8 border-t border-rift-200/60 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p class="text-xs text-rift-400">
-            &copy; 2026 Riftbound Media. Site communautaire non-officiel.
+            &copy; 2026 Riftbound Media. Site communautaire non-officiel. <span class="mx-2 text-rift-600">|</span> <span class="inline-flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" class="w-4 h-3 rounded-sm"><path fill="#EC1920" d="M2 0h1v2H2z"/><path fill="#fff" d="M1 0h1v2H1z"/><path fill="#051440" d="M0 0h1v2H0z"/></svg> Vibe-codé avec amour</span>
           </p>
           <div class="flex items-center gap-3">
             <a href="#" class="text-rift-400 hover:text-accent-spirit transition-colors"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-3.6751 1.5152.07.07 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.057 19.9 19.9 0 005.9936 3.03.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.3101-1.274-.6629-1.8703-.9132a.077.077 0 01-.009-.1363c.1258-.0943.2517-.192.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1376 12.2949 12.2949 0 01-1.873.9142.076.076 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286 19.839 19.839 0 006.0028-3.03.077.077 0 00.0321-.0544c.5-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9554 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg></a>

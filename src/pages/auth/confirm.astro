@@ -1,0 +1,78 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+---
+
+<MainLayout title="Confirmation...">
+  <div class="flex items-center justify-center min-h-[60vh]">
+    <div class="text-center p-8 bg-rift-800/80 rounded-2xl border border-rift-700/50 shadow-card max-w-md w-full mx-4">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-spirit mx-auto mb-4"></div>
+      <h1 class="text-xl font-display font-bold text-rift-100 mb-2">Vérification en cours...</h1>
+      <p class="text-rift-400 text-sm">Nous validons votre email, vous allez être redirigé dans un instant.</p>
+    </div>
+  </div>
+
+  <script>
+    const handleConfirmation = async () => {
+      const statusMessage = document.querySelector('p');
+      const spinner = document.querySelector('.animate-spin');
+
+      try {
+        // 1. Check for tokens in hash (Implicit Flow from Email Link)
+        const hash = window.location.hash;
+        
+        if (!hash || !hash.includes('access_token')) {
+          // No hash = clean redirect to home after delay
+          setTimeout(() => window.location.href = '/', 2000);
+          return;
+        }
+
+        // Extract token manually (lightweight, no supabase-js needed)
+        const params = new URLSearchParams(hash.substring(1)); // remove #
+        const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
+
+        if (!accessToken || !refreshToken) {
+           throw new Error('Tokens manquants dans l\'URL');
+        }
+
+        // Send to our cookie-setting API with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
+
+        const response = await fetch('/api/auth/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accessToken, refreshToken }),
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+           // Success!
+           if (statusMessage) statusMessage.textContent = 'Email vérifié ! Redirection...';
+           window.location.href = '/?verified=true';
+           return;
+        } else {
+           throw new Error(`Erreur serveur: ${response.status}`);
+        }
+
+      } catch (e: any) {
+        console.error('Auth confirm error:', e);
+        if (statusMessage) {
+          statusMessage.textContent = 'Une erreur est survenue lors de la validation.';
+          statusMessage.className = 'text-red-400 text-sm font-medium';
+        }
+        if (spinner) spinner.classList.add('hidden');
+        
+        // Fallback redirect even on error
+        setTimeout(() => {
+           window.location.href = '/login?error=confirmation_failed';
+        }, 4000);
+      }
+    };
+
+    // Run immediately
+    handleConfirmation();
+  </script>
+</MainLayout>

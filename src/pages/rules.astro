@@ -2,17 +2,9 @@
 export const prerender = false;
 
 import MainLayout from '../layouts/MainLayout.astro';
-import { getCollection } from 'astro:content';
+import PDFViewer from '../components/PDFViewer.tsx';
 
-const allRules = await getCollection('rules');
-const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
-
-const renderedRules = await Promise.all(
-  sortedRules.map(async (rule) => {
-    const { Content } = await rule.render();
-    return { data: rule.data, Content };
-  })
-);
+// Core Rules Content removed as we are now using PDF Viewer
 ---
 
 <MainLayout title="Règles du Jeu" petalMode="sides">
@@ -27,80 +19,58 @@ const renderedRules = await Promise.all(
       </div>
       <h1 class="text-3xl md:text-4xl font-display font-bold text-rift-100 mb-3">Règles du Jeu</h1>
       <p class="text-rift-300 leading-relaxed max-w-2xl mx-auto">Tout ce que vous devez savoir pour jouer à Riftbound. Des bases aux règles de tournoi.</p>
+      <p class="text-rift-400 italic text-sm mt-4">Les règles officielles n'existent qu'en anglais pour le moment</p>
     </div>
 
     <!-- Tabs Navigation -->
     <div class="flex flex-wrap justify-center gap-2 mb-10" id="rules-tabs">
       <button 
-        class="tab-btn active px-6 py-2.5 rounded-xl font-display font-bold text-sm transition-all duration-300 border border-transparent"
+        class="tab-btn active w-48 px-2 py-2.5 rounded-xl font-display font-bold text-sm transition-all duration-300 border border-transparent text-center"
         data-target="#core-rules"
       >
-        Core Rules
+        Règles de base
       </button>
       <button 
-        class="tab-btn px-6 py-2.5 rounded-xl font-display font-bold text-sm transition-all duration-300 border border-transparent"
+        class="tab-btn w-48 px-2 py-2.5 rounded-xl font-display font-bold text-sm transition-all duration-300 border border-transparent text-center"
         data-target="#tournament-rules"
       >
-        Tournament Rules
+        Règles de tournoi
       </button>
       <button 
-        class="tab-btn px-6 py-2.5 rounded-xl font-display font-bold text-sm transition-all duration-300 border border-transparent"
+        class="tab-btn w-48 px-2 py-2.5 rounded-xl font-display font-bold text-sm transition-all duration-300 border border-transparent text-center"
         data-target="#erratas"
       >
-        Erratas
+        Erratas et FAQ
       </button>
     </div>
 
     <!-- Core Rules Content -->
-    <div id="core-rules" class="rules-content animate-fade-in flex flex-col md:flex-row gap-8 items-start">
-       <!-- Sidebar Navigation -->
-       <div class="w-full md:w-64 flex-shrink-0 sticky top-24 bg-rift-800/50 backdrop-blur-sm border border-rift-700/50 rounded-xl p-4 hidden md:block">
-         <h3 class="text-xs font-display font-bold uppercase tracking-widest text-accent-forge mb-4">Navigation</h3>
-         <ul class="space-y-2">
-           {sortedRules.map((rule) => (
-             <li>
-               <a href={`#section-${rule.data.order}`} class="block py-1.5 px-3 rounded-lg text-sm text-rift-300 hover:text-white hover:bg-rift-700/50 transition-colors border-l-2 border-transparent hover:border-accent-spirit">
-                 {rule.data.order.toString().padStart(3, '0')}. {rule.data.title}
-               </a>
-             </li>
-           ))}
-         </ul>
-       </div>
-
-       <!-- Main Content -->
-       <div class="flex-1 space-y-16">
-         {renderedRules.map(({ data, Content }) => (
-           <section id={`section-${data.order}`} class="scroll-mt-28 bg-rift-800/20 rounded-2xl p-6 md:p-8 border border-rift-700/30">
-             <div class="flex items-center gap-4 mb-8 pb-4 border-b border-rift-700/50">
-               <span class="text-3xl">{data.icon}</span>
-               <div>
-                 <span class="block text-xs font-mono text-accent-spirit mb-1">{data.order.toString().padStart(3, '0')}</span>
-                 <h2 class="text-2xl md:text-3xl font-display font-bold text-rift-100">{data.title}</h2>
-               </div>
-             </div>
-             
-             <div class="prose prose-invert prose-orange max-w-none
-               prose-headings:font-display prose-headings:font-bold prose-headings:text-rift-100
-               prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4 prose-h3:text-accent-forge
-               prose-h4:text-lg prose-h4:mt-6 prose-h4:mb-3 prose-h4:text-rift-200
-               prose-p:text-rift-300 prose-p:leading-relaxed prose-p:mb-4
-               prose-ul:text-rift-300 prose-ul:list-disc prose-ul:ml-4
-               prose-li:mb-1
-               prose-strong:text-rift-100 prose-strong:font-semibold
-               prose-em:text-accent-sakura/90
-               prose-blockquote:border-l-4 prose-blockquote:border-accent-spirit/50 prose-blockquote:bg-rift-800/50 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-lg">
-               <Content />
-             </div>
-           </section>
-         ))}
-       </div>
+    <div id="core-rules" class="rules-content">
+       <div class="bg-rift-800/50 border border-rift-700/50 rounded-2xl p-4 md:p-8 text-center text-rift-300">
+            <div class="relative flex flex-col md:flex-row items-center justify-center md:justify-end gap-2 mb-6">
+                 <h2 class="text-2xl font-display font-bold text-accent-spirit md:absolute md:left-1/2 md:-translate-x-1/2 w-full md:w-auto text-center">
+                    Core Rules <span class="text-rift-400 font-normal ml-2 text-lg">v 1.2</span>
+                 </h2>
+                 <span class="text-sm text-rift-500 italic relative z-10">Mis à jour le 12-01-2025</span>
+            </div>
+            <div class="min-h-[600px] w-full bg-rift-900/50 flex flex-col justify-center">
+              <PDFViewer client:only="react" url="https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/PDFrules/Riftbound%20Core%20Rules%20v1.2.pdf" />
+            </div>
+        </div>
     </div>
 
     <!-- Tournament Rules Content -->
-    <div id="tournament-rules" class="rules-content hidden animate-fade-in">
-        <div class="bg-rift-800/50 border border-rift-700/50 rounded-2xl p-8 text-center text-rift-300">
-            <h2 class="text-2xl font-display font-bold text-accent-forge mb-4">Règles de Tournoi</h2>
-            <p>Le contenu des Tournament Rules sera disponible prochainement.</p>
+    <div id="tournament-rules" class="rules-content hidden">
+        <div class="bg-rift-800/50 border border-rift-700/50 rounded-2xl p-4 md:p-8 text-center text-rift-300">
+             <div class="relative flex flex-col md:flex-row items-center justify-center md:justify-end gap-2 mb-6">
+                 <h2 class="text-2xl font-display font-bold text-accent-spirit md:absolute md:left-1/2 md:-translate-x-1/2 w-full md:w-auto text-center">
+                    Tournament Rules
+                 </h2>
+                 <span class="text-sm text-rift-500 italic relative z-10">Mis à jour le 30-01-2025</span>
+            </div>
+            <div class="min-h-[600px] w-full">
+              <PDFViewer client:only="react" url="https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/PDFrules/Tournament%20Rules,%20January%20Update.pdf" />
+            </div>
         </div>
     </div>
 
@@ -131,14 +101,18 @@ const renderedRules = await Promise.all(
     @apply bg-accent-spirit text-white shadow-spirit;
   }
 
-  /* Specific colors for specific tabs if active? Optional enhancement. For now uniform active state. */
-  
   /* Content formatting would go here */
 </style>
 
 <script>
   const buttons = document.querySelectorAll('.tab-btn');
   const contents = document.querySelectorAll('.rules-content');
+
+  // Helper to handle ResizeObserver trigger for PDF viewer when tab becomes visible
+  const triggerResize = () => {
+    // Dispatch a resize event to trigger implicit observers if any
+    window.dispatchEvent(new Event('resize'));
+  }
 
   buttons.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -154,6 +128,10 @@ const renderedRules = await Promise.all(
       const targetId = (btn as HTMLElement).dataset.target;
       const targetContent = document.querySelector(targetId!);
       targetContent?.classList.remove('hidden');
+
+      // Trigger resize to help PDF viewer detect visibility change immediately if needed
+      // (Though the internal ResizeObserver in viewer.html handles this effectively)
+      setTimeout(triggerResize, 50);
     });
   });
 </script>

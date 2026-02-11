@@ -7,15 +7,30 @@ import { marked } from 'marked';
 
 const { slug } = Astro.params;
 
+// Fetch article first (without join to avoid PGRST200 error if relation cache is stale)
 const { data: article, error } = await supabase
   .from('articles')
-  .select('*, profiles(username, avatar_url)')
+  .select('*')
   .eq('slug', slug)
   .eq('published', true)
   .single();
 
 if (error || !article) {
   return Astro.redirect('/news');
+}
+
+// Manually fetch author profile
+if (article.author_id) {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('username, avatar_url')
+    .eq('id', article.author_id)
+    .single();
+  
+  // Attach profile data to article object for template compatibility
+  if (profile) {
+    (article as any).profiles = profile;
+  }
 }
 
 const htmlContent = await marked.parse(article.content || '');

@@ -39,6 +39,15 @@ if (Astro.request.method === 'POST') {
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,
     });
+
+    
+    // Track Login
+    const { trackEvent } = await import('../lib/analytics');
+    await trackEvent('login', {
+       user_id: data.session.user.id,
+       path: '/login'
+    });
+
     return Astro.redirect('/');
   }
 }

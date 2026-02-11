@@ -2,8 +2,13 @@
 export const prerender = false;
 
 import AdminLayout from '../../layouts/AdminLayout.astro';
-import { supabase } from '../../lib/supabase';
+import DashboardCharts from '../../components/admin/DashboardCharts';
+import { createServiceClient } from '../../lib/supabase';
 
+// Utiliser le service client pour contourner les RLS (lecture logs admin)
+const supabase = createServiceClient();
+
+// 1. Articles Stats
 const { data: articles } = await supabase
   .from('articles')
   .select('id, published')
@@ -12,39 +17,105 @@ const { data: articles } = await supabase
 const totalArticles = articles?.length || 0;
 const publishedCount = articles?.filter((a) => a.published)?.length || 0;
 const draftCount = totalArticles - publishedCount;
+
+// 2. Analytics Stats
+const now = new Date();
+const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000).toISOString();
+const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+// Online Now (Unique IPs in last 5 min)
+const { data: onlineLogs } = await supabase
+  .from('analytics_logs')
+  .select('ip_address')
+  .eq('event_type', 'page_view')
+  .gte('created_at', fiveMinutesAgo);
+
+const onlineCount = new Set(onlineLogs?.map(l => l.ip_address)).size;
+
+// Fetch Logs (Last 30 days)
+const { data: logs } = await supabase
+  .from('analytics_logs')
+  .select('event_type, created_at, path')
+  .gte('created_at', thirtyDaysAgo)
+  .order('created_at', { ascending: true });
+
+// Process Logs for Charts
+const dailyStats = new Map<string, { visits: number; logins: number }>();
+const pageStats = new Map<string, number>();
+
+// Initialize last 30 days with 0
+for (let i = 0; i < 30; i++) {
+   const d = new Date();
+   d.setDate(d.getDate() - i);
+   const dateStr = d.toISOString().split('T')[0];
+   dailyStats.set(dateStr, { visits: 0, logins: 0 });
+}
+
+logs?.forEach(log => {
+   const dateStr = log.created_at.split('T')[0];
+   
+   if (log.event_type === 'page_view') {
+       if (dailyStats.has(dateStr)) { 
+          const stat = dailyStats.get(dateStr)!;
+          stat.visits++; 
+       } else {
+           // Should ideally ensure map has all dates, but fallbacks handled by init loop usually
+           dailyStats.set(dateStr, { visits: 1, logins: 0 });
+       }
+       
+       if (log.path) {
+           const p = log.path;
+           pageStats.set(p, (pageStats.get(p) || 0) + 1);
+       }
+   } else if (log.event_type === 'login') {
+       if (dailyStats.has(dateStr)) {
+          const stat = dailyStats.get(dateStr)!;
+          stat.logins++;
+       } else {
+          dailyStats.set(dateStr, { visits: 0, logins: 1 });
+       }
+   }
+});
+
+// Convert Maps to Arrays and Sort
+const chartData = {
+    dailyVisits: Array.from(dailyStats.entries())
+        .map(([date, stats]) => ({ date, ...stats }))
+        .sort((a, b) => a.date.localeCompare(b.date)), // Sort by date ascending
+    topPages: Array.from(pageStats.entries())
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 5), // Top 5
+    onlineCount: onlineCount || 0
+};
+
 ---
 
 <AdminLayout title="Dashboard" activeItem="dashboard">
-  <div class="space-y-6">
-
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="bg-rift-800/50 rounded-2xl border border-rift-700/50 p-5 shadow-card hover:shadow-card-hover transition-shadow duration-300">
-        <p class="text-sm text-rift-400 mb-1 font-display">Total Articles</p>
-        <p class="text-3xl font-bold text-rift-100">{totalArticles}</p>
-      </div>
-      <div class="bg-rift-800/50 rounded-2xl border border-rift-700/50 p-5 shadow-card hover:shadow-card-hover transition-shadow duration-300">
-        <p class="text-sm text-rift-400 mb-1 font-display">Publiés</p>
-        <p class="text-3xl font-bold text-domain-calm">{publishedCount}</p>
-      </div>
-      <div class="bg-rift-800/50 rounded-2xl border border-rift-700/50 p-5 shadow-card hover:shadow-card-hover transition-shadow duration-300">
-        <p class="text-sm text-rift-400 mb-1 font-display">Brouillons</p>
-        <p class="text-3xl font-bold text-accent-forge">{draftCount}</p>
-      </div>
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    
+    <!-- Left Column: Quick Actions -->
+    <div class="lg:col-span-1 space-y-6">
+       <div class="bg-rift-800/50 rounded-2xl border border-rift-700/50 p-5 shadow-card sticky top-6">
+          <h2 class="text-base font-display font-bold text-rift-100 mb-4">Actions rapides</h2>
+          <div class="flex flex-col gap-3">
+            <a href="/admin/articles/new" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-accent-spirit text-white text-sm font-semibold hover:bg-accent-spirit/90 shadow-spirit transition-all duration-300 hover:-translate-y-0.5 w-full">
+              ✦ Nouvel article
+            </a>
+            <a href="/admin/articles" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-rift-300 text-sm font-medium border border-rift-700 bg-rift-800/60 hover:border-accent-spirit/30 hover:text-accent-spirit transition-all duration-300 w-full">
+              Gérer les articles
+            </a>
+            <a href="/" target="_blank" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-rift-300 text-sm font-medium border border-rift-700 bg-rift-800/60 hover:border-accent-forge/30 hover:text-accent-forge transition-all duration-300 w-full">
+              Voir le site ↗
+            </a>
+          </div>
+        </div>
     </div>
 
-    <div class="bg-rift-800/50 rounded-2xl border border-rift-700/50 p-5 shadow-card">
-      <h2 class="text-base font-display font-bold text-rift-100 mb-4">Actions rapides</h2>
-      <div class="flex flex-wrap gap-3">
-        <a href="/admin/articles/new" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent-spirit text-white text-sm font-semibold hover:bg-accent-spirit/90 shadow-spirit transition-all duration-300 hover:-translate-y-0.5">
-          ✦ Nouvel article
-        </a>
-        <a href="/admin/articles" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-rift-300 text-sm font-medium border border-rift-700 bg-rift-800/60 hover:border-accent-spirit/30 hover:text-accent-spirit transition-all duration-300">
-          Gérer les articles
-        </a>
-        <a href="/" target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-rift-300 text-sm font-medium border border-rift-700 bg-rift-800/60 hover:border-accent-forge/30 hover:text-accent-forge transition-all duration-300">
-          Voir le site ↗
-        </a>
-      </div>
+    <!-- Right Column: Charts -->
+    <div class="lg:col-span-3">
+       <DashboardCharts client:load data={chartData} />
     </div>
+
   </div>
 </AdminLayout>

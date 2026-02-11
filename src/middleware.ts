@@ -1,7 +1,44 @@
 import { defineMiddleware } from 'astro:middleware';
 import { createAuthClient, getUserProfile } from './lib/supabase';
+import { trackEvent } from './lib/analytics';
+
+const IGNORED_PATHS = [
+    '/_astro',
+    '/api',
+    '/lib',
+    '/favicon.ico',
+    '/robots.txt',
+    '/sitemap.xml',
+    '.png',
+    '.jpg',
+    '.jpeg',
+    '.svg',
+    '.css',
+    '.js',
+];
 
 export const onRequest = defineMiddleware(async (context, next) => {
+    // 1. Analytics Tracking
+    const path = context.url.pathname;
+    if (!IGNORED_PATHS.some((p) => path.startsWith(p) || path.endsWith(p))) {
+        // Obtenir l'IP de manière sécurisée (compatible Vercel/Node)
+        const ip = context.request.headers.get('x-forwarded-for') || context.clientAddress;
+
+        // On ne bloque pas la requête, on lance le tracking en "background"
+        // Note: Dans un environnement serverless strict, il vaudrait mieux utiliser context.waitUntil si disponible,
+        // mais Astro ne l'expose pas toujours directement. On appelle la fonction async sans await.
+        // ATTENTION: Sur Vercel Edge, sans await, la promesse peut être annulée.
+        // Pour l'instant, on fait un tracking simple qui attend (rapide avec Supabase) ou on accepte le risque.
+        // On va attendre pour garantir l'écriture, ça ajoute quelques ms mais c'est plus sûr.
+        trackEvent('page_view', {
+            path,
+            ip: typeof ip === 'string' ? ip : undefined,
+            agent: context.request.headers.get('user-agent') || undefined,
+            user_id: undefined, // Sera enrichi si session trouvée ? Non, middleware s'exécute avant auth pour tout le monde. 
+            // Si on veut le user_id, il faut le faire APRES la résolution de session ci-dessous.
+            // On déplace le tracking après la session.
+        });
+    }
     // Récupérer les tokens depuis les cookies
     const accessToken = context.cookies.get('sb-access-token')?.value;
     const refreshToken = context.cookies.get('sb-refresh-token')?.value;

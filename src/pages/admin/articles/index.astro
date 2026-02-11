@@ -56,7 +56,9 @@ const { data: articles } = await supabase
           <div class="flex items-center justify-between gap-4 p-4 bg-rift-800/50 rounded-xl border border-rift-700/50 hover:border-rift-600/50 transition-colors">
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2 mb-1">
-                <h3 class="text-sm font-bold text-rift-100 truncate">{article.title}</h3>
+                <a href={`/news/${article.slug}`} target="_blank" class="text-sm font-bold text-rift-100 truncate hover:text-accent-cyan transition-colors" title="Lire l'article">
+                  {article.title} ↗
+                </a>
                 {article.featured && (
                   <span class="px-1.5 py-0.5 text-[10px] font-medium rounded bg-accent-forge/20 text-accent-forge">★ Featured</span>
                 )}

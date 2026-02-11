@@ -33,5 +33,12 @@ export const GET: APIRoute = async ({ url, cookies, redirect }) => {
         maxAge: 60 * 60 * 24 * 7,
     });
 
+    // Track Login
+    const { trackEvent } = await import('../../../lib/analytics');
+    await trackEvent('login', {
+        user_id: data.session.user.id,
+        path: '/api/auth/callback'
+    });
+
     return redirect('/');
 };

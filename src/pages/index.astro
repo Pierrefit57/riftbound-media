@@ -25,11 +25,7 @@ const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
 
   <!-- Hero -->
   <section class="relative overflow-hidden">
-    <!-- Background effects -->
-    <div class="absolute inset-0 bg-spirit-radial"></div>
-    <div class="absolute inset-0 bg-forge-radial"></div>
-
-
+    <!-- Background effects handled by MainLayout -->
 
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 pt-20 pb-16 md:pt-28 md:pb-24 text-center">
       <!-- Decorative line -->
@@ -92,29 +88,7 @@ const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
     </section>
   )}
 
-  <!-- Rules Preview -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 mb-16">
-    <div class="flex items-center justify-between mb-8">
-      <div class="flex items-center gap-3">
-        <div class="w-1 h-6 rounded-full bg-gradient-to-b from-accent-forge to-accent-spirit"></div>
-        <h2 class="text-xl font-display font-bold text-rift-100">Règles du Jeu</h2>
-      </div>
-      <a href="/rules" class="text-sm text-accent-spirit hover:text-accent-forge font-medium transition-colors duration-300 flex items-center gap-1">
-        Voir les règles <span>→</span>
-      </a>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-      {sortedRules.map((rule) => (
-        <a href="/rules" class="group flex items-start gap-4 p-5 rounded-2xl bg-rift-800/40 border border-rift-700/50 hover:border-accent-spirit/40 transition-all duration-300 hover:shadow-spirit hover:-translate-y-0.5">
-          <span class="text-3xl flex-shrink-0 group-hover:scale-110 transition-transform duration-300">{rule.data.icon}</span>
-          <div>
-            <h3 class="text-base font-display font-bold text-rift-100 mb-1 group-hover:text-accent-spirit transition-colors duration-300">{rule.data.title}</h3>
-            <p class="text-sm text-rift-300 line-clamp-2 leading-relaxed">{rule.data.summary}</p>
-          </div>
-        </a>
-      ))}
-    </div>
-  </section>
+
 
   <!-- Community CTA -->
   <section class="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
@@ -123,7 +97,7 @@ const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
       <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent-forge/30 to-transparent"></div>
 
       <div class="relative">
-        <span class="text-accent-forge text-xs font-display tracking-[0.2em] uppercase mb-4 block">Communauté</span>
+        <span class="text-accent-spirit text-xs font-display tracking-[0.2em] uppercase mb-4 block">Communauté</span>
         <h2 class="text-2xl md:text-3xl font-display font-bold mb-4 text-rift-100">Rejoignez la Communauté</h2>
         <p class="text-rift-300 mb-8 max-w-lg mx-auto leading-relaxed">
           Discutez stratégie, partagez vos decks et restez informés des derniers événements.
