@@ -264,17 +264,7 @@ const { name, id, value = '', placeholder, rows = 15, required = false, label } 
       this.textarea.setSelectionRange(newCursorPos, newCursorPos);
     }
 
-    insertText(newText: string, start: number, end: number, cursorOffset = 0) {
-      const text = this.textarea.value;
-      const before = text.substring(0, start);
-      const after = text.substring(end);
-      
-      this.textarea.value = before + newText + after;
-      
-      const newCursorPos = start + newText.length + cursorOffset;
-      this.textarea.focus();
-      this.textarea.setSelectionRange(newCursorPos, newCursorPos);
-    }
+
 
     initImageUpload() {
       this.fileInput.addEventListener('change', async () => {
