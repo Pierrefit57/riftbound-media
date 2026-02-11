@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Viewer</title>
+    <!-- Use CDN for functionality -->
+    <link rel="stylesheet" href="https://unpkg.com/pdfjs-dist@4.4.168/web/pdf_viewer.css">
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #1a1a1a;
+            color: white;
+            font-family: system-ui, sans-serif;
+        }
+
+        /* Inline critical container styles */
+        #viewerContainer {
+            overflow: auto;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            outline: none;
+        }
+
+        .pdfViewer .page {
+            border: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            margin: 20px auto;
+        }
+
+        /* Loading Indicator */
+        #loading-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            z-index: 100;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #ff6633;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loading-indicator">
+        <div class="spinner"></div>
+    </div>
+
+    <div id="viewerContainer">
+        <div id="viewer" class="pdfViewer"></div>
+    </div>
+
+    <div id="error-message"
+        style="display:none; position:fixed; top:20px; left:20px; right:20px; background:rgba(255,0,0,0.8); color:white; padding:15px; border-radius:8px; z-index:9999;">
+    </div>
+
+    <script type="module">
+        import * as pdfjsLib from 'https://unpkg.com/pdfjs-dist@4.4.168/build/pdf.min.mjs';
+        import * as pdfjsViewer from 'https://unpkg.com/pdfjs-dist@4.4.168/web/pdf_viewer.mjs';
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
+
+        const container = document.getElementById('viewerContainer');
+        const eventBus = new pdfjsViewer.EventBus();
+
+        const pdfLinkService = new pdfjsViewer.PDFLinkService({
+            eventBus,
+        });
+
+        const pdfFindController = new pdfjsViewer.PDFFindController({
+            eventBus,
+            linkService: pdfLinkService,
+        });
+
+        const pdfViewer = new pdfjsViewer.PDFViewer({
+            container,
+            eventBus,
+            linkService: pdfLinkService,
+            findController: pdfFindController,
+            textLayerMode: 1,
+            annotationMode: 1,
+        });
+
+        pdfLinkService.setViewer(pdfViewer);
+
+        // --- Init Logic ---
+        let hasInitialized = false;
+
+        const applyInitialScale = () => {
+            // Force 120% Zoom by default
+            pdfViewer.currentScaleValue = '1.2';
+        };
+
+        const reportScale = () => {
+            if (window.parent && pdfViewer.currentScale) {
+                window.parent.postMessage({
+                    type: 'SCALE_CHANGED',
+                    payload: { value: pdfViewer.currentScale }
+                }, '*');
+            }
+        };
+
+        // Watch for visibility changes to apply scale if we loaded while hidden
+        const observer = new ResizeObserver((entries) => {
+            for (let entry of entries) {
+                if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+                    if (pdfViewer.pdfDocument) {
+                        pdfViewer.update();
+                        // Apply default zoom if scale is unset/tiny
+                        if (pdfViewer.currentScale < 0.1) {
+                            applyInitialScale();
+                        }
+                        setTimeout(reportScale, 100);
+                    }
+                }
+            }
+        });
+        observer.observe(container);
+
+        // Events
+        eventBus.on('pagesinit', () => {
+            hasInitialized = true;
+            applyInitialScale();
+            document.getElementById('loading-indicator').style.opacity = '0';
+            setTimeout(reportScale, 200);
+        });
+
+        eventBus.on('scalechanging', (evt) => {
+            setTimeout(reportScale, 50);
+        });
+
+        eventBus.on('updatefindmatchescount', (e) => {
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'MATCH_COUNT',
+                    payload: {
+                        total: e.matchesCount.total,
+                        current: e.matchesCount.current
+                    }
+                }, '*');
+            }
+        });
+
+        eventBus.on('updatefindcontrolstate', (e) => {
+            if (e.state === 1 /* NOT_FOUND */) {
+                if (window.parent) window.parent.postMessage({ type: 'NO_MATCH' }, '*');
+            }
+        });
+
+        // Load Document
+        const urlParams = new URLSearchParams(window.location.search);
+        const file = urlParams.get('file');
+
+        if (file) {
+            const loadingTask = pdfjsLib.getDocument({
+                url: file,
+                cMapUrl: 'https://unpkg.com/pdfjs-dist@4.4.168/cmaps/',
+                cMapPacked: true,
+            });
+
+            loadingTask.promise.then((pdfDocument) => {
+                pdfViewer.setDocument(pdfDocument);
+                pdfLinkService.setDocument(pdfDocument, null);
+            }).catch(error => {
+                const errDiv = document.getElementById('error-message');
+                errDiv.style.display = 'block';
+                errDiv.textContent = `Erreur de chargement: ${error.message}`;
+                document.getElementById('loading-indicator').style.display = 'none';
+            });
+        }
+
+        // Parent Communication
+        window.addEventListener('message', (event) => {
+            if (!event.data) return;
+            const { type, payload } = event.data;
+
+            if (type === 'FIND') {
+                eventBus.dispatch('find', {
+                    source: window,
+                    type: '',
+                    query: payload.query,
+                    caseSensitive: false,
+                    entireWord: false,
+                    highlightAll: true,
+                    findPrevious: payload.findPrevious || false,
+                });
+            }
+            if (type === 'FIND_AGAIN') {
+                eventBus.dispatch('find', {
+                    source: window,
+                    type: 'again',
+                    query: payload.query,
+                    caseSensitive: false,
+                    entireWord: false,
+                    highlightAll: true,
+                    findPrevious: payload.findPrevious || false,
+                });
+            }
+            if (type === 'ZOOM') {
+                if (payload.value === 'in') pdfViewer.currentScale += 0.1;
+                if (payload.value === 'out') pdfViewer.currentScale -= 0.1;
+            }
+        });
+    </script>
+</body>
+
+</html>
