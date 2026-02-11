@@ -98,6 +98,14 @@ export default {
                 'fade-in': 'fade-in 0.4s ease-out',
                 'shimmer': 'shimmer 4s linear infinite',
             },
+            typography: {
+                DEFAULT: {
+                    css: {
+                        'blockquote p:first-of-type::before': { content: 'none' },
+                        'blockquote p:last-of-type::after': { content: 'none' },
+                    },
+                },
+            },
         },
     },
     plugins: [require('@tailwindcss/typography')],
