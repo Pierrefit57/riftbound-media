@@ -6,15 +6,50 @@ import NewsCard from '../components/NewsCard.astro';
 import { supabase } from '../lib/supabase';
 import { getCollection } from 'astro:content';
 
-// Articles depuis Supabase
+// Articles depuis Supabase (Limité à 6 pour laisser de la place aux tournois)
 const { data: allNews } = await supabase
   .from('articles')
   .select('*')
   .eq('published', true)
   .order('created_at', { ascending: false })
-  .limit(9);
+  .limit(6);
 
 const latestNews = allNews || [];
+
+// Fetch Tournaments specifically (check for 'tournoi' or 'Tournoi')
+const { data: tournamentNews } = await supabase
+  .from('articles')
+  .select('*')
+  .eq('published', true)
+  .or('tags.cs.{"tournoi"},tags.cs.{"Tournoi"}')
+  .order('created_at', { ascending: false })
+  .limit(3);
+
+const realTournaments = tournamentNews || [];
+
+// Mock items to ensure 3 real-looking slots (copies of the interview style)
+const mockTournaments = [
+  {
+    title: "TOURNOI DE PRINTEMPS : LES INSCRIPTIONS",
+    summary: "Le prochain grand rendez-vous compétitif approche. Découvrez les dates et les récompenses exclusives de cette édition.",
+    image_url: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=2070",
+    tags: ["Tournoi", "Compétitif", "Annonce"],
+    created_at: new Date().toISOString(),
+    slug: "#"
+  },
+  {
+    title: "LES RÈGLES DE TOURNOI : MISE À JOUR 1.2",
+    summary: "Tout ce qu'il faut savoir sur l'évolution du format compétitif pour les prochains événements officiels.",
+    image_url: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&q=80&w=2070",
+    tags: ["Règles", "Tournoi", "Info"],
+    created_at: new Date().toISOString(),
+    slug: "#"
+  }
+];
+
+const tournaments = [...realTournaments, ...mockTournaments]
+  .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+  .slice(0, 3);
 
 // Règles depuis Content Collections (statique)
 const allRules = await getCollection('rules');
@@ -32,9 +67,9 @@ const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
 
 
       <div class="flex items-center justify-center gap-4 mb-6 animate-fade-in">
-        <div class="h-px w-12 bg-gradient-to-r from-transparent to-accent-forge/50"></div>
-        <span class="text-accent-forge text-xs font-display tracking-[0.3em] uppercase">Spiritforged</span>
-        <div class="h-px w-12 bg-gradient-to-l from-transparent to-accent-forge/50"></div>
+        <div class="h-px w-12 bg-gradient-to-r from-transparent to-accent-sakura/50"></div>
+        <span class="text-accent-sakura text-xs font-display tracking-[0.3em] uppercase">Spiritforged</span>
+        <div class="h-px w-12 bg-gradient-to-l from-transparent to-accent-sakura/50"></div>
       </div>
 
       <h1 class="font-display font-bold tracking-tight mb-6 animate-slide-up flex flex-col items-center">
@@ -54,8 +89,7 @@ const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
       </div>
     </div>
 
-    <!-- Bottom fade -->
-    <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-rift-900 to-transparent"></div>
+    <!-- Bottom fade removed to eliminate blue band -->
   </section>
 
 
@@ -88,6 +122,31 @@ const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
     </section>
   )}
 
+  <!-- Tournaments Section -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 mb-16">
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center gap-3">
+        <div class="w-1 h-6 rounded-full bg-gradient-to-b from-domain-chaos to-accent-spirit"></div>
+        <h2 class="text-xl font-display font-bold text-rift-100">Tous les Tournois</h2>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {tournaments.map((article) => (
+        <NewsCard
+          title={article.title}
+          summary={article.summary || ''}
+          image={article.image_url || ''}
+          tags={article.tags || []}
+          author=""
+          pubDate={new Date(article.created_at)}
+          slug={article.slug}
+        />
+      ))}
+    </div>
+    </div>
+  </section>
+
 
 
   <!-- Community CTA -->
@@ -103,11 +162,12 @@ const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
           Discutez stratégie, partagez vos decks et restez informés des derniers événements.
         </p>
         <div class="flex flex-wrap gap-4 justify-center">
-          <a href="#" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#5865F2] text-white text-sm font-semibold hover:bg-[#4752C4] transition-all duration-300 shadow-lg shadow-[#5865F2]/20 hover:-translate-y-0.5">
+          <a href="#" class="inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-[#5865F2] text-white text-sm font-semibold hover:bg-[#4752C4] transition-all duration-300 shadow-lg shadow-[#5865F2]/20 hover:-translate-y-0.5 border border-[#5865F2]">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-3.6751 1.5152.07.07 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.057 19.9 19.9 0 005.9936 3.03.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.3101-1.274-.6629-1.8703-.9132a.077.077 0 01-.009-.1363c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.006.1376 12.2949 12.2949 0 01-1.873.9142.076.076 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.993a.076.076 0 00.0842.0286 19.839 19.839 0 006.0028-3.03.077.077 0 00.0321-.0544c.5-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9554 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
             Discord
           </a>
-          <a href="#" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-rift-300 text-sm font-semibold border border-rift-600 bg-rift-800/60 hover:border-accent-spirit hover:text-accent-spirit transition-all duration-300">
+          <a href="#" class="inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-black text-white text-sm font-semibold hover:bg-black/80 transition-all duration-300 shadow-lg shadow-black/20 hover:-translate-y-0.5 border border-black">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             Twitter / X
           </a>
         </div>

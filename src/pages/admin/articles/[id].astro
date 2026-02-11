@@ -22,149 +22,191 @@ if (fetchError || !article) {
 }
 
 // Traiter la mise à jour
-if (Astro.request.method === 'POST') {
-  const formData = await Astro.request.formData();
-  const title = formData.get('title') as string;
-  const slug = (formData.get('slug') as string).toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-  const content = formData.get('content') as string;
-  const summary = formData.get('summary') as string;
-  const image_url = formData.get('image_url') as string || '';
-  const tags = (formData.get('tags') as string).split(',').map((t) => t.trim()).filter(Boolean);
-  const featured = formData.get('featured') === 'on';
-  const published = formData.get('published') === 'on';
+  if (Astro.request.method === 'POST') {
+    const formData = await Astro.request.formData();
+    const title = formData.get('title') as string;
+    const slug = (formData.get('slug') as string).toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    const content = formData.get('content') as string;
+    const summary = formData.get('summary') as string;
+    const image_url = formData.get('image_url') as string || '';
+    const tagsRaw = formData.get('tags') as string;
+    const tags = tagsRaw ? tagsRaw.split(',').map((t) => t.trim()).filter(Boolean) : [];
+    const featured = formData.get('featured') === 'on';
+    const published = formData.get('published') === 'on';
 
-  const { error } = await supabase
-    .from('articles')
-    .update({ title, slug, content, summary, image_url, tags, featured, published })
-    .eq('id', id);
+    console.log(`[DEBUG] Tentative de mise à jour article ${id}:`, { 
+      contentLength: content?.length, 
+      hasMarkdown: content?.includes('**') || content?.includes('_') || content?.includes('<span'),
+      tags 
+    });
 
-  if (error) {
-    errorMsg = 'Erreur lors de la mise à jour. Vérifiez que le slug est unique.';
-  } else {
-    return Astro.redirect('/admin/articles');
+    const { error } = await supabase
+      .from('articles')
+      .update({ title, slug, content, summary, image_url, tags, featured, published })
+      .eq('id', id);
+
+    if (error) {
+      console.error('[DEBUG] Erreur SQL:', error);
+      errorMsg = 'Erreur lors de la mise à jour. Vérifiez que le slug est unique.';
+    } else {
+      console.log('[DEBUG] Mise à jour réussie.');
+      return Astro.redirect('/admin/articles');
+    }
   }
-}
 ---
 
 <AdminLayout title="Éditer l'article" activeItem="articles">
-  <div class="max-w-3xl">
+  <div class="max-w-[1600px] mx-auto px-4 lg:px-8">
+    <div class="flex items-center justify-between mb-8">
+      <a href="/admin/articles" class="inline-flex items-center gap-1 text-sm text-accent-cyan hover:underline transition-colors">
+        ← Retour aux articles
+      </a>
+      <h1 class="text-2xl font-bold text-rift-100 font-display uppercase tracking-wider">Éditer l'article</h1>
+    </div>
 
-    <a href="/admin/articles" class="inline-flex items-center gap-1 text-sm text-accent-cyan hover:underline mb-6 transition-colors">
-      ← Retour aux articles
-    </a>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <!-- Left Column: Form -->
+      <div class="lg:col-span-12 xl:col-span-7">
+        <form method="POST" class="space-y-6 bg-rift-900/40 p-6 rounded-xl border border-rift-800/50">
+          {errorMsg && (
+            <div class="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+              {errorMsg}
+            </div>
+          )}
 
-    <form method="POST" class="space-y-5">
-      {errorMsg && (
-        <div class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
-          {errorMsg}
-        </div>
-      )}
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="title" class="block text-sm font-medium text-rift-300 mb-2">Titre</label>
+              <input type="text" id="title" name="title" required value={article.title}
+                class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors"
+              />
+            </div>
 
-      <div>
-        <label for="title" class="block text-sm font-medium text-rift-300 mb-1.5">Titre</label>
-        <input type="text" id="title" name="title" required value={article.title}
-          class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors"
-        />
-      </div>
+            <div>
+              <label for="slug" class="block text-sm font-medium text-rift-300 mb-2">Slug (URL)</label>
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-rift-500 font-mono">/news/</span>
+                <input type="text" id="slug" name="slug" required value={article.slug}
+                  class="flex-1 px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors font-mono text-sm"
+                />
+              </div>
+            </div>
+          </div>
 
-      <div>
-        <label for="slug" class="block text-sm font-medium text-rift-300 mb-1.5">Slug (URL)</label>
-        <div class="flex items-center gap-2">
-          <span class="text-sm text-rift-500">/news/</span>
-          <input type="text" id="slug" name="slug" required value={article.slug}
-            class="flex-1 px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors"
+          <!-- Image -->
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-rift-300">Image de couverture</label>
+            <input type="hidden" id="image_url" name="image_url" value={article.image_url || ''} />
+
+            <div id="image-upload-zone"
+              class="relative w-full min-h-[160px] rounded-xl border-2 border-dashed border-rift-700/50 bg-rift-900/30 hover:border-accent-cyan/40 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-3 overflow-hidden">
+              <div id="image-preview" class:list={[article.image_url ? '' : 'hidden', 'absolute inset-0']}>
+                <img id="preview-img" class="w-full h-full object-cover" src={article.image_url || ''} alt="Preview" />
+                <div class="absolute inset-0 bg-gradient-to-t from-rift-950/80 to-transparent"></div>
+                <button type="button" id="remove-image-btn"
+                  class="absolute top-3 right-3 w-8 h-8 rounded-full bg-red-500/80 hover:bg-red-500 text-white flex items-center justify-center text-lg transition-colors z-10">
+                  ×
+                </button>
+              </div>
+              <div id="upload-prompt" class:list={[article.image_url ? 'hidden' : '', 'flex flex-col items-center gap-2 py-4']}>
+                <div class="w-10 h-10 rounded-xl bg-accent-cyan/10 flex items-center justify-center text-accent-cyan">
+                  <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v13.5A1.5 1.5 0 003.75 21z" />
+                  </svg>
+                </div>
+                <p class="text-sm text-rift-400">Glissez ou <span class="text-accent-cyan font-medium">cliquez</span></p>
+              </div>
+              <div id="upload-loading" class="hidden flex flex-col items-center gap-2 py-4">
+                <div class="w-8 h-8 border-2 border-accent-cyan/30 border-t-accent-cyan rounded-full animate-spin"></div>
+              </div>
+              <input type="file" id="image-file-input" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden" />
+            </div>
+          </div>
+
+          <div>
+            <label for="summary" class="block text-sm font-medium text-rift-300 mb-2">Résumé</label>
+            <textarea id="summary" name="summary" rows="2"
+              class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors resize-none text-sm"
+            >{article.summary}</textarea>
+          </div>
+
+          <div>
+            <label for="tags" class="block text-sm font-medium text-rift-300 mb-2">Tags</label>
+            <input type="text" id="tags" name="tags" value={article.tags?.join(', ') || ''}
+              class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors text-sm"
+            />
+            
+            <!-- Quick Tag Picker -->
+            <div class="mt-3 flex flex-wrap gap-2">
+              {[
+                { name: 'Annonce Riot', class: 'bg-domain-order/10 text-domain-order border-domain-order/20 hover:bg-domain-order/20' },
+                { name: 'Tournoi', class: 'bg-accent-spirit/10 text-accent-spirit border-accent-spirit/20 hover:bg-accent-spirit/20' },
+                { name: 'Compétitif', class: 'bg-accent-spirit/10 text-accent-spirit border-accent-spirit/20 hover:bg-accent-spirit/20' },
+                { name: 'Mise à jour', class: 'bg-domain-calm/10 text-domain-calm border-domain-calm/20 hover:bg-domain-calm/20' },
+                { name: 'Equilibrage', class: 'bg-accent-forge/10 text-accent-forge border-accent-forge/20 hover:bg-accent-forge/20' },
+                { name: 'Patch', class: 'bg-accent-forge/10 text-accent-forge border-accent-forge/20 hover:bg-accent-forge/20' },
+                { name: 'Lore', class: 'bg-domain-chaos/10 text-domain-chaos border-domain-chaos/20 hover:bg-domain-chaos/20' },
+                { name: 'Fun', class: 'bg-domain-chaos/10 text-domain-chaos border-domain-chaos/20 hover:bg-domain-chaos/20' },
+                { name: 'Cartes', class: 'bg-domain-mind/10 text-domain-mind border-domain-mind/20 hover:bg-domain-mind/20' },
+                { name: 'Interview', class: 'bg-accent-sakura/15 text-accent-sakura border-accent-sakura/25 hover:bg-accent-sakura/25' },
+                { name: 'Errata', class: 'bg-domain-body/10 text-domain-body border-domain-body/20 hover:bg-domain-body/20' },
+              ].map(tag => (
+                <button 
+                  type="button" 
+                  data-tag={tag.name}
+                  class={`px-2.5 py-1 text-[11px] font-medium rounded-md border transition-colors ${tag.class} tag-chip`}
+                >
+                  + {tag.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <MarkdownEditor
+            label="Contenu (Markdown)"
+            name="content"
+            id="content"
+            value={article.content}
+            required={true}
           />
-        </div>
-      </div>
 
-      <!-- Image -->
-      <div>
-        <label class="block text-sm font-medium text-rift-300 mb-1.5">Image de couverture</label>
-        <input type="hidden" id="image_url" name="image_url" value={article.image_url || ''} />
-
-        <div id="image-upload-zone"
-          class="relative w-full min-h-[180px] rounded-xl border-2 border-dashed border-rift-700/50 bg-rift-900/30 hover:border-accent-cyan/40 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-3 overflow-hidden">
-
-          <!-- Preview (visible si image existante) -->
-          <div id="image-preview" class:list={[article.image_url ? '' : 'hidden', 'absolute inset-0']}>
-            <img id="preview-img" class="w-full h-full object-cover" src={article.image_url || ''} alt="Preview" />
-            <div class="absolute inset-0 bg-gradient-to-t from-rift-950/80 to-transparent"></div>
-            <button type="button" id="remove-image-btn"
-              class="absolute top-3 right-3 w-8 h-8 rounded-full bg-red-500/80 hover:bg-red-500 text-white flex items-center justify-center text-lg transition-colors z-10">
-              ×
+          <div class="flex items-center gap-6 pt-4 border-t border-rift-800/50">
+            <label class="flex items-center gap-2 cursor-pointer group">
+              <input type="checkbox" name="featured" checked={article.featured}
+                class="w-4 h-4 rounded border-rift-700 bg-rift-950 text-accent-cyan focus:ring-accent-cyan/30 checked:bg-accent-cyan checked:border-accent-cyan transition-colors" />
+              <span class="text-xs text-rift-300 group-hover:text-rift-100 transition-colors uppercase tracking-wider">A la une</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer group">
+              <input type="checkbox" name="published" checked={article.published}
+                class="w-4 h-4 rounded border-rift-700 bg-rift-950 text-accent-cyan focus:ring-accent-cyan/30 checked:bg-accent-cyan checked:border-accent-cyan transition-colors" />
+              <span class="text-xs text-rift-300 group-hover:text-rift-100 transition-colors uppercase tracking-wider">Publié</span>
+            </label>
+            <div class="flex-1"></div>
+            <button type="submit" class="px-8 py-2.5 rounded-lg bg-accent-spirit text-rift-950 font-bold text-sm hover:bg-accent-spirit/90 transition-all shadow-lg shadow-accent-spirit/20 uppercase tracking-widest">
+              Enregistrer
             </button>
           </div>
+        </form>
+      </div>
 
-          <!-- Upload prompt -->
-          <div id="upload-prompt" class:list={[article.image_url ? 'hidden' : '', 'flex flex-col items-center gap-2 py-4']}>
-            <div class="w-12 h-12 rounded-xl bg-accent-cyan/10 flex items-center justify-center text-accent-cyan">
-              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v13.5A1.5 1.5 0 003.75 21z" />
-              </svg>
+      <!-- Right Column: Live Preview -->
+      <div class="lg:col-span-12 xl:col-span-5 hidden xl:block sticky top-8">
+        <div class="bg-rift-900/30 rounded-xl border border-rift-800/50 flex flex-col shadow-2xl overflow-hidden">
+          <div class="px-4 py-3 border-b border-rift-800/50 bg-rift-900/60 flex items-center justify-between">
+            <span class="text-xs font-bold text-rift-400 uppercase tracking-widest font-display">Aperçu en temps réel</span>
+            <div class="flex gap-1">
+              <div class="w-1.5 h-1.5 rounded-full bg-red-500/30"></div>
+              <div class="w-1.5 h-1.5 rounded-full bg-amber-500/30"></div>
+              <div class="w-1.5 h-1.5 rounded-full bg-green-500/30"></div>
             </div>
-            <p class="text-sm text-rift-400">Glissez une image ici ou <span class="text-accent-cyan font-medium">cliquez pour parcourir</span></p>
-            <p class="text-xs text-rift-500">JPG, PNG, WebP ou GIF — Max 5 Mo</p>
           </div>
-
-          <!-- Loading spinner -->
-          <div id="upload-loading" class="hidden flex flex-col items-center gap-2 py-4">
-            <div class="w-8 h-8 border-2 border-accent-cyan/30 border-t-accent-cyan rounded-full animate-spin"></div>
-            <p class="text-sm text-rift-400">Upload en cours...</p>
+          <div class="article-live-preview px-8 py-10 min-h-[600px] max-h-[calc(100vh-120px)] overflow-y-auto prose prose-invert prose-emerald max-w-none scrollbar-thin scrollbar-thumb-rift-800 scrollbar-track-transparent">
+             <!-- Rendered by MarkdownEditor.astro -->
+             <div class="text-rift-500 italic text-center py-20">Le rendu s'affichera ici au fur et à mesure...</div>
           </div>
-
-          <input type="file" id="image-file-input" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden" />
         </div>
       </div>
-
-      <div>
-        <label for="summary" class="block text-sm font-medium text-rift-300 mb-1.5">Résumé</label>
-        <textarea id="summary" name="summary" rows="2"
-          class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors resize-none"
-        >{article.summary}</textarea>
-      </div>
-
-      <div>
-        <label for="tags" class="block text-sm font-medium text-rift-300 mb-1.5">Tags</label>
-        <input type="text" id="tags" name="tags" value={article.tags?.join(', ') || ''}
-          class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors"
-        />
-      </div>
-
-
-      <!-- Contenu Markdown -->
-      <div>
-        <MarkdownEditor
-          label="Contenu (Markdown)"
-          name="content"
-          id="content"
-          rows={16}
-          value={article.content}
-          required={true}
-        />
-      </div>
-
-      <div class="flex items-center gap-6">
-        <label class="flex items-center gap-2 cursor-pointer group">
-          <input type="checkbox" name="featured" checked={article.featured}
-            class="w-4 h-4 rounded border-rift-700 bg-rift-950 text-accent-cyan focus:ring-accent-cyan/30 checked:bg-accent-cyan checked:border-accent-cyan transition-colors" />
-          <span class="text-sm text-rift-300 group-hover:text-rift-100 transition-colors">Article à la une</span>
-        </label>
-        <label class="flex items-center gap-2 cursor-pointer group">
-          <input type="checkbox" name="published" checked={article.published}
-            class="w-4 h-4 rounded border-rift-700 bg-rift-950 text-accent-cyan focus:ring-accent-cyan/30 checked:bg-accent-cyan checked:border-accent-cyan transition-colors" />
-          <span class="text-sm text-rift-300 group-hover:text-rift-100 transition-colors">Publié</span>
-        </label>
-      </div>
-
-      <div class="flex gap-3 pt-2">
-        <button type="submit" class="px-6 py-2.5 rounded-lg bg-accent-spirit text-rift-950 font-bold text-sm hover:bg-accent-spirit/90 transition-colors shadow-lg shadow-accent-spirit/20 hover:-translate-y-0.5 transform duration-200">
-          Enregistrer
-        </button>
-        <a href="/admin/articles" class="px-6 py-2.5 rounded-lg bg-rift-800 text-rift-300 font-medium text-sm border border-rift-700 hover:bg-rift-700 hover:text-rift-100 transition-colors">
-          Annuler
-        </a>
-      </div>
-    </form>
+    </div>
   </div>
 
   <script>
@@ -263,5 +305,41 @@ if (Astro.request.method === 'POST') {
         uploadPrompt.classList.remove('hidden');
       }
     }
+    // Tag picker logic
+    const tagsInput = document.getElementById('tags') as HTMLInputElement;
+    const tagChips = document.querySelectorAll('.tag-chip');
+
+    const updateChipStates = () => {
+      const currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(Boolean);
+      tagChips.forEach(chip => {
+        const tag = (chip as HTMLElement).dataset.tag!;
+        if (currentTags.includes(tag)) {
+          chip.innerHTML = `✓ ${tag}`;
+        } else {
+          chip.innerHTML = `+ ${tag}`;
+        }
+      });
+    };
+
+    tagChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const tag = (chip as HTMLElement).dataset.tag!;
+        let currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(Boolean);
+        
+        if (currentTags.includes(tag)) {
+          currentTags = currentTags.filter(t => t !== tag);
+        } else {
+          currentTags.push(tag);
+        }
+        
+        tagsInput.value = currentTags.join(', ');
+        updateChipStates();
+        tagsInput.dispatchEvent(new Event('input'));
+      });
+    });
+
+    // Initial check
+    updateChipStates();
+    tagsInput?.addEventListener('input', updateChipStates);
   </script>
 </AdminLayout>

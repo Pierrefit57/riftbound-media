@@ -22,14 +22,34 @@ const hasImage = image && image.length > 0 && !image.includes('cloudflare');
 
 // Tag color mapping based on content
 function getTagStyle(tag: string): string {
-  const t = tag.toLowerCase();
-  if (t.includes('lore') || t.includes('événement')) return 'bg-domain-chaos/10 text-domain-chaos border-domain-chaos/20';
-  if (t.includes('compétitif') || t.includes('tournoi')) return 'bg-accent-spirit/10 text-accent-spirit border-accent-spirit/20';
-  if (t.includes('patch') || t.includes('équilibrage')) return 'bg-accent-forge/10 text-accent-forge border-accent-forge/20';
-  if (t.includes('interview')) return 'bg-accent-sakura/15 text-accent-sakura border-accent-sakura/25';
-  if (t.includes('carte') || t.includes('cartes')) return 'bg-domain-mind/10 text-domain-mind border-domain-mind/20';
-  if (t.includes('mise à jour')) return 'bg-domain-calm/10 text-domain-calm border-domain-calm/20';
-  return 'bg-accent-spirit/8 text-accent-spirit/80 border-accent-spirit/15';
+  const t = tag.toLowerCase().trim();
+  
+  // Annonce Riot - Gold (Order)
+  if (t === 'annonce riot') return 'bg-domain-order/15 text-domain-order border-domain-order/30';
+  
+  // Tournoi / Compétitif - Orange (Spirit)
+  if (t === 'tournoi' || t === 'compétitif') return 'bg-accent-spirit/15 text-accent-spirit border-accent-spirit/30';
+  
+  // Mise à jour - Green (Calm)
+  if (t === 'mise à jour') return 'bg-domain-calm/15 text-domain-calm border-domain-calm/30';
+  
+  // Equilibrage / Patch - Golden (Forge)
+  if (t === 'équilibrage' || t === 'patch') return 'bg-accent-forge/15 text-accent-forge border-accent-forge/30';
+  
+  // Lore / Fun - Purple (Chaos)
+  if (t === 'lore' || t === 'fun') return 'bg-domain-chaos/15 text-domain-chaos border-domain-chaos/30';
+  
+  // Cartes - Blue (Mind)
+  if (t === 'cartes' || t === 'carte') return 'bg-domain-mind/15 text-domain-mind border-domain-mind/30';
+  
+  // Interview - Peach (Sakura)
+  if (t === 'interview') return 'bg-accent-sakura/20 text-accent-sakura border-accent-sakura/30';
+  
+  // Errata - Bronze (Body)
+  if (t === 'errata') return 'bg-domain-body/15 text-domain-body border-domain-body/30';
+
+  // Default
+  return 'bg-rift-800/50 text-rift-300 border-rift-700/50';
 }
 ---
 
@@ -57,7 +77,7 @@ function getTagStyle(tag: string): string {
     <div class="p-5 md:p-6 relative z-10 flex flex-col flex-1">
       <div class="flex flex-wrap gap-2 mb-3 min-h-[28px]">
         {tags.map((tag) => (
-          <span class={`px-2.5 py-0.5 text-xs font-medium rounded-full border ${getTagStyle(tag)}`}>
+          <span class={`inline-flex items-center justify-center px-2.5 py-0.5 text-xs font-medium rounded-full border leading-none ${getTagStyle(tag)}`}>
             {tag}
           </span>
         ))}
@@ -98,7 +118,7 @@ function getTagStyle(tag: string): string {
     <div class="p-4 md:p-5 relative z-10 flex flex-col flex-1">
       <div class="flex flex-wrap gap-1.5 mb-2 min-h-[24px]">
         {tags.map((tag) => (
-          <span class={`px-2 py-0.5 text-[11px] font-medium rounded-full border ${getTagStyle(tag)}`}>
+          <span class={`inline-flex items-center justify-center px-2 py-0.5 text-[11px] font-medium rounded-full border leading-none ${getTagStyle(tag)}`}>
             {tag}
           </span>
         ))}

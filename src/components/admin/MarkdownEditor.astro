@@ -1,6 +1,4 @@
 ---
-import { marked } from 'marked';
-
 interface Props {
   name: string;
   id: string;
@@ -11,308 +9,327 @@ interface Props {
   label?: string;
 }
 
-const { name, id, value = '', placeholder, rows = 15, required = false, label } = Astro.props;
+const { name, id, value = '', placeholder, rows = 20, required = false, label } = Astro.props;
 ---
 
-<div class="markdown-editor group/editor" data-id={id}>
-  {label && <label for={id} class="block text-sm font-medium text-rift-300 mb-1.5">{label}</label>}
+<div class="markdown-editor flex flex-col gap-2" data-id={id}>
+  {label && <label for={id} class="block text-sm font-medium text-rift-300 mb-1">{label}</label>}
   
-  <div class="border border-rift-700/50 rounded-lg bg-rift-950 overflow-hidden focus-within:border-accent-spirit/50 focus-within:ring-1 focus-within:ring-accent-spirit/30 transition-colors">
-    <!-- Toolbar -->
-    <div class="flex flex-wrap items-center gap-1 p-2 border-b border-rift-800 bg-rift-900/50">
-      <!-- Bold -->
-      <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Gras (**texte**)" data-action="bold">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 12h8a4 4 0 100-8H6v8zm0 0h8a4 4 0 110 8H6v-8z" />
-        </svg>
-      </button>
-      <!-- Italic -->
-      <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Italique (*texte*)" data-action="italic">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 4h-4l-4 16h4" />
-        </svg>
-      </button>
-      <!-- Strikethrough -->
-      <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Barré (~~texte~~)" data-action="strike">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L15 9M4.5 12h15" />
-        </svg>
-      </button>
-      
-      <div class="w-px h-4 bg-rift-800 mx-1"></div>
+  <!-- Toolbar -->
+  <div class="flex flex-wrap items-center gap-1 p-2 border border-rift-700/50 rounded-t-lg bg-rift-900/50">
+    <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Gras" data-action="bold">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 12h8a4 4 0 100-8H6v8zm0 0h8a4 4 0 110 8H6v-8z" />
+      </svg>
+    </button>
+    <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Italique" data-action="italic">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 4h-4l-4 16h4" />
+      </svg>
+    </button>
+    <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Barré" data-action="strike">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L15 9M4.5 12h15" />
+      </svg>
+    </button>
+    
+    <div class="w-px h-4 bg-rift-800 mx-1"></div>
 
-      <!-- Font Size Selector -->
-      <div class="flex items-center gap-1">
-        <select class="font-size-select h-7 text-xs bg-rift-900 border border-rift-700 text-rift-300 rounded focus:border-accent-spirit focus:outline-none px-1" title="Taille de police">
-          <option value="" disabled selected>Taille</option>
-          {Array.from({ length: 49 }, (_, i) => i + 2).map((size) => (
-            <option value={size}>{size}px</option>
-          ))}
-        </select>
-        <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Appliquer la taille" data-action="fontSize">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" /> <!-- Text iconish -->
-            <text x="5" y="18" font-size="10" font-weight="bold" fill="currentColor">T</text>
-          </svg>
-        </button>
-      </div>
-
-      <div class="w-px h-4 bg-rift-800 mx-1"></div>
-
-      <!-- Quote -->
-      <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Citation (> )" data-action="quote">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-        </svg>
-        <span class="sr-only">Citation</span>
-      </button>
-      <!-- Link -->
-      <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Lien ([titre](url))" data-action="link">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+    <!-- Font Size -->
+    <div class="flex items-center gap-1">
+      <select class="font-size-select h-7 text-xs bg-rift-950 border border-rift-700 text-rift-300 rounded px-1" title="Taille">
+        <option value="" disabled selected>Taille</option>
+        {[14, 16, 18, 20, 24, 28, 32, 40].map((size) => (
+          <option value={size}>{size}px</option>
+        ))}
+      </select>
+      <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors flex items-center gap-0.5" title="Appliquer" data-action="fontSize">
+        <span class="text-[10px] font-bold">T</span>
+        <svg class="w-2 h-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
         </svg>
       </button>
-       <!-- List -->
-       <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Liste à puces (- )" data-action="list">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16M4 6l2 0m-2 6l2 0m-2 6l2 0" />
-        </svg>
-      </button>
-
-      <div class="flex-1"></div>
-
-      <!-- Preview Toggle -->
-      <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors text-xs font-medium flex items-center gap-1" data-action="preview-toggle">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-        </svg>
-        <span class="preview-text">Aperçu</span>
-      </button>
-      
-      <div class="w-px h-4 bg-rift-800 mx-1"></div>
-      
-      <!-- Image Upload -->
-      <button type="button" class="flex items-center gap-1.5 px-2 py-1 rounded bg-accent-spirit/10 text-accent-spirit hover:bg-accent-spirit/20 hover:text-accent-spirit transition-colors text-xs font-medium" title="Insérer une image" data-action="image">
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-        Image
-      </button>
-      <input type="file" accept="image/*" class="hidden image-upload-input" />
     </div>
 
-    <!-- Textarea -->
+    <div class="w-px h-4 bg-rift-800 mx-1"></div>
+
+    <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Citation" data-action="quote">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+      </svg>
+    </button>
+    <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Lien" data-action="link">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+      </svg>
+    </button>
+    <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Liste" data-action="list">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16M4 6l2 0m-2 6l2 0m-2 6l2 0" />
+      </svg>
+    </button>
+
+    <div class="flex-1"></div>
+    
+    <button type="button" class="editor-status-dot w-3 h-3 rounded-full bg-rift-700 transition-colors" title="Status"></button>
+
+    <button type="button" class="flex items-center gap-1.5 px-3 py-1 rounded bg-accent-spirit text-rift-950 hover:bg-accent-spirit/90 transition-colors text-xs font-bold" title="Image" data-action="image">
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      IMAGE
+    </button>
+    <input type="file" accept="image/*" class="hidden image-upload-input" />
+  </div>
+
+  <!-- Textarea -->
+  <div class="relative flex flex-col border border-t-0 border-rift-700/50 rounded-b-lg bg-rift-950 min-h-[500px] overflow-hidden focus-within:border-accent-spirit/50 transition-colors">
     <textarea
       id={id}
       name={name}
-      rows={rows}
       required={required}
-      class="w-full px-4 py-3 bg-transparent text-rift-100 placeholder-rift-500 focus:outline-none font-mono text-sm leading-relaxed resize-y border-none block"
+      class="flex-1 w-full px-4 py-3 bg-transparent text-rift-100 placeholder-rift-600 focus:outline-none font-mono text-sm leading-relaxed resize-y overflow-y-auto"
       placeholder={placeholder}
     >{value}</textarea>
-
-    <!-- Preview Mode -->
-    <div class="preview-area hidden w-full px-4 py-3 bg-rift-950/50 text-rift-100 prose prose-invert prose-sm max-w-none min-h-[300px] overflow-y-auto border-t border-rift-800/30">
-        <!-- Content injected via JS -->
-    </div>
   </div>
-  
-  <div class="upload-loading hidden mt-1 flex items-center gap-2 text-xs text-accent-spirit animate-pulse">
+
+  <div class="upload-loading hidden mt-1 flex items-center gap-2 text-xs text-accent-spirit">
     <div class="w-3 h-3 border-2 border-accent-spirit/30 border-t-accent-spirit rounded-full animate-spin"></div>
-    Upload de l'image en cours...
+    Envoi...
   </div>
 </div>
 
-<script>
-  import { marked } from 'marked';
+<!-- CDN Marked Library -->
+<script is:inline src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-  class MarkdownEditor {
-    container: HTMLElement;
-    textarea: HTMLTextAreaElement;
-    fileInput: HTMLInputElement;
-    uploadLoading: HTMLElement;
-    previewArea: HTMLElement;
-    previewBtn: HTMLElement;
-    fontSizeSelect: HTMLSelectElement;
-    isPreview: boolean = false;
+<script is:inline>
+  (function() {
+    class MarkdownEditor {
+      constructor(container) {
+        this.container = container;
+        this.textarea = container.querySelector('textarea');
+        this.fileInput = container.querySelector('.image-upload-input');
+        this.uploadLoading = container.querySelector('.upload-loading');
+        this.fontSizeSelect = container.querySelector('.font-size-select');
+        this.statusDot = container.querySelector('.editor-status-dot');
+        // Look for the preview area on the page
+        this.preview = document.querySelector('.article-live-preview');
 
-    constructor(container: HTMLElement) {
-      this.container = container;
-      this.textarea = container.querySelector('textarea')!;
-      this.fileInput = container.querySelector('.image-upload-input')!;
-      this.uploadLoading = container.querySelector('.upload-loading')!;
-      this.previewArea = container.querySelector('.preview-area')!;
-      this.previewBtn = container.querySelector('[data-action="preview-toggle"]')!;
-      this.fontSizeSelect = container.querySelector('.font-size-select')!;
-      
-      this.initButtons();
-      this.initImageUpload();
-    }
+        if (!this.textarea) return;
+        this.init();
+      }
 
-    initButtons() {
-      const buttons = this.container.querySelectorAll('[data-action]');
-      buttons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const action = (e.currentTarget as HTMLElement).dataset.action;
+      init() {
+        this.textarea.addEventListener('input', () => this.updatePreview());
+        this.initToolbar();
+        this.initImageUpload();
+        this.updatePreview();
+        if (this.statusDot) this.statusDot.style.backgroundColor = '#22c55e';
+      }
+
+      updatePreview() {
+        if (!this.preview || !window.marked) return;
+        this.preview.innerHTML = window.marked.parse(this.textarea.value || '');
+      }
+
+      initToolbar() {
+        this.container.addEventListener('mousedown', (e) => {
+          const btn = e.target.closest('[data-action]');
+          if (!btn) return;
+
+          e.preventDefault();
+          this.handleAction(btn.dataset.action);
+        });
+      }
+
+      handleAction(action) {
+        const start = this.textarea.selectionStart;
+        const end = this.textarea.selectionEnd;
+        const text = this.textarea.value;
+        const selection = text.substring(start, end);
+
+        // Helper to preserve UNDO stack (Ctrl+Z)
+        const insertText = (newText, sStart, sEnd) => {
+          this.textarea.focus();
+          this.textarea.setSelectionRange(sStart, sEnd);
           
-          if (action === 'preview-toggle') {
-            this.togglePreview();
-            return;
+          try {
+            // execCommand is deprecated but still the only way to preserve undo stack in textareas
+            if (!document.execCommand('insertText', false, newText)) {
+               throw new Error('execCommand failed');
+            }
+          } catch (e) {
+            // Fallback for browsers that don't support it or if it fails
+            const val = this.textarea.value;
+            this.textarea.value = val.substring(0, sStart) + newText + val.substring(sEnd);
+            this.textarea.dispatchEvent(new Event('input'));
           }
+        };
 
-          if (this.isPreview) return;
+        const checkToggle = (tag) => {
+          if (text.substring(start - tag.length, start) === tag && text.substring(end, end + tag.length) === tag) {
+             return { before: tag.length, after: tag.length };
+          }
+          return null;
+        };
 
-          if (action === 'image') {
+        const toggleWrap = (tag) => {
+          const info = checkToggle(tag);
+          if (info) {
+             // Remove tags using insertText to keep undo history
+             const sStart = start - info.before;
+             const sEnd = end + info.after;
+             insertText(selection, sStart, sEnd);
+             
+             const newStart = start - info.before;
+             const newEnd = end - info.before;
+             this.textarea.setSelectionRange(newStart, newEnd);
+             return true;
+          }
+          return false;
+        };
+
+        let prefix = '', suffix = '';
+        let content = selection;
+
+        switch(action) {
+          case 'bold':
+            if (toggleWrap('**')) return;
+            prefix = '**'; suffix = '**';
+            if (!content) content = 'gras';
+            break;
+          case 'italic':
+            if (toggleWrap('*')) return;
+            prefix = '*'; suffix = '*';
+            if (!content) content = 'italique';
+            break;
+          case 'strike':
+            if (toggleWrap('~~')) return;
+            prefix = '~~'; suffix = '~~';
+            if (!content) content = 'barré';
+            break;
+          case 'quote':
+            prefix = '\n> '; suffix = '\n';
+            if (!content) content = 'citation';
+            break;
+          case 'link':
+            prefix = '['; 
+            suffix = '](url)';
+            if (!content) content = 'lien';
+            break;
+          case 'list':
+            prefix = '\n- '; suffix = '\n';
+            if (!content) content = 'élément';
+            break;
+          case 'fontSize':
+            const size = this.fontSizeSelect.value;
+            if (!size) {
+              alert('Veuillez sélectionner une taille.');
+              return;
+            }
+            prefix = `<span style="font-size: ${size}px">`;
+            suffix = '</span>';
+            if (!content) content = 'Texte';
+            break;
+          case 'image':
             this.fileInput.click();
-          } else {
-            this.handleAction(action || '');
-          }
-        });
-      });
-    }
+            return;
+        }
 
-    async togglePreview() {
-      this.isPreview = !this.isPreview;
-      
-      if (this.isPreview) {
-        // Switch to Preview
-        const markdown = this.textarea.value;
-        this.previewArea.innerHTML = await marked.parse(markdown);
-        this.textarea.classList.add('hidden');
-        this.previewArea.classList.remove('hidden');
-        this.previewBtn.classList.add('text-accent-spirit', 'bg-accent-spirit/10');
-        this.previewBtn.querySelector('.preview-text')!.textContent = 'Éditer';
-        
-        // Disable other toolbar buttons
-        this.container.querySelectorAll('button:not([data-action="preview-toggle"]), select').forEach(b => {
-             const el = b as HTMLElement;
-             if ('disabled' in el) (el as HTMLInputElement).disabled = true;
-             el.classList.add('opacity-50', 'cursor-not-allowed');
-        });
+        if (prefix || suffix) {
+          const replacement = prefix + content + suffix;
+          insertText(replacement, start, end);
+          
+          const newStart = start + prefix.length;
+          const newEnd = newStart + content.length;
+          this.textarea.setSelectionRange(newStart, newEnd);
+        }
+      }
 
+        initImageUpload() {
+          this.fileInput.addEventListener('change', async () => {
+             const file = this.fileInput.files[0];
+             if (!file) return;
+
+             this.uploadLoading.classList.remove('hidden');
+             const fd = new FormData(); fd.append('image', file);
+             
+             try {
+               const res = await fetch('/api/upload-image', { method: 'POST', body: fd });
+               const data = await res.json();
+               if (data.url) {
+                 const tag = `\n![Image](${data.url})\n`;
+                 const start = this.textarea.selectionStart;
+                 this.textarea.value = this.textarea.value.substring(0, start) + tag + this.textarea.value.substring(this.textarea.selectionEnd);
+                 this.textarea.dispatchEvent(new Event('input'));
+               } else {
+                 alert('Upload échoué: ' + (data.error || 'Erreur inconnue'));
+               }
+             } catch (e) {
+               alert('Erreur réseau upload');
+             } finally {
+               this.uploadLoading.classList.add('hidden');
+               this.fileInput.value = '';
+             }
+          });
+        }
+      }
+
+      // Initialize
+      function run() {
+        document.querySelectorAll('.markdown-editor').forEach(el => {
+          if (!el._editor) el._editor = new MarkdownEditor(el);
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', run);
       } else {
-        // Switch to Edit
-        this.textarea.classList.remove('hidden');
-        this.previewArea.classList.add('hidden');
-        this.previewBtn.classList.remove('text-accent-spirit', 'bg-accent-spirit/10');
-        this.previewBtn.querySelector('.preview-text')!.textContent = 'Aperçu';
-
-        // Enable buttons
-        this.container.querySelectorAll('button:not([data-action="preview-toggle"]), select').forEach(b => {
-             const el = b as HTMLElement;
-             if ('disabled' in el) (el as HTMLInputElement).disabled = false;
-             el.classList.remove('opacity-50', 'cursor-not-allowed');
-        });
-        
-        this.textarea.focus();
-      }
-    }
-
-    handleAction(action: string) {
-      const start = this.textarea.selectionStart;
-      const end = this.textarea.selectionEnd;
-      const text = this.textarea.value;
-      const selection = text.substring(start, end);
-
-      let replacement = '';
-      let cursorOffset = 0;
-
-      switch(action) {
-        case 'bold':
-          replacement = `**${selection || 'texte'}**`;
-          cursorOffset = selection ? 0 : -2;
-          break;
-        case 'italic':
-          replacement = `*${selection || 'texte'}*`;
-          cursorOffset = selection ? 0 : -1;
-          break;
-        case 'strike':
-          replacement = `~~${selection || 'texte'}~~`;
-          cursorOffset = selection ? 0 : -2;
-          break;
-        case 'fontSize':
-          const size = this.fontSizeSelect.value;
-          if (!size) return;
-          replacement = `<span style="font-size: ${size}px">${selection || 'Texte'}</span>`;
-          cursorOffset = selection ? 0 : -7; // Approximate cursor pos inside span
-          break;
-        case 'quote':
-          replacement = `\n> ${selection || 'Citation'}\n`;
-          break;
-        case 'link':
-          replacement = `[${selection || 'texte'}](url)`;
-          cursorOffset = -1;
-          break;
-        case 'list':
-          replacement = `\n- ${selection || 'Liste'}\n`;
-          break;
+        run();
       }
 
-      this.insertText(replacement, start, end, cursorOffset);
-    }
-
-    insertText(newText: string, start: number, end: number, cursorOffset = 0) {
-      const text = this.textarea.value;
-      const before = text.substring(0, start);
-      const after = text.substring(end);
-      
-      this.textarea.value = before + newText + after;
-      
-      const newCursorPos = start + newText.length + cursorOffset;
-      this.textarea.focus();
-      this.textarea.setSelectionRange(newCursorPos, newCursorPos);
-    }
-
-
-
-    initImageUpload() {
-      this.fileInput.addEventListener('change', async () => {
-        const file = this.fileInput.files?.[0];
-        if (!file) return;
-
-        this.uploadLoading.classList.remove('hidden');
-        const url = await this.uploadImageAndGetUrl(file);
-        this.uploadLoading.classList.add('hidden');
-
-        if (url) {
-          const markdown = `\n![Image description](${url})\n`;
-          // Insert at current cursor position
-          const start = this.textarea.selectionStart;
-          const end = this.textarea.selectionEnd;
-          this.insertText(markdown, start, end);
+      // Diagnostic: click status dot to log preview HTML
+      document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('editor-status-dot')) {
+          const editor = e.target.closest('.markdown-editor');
+          const preview = document.querySelector('.article-live-preview');
+          if (preview) {
+             console.log('--- PREVIEW HTML ---');
+             console.log(preview.innerHTML);
+             console.log('--------------------');
+             alert('HTML de la preview loggé dans la console.');
+          }
         }
-        
-        this.fileInput.value = '';
       });
+    })();
+  </script>
+
+  <style is:global>
+    /* Ensure font-size spans are respected within Tailwind's prose */
+    .article-live-preview span[style*="font-size"] {
+      display: inline-block !important;
+      line-height: normal !important;
+      vertical-align: baseline !important;
+    }
+    
+    /* Stronger override to ensure inline style wins */
+    .article-live-preview .prose span[style*="font-size"],
+    .prose.prose-invert span[style*="font-size"] {
+      font-size: inherit; /* This allows the inline style attribute to take full effect */
     }
 
-    async uploadImageAndGetUrl(file: File): Promise<string | null> {
-      try {
-        const formData = new FormData();
-        formData.append('image', file);
-
-        const res = await fetch('/api/upload-image', {
-          method: 'POST',
-          body: formData,
-        });
-
-        const data = await res.json();
-        if (!res.ok) {
-            console.error('Upload failed:', data.error);
-            alert('Erreur lors de l\'upload: ' + (data.error || 'Inconnue'));
-            return null;
-        }
-        return data.url;
-      } catch (err) {
-        console.error('Upload network error:', err);
-        alert('Erreur réseau');
-        return null;
-      }
+    /* Sync with News Article styling */
+    .article-live-preview .prose blockquote {
+      border-left: 4px solid rgba(234, 179, 8, 0.7) !important; /* accent-spirit/70 */
+      background-color: rgba(10, 10, 10, 0.5) !important; /* rift-950/50 */
+      padding: 0.5rem 1.5rem !important;
+      font-style: normal !important;
+      margin: 2rem 0 !important;
+      border-radius: 0 !important;
     }
-  }
 
-  // Initialize all editors on the page
-  const editors = document.querySelectorAll('.markdown-editor');
-  editors.forEach(el => new MarkdownEditor(el as HTMLElement));
-</script>
+    .article-live-preview .prose img {
+      border-radius: 0 !important;
+    }
+  </style>
+</div>

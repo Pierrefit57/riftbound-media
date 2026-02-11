@@ -19,13 +19,14 @@ const regularNews = allNews || [];
 
   <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-10 pb-16">
 
-    <div class="mb-12">
-      <div class="flex items-center gap-3 mb-3">
+    <div class="mb-12 text-center">
+      <div class="flex items-center justify-center gap-3 mb-3">
         <div class="h-px w-8 bg-gradient-to-r from-transparent to-accent-forge/50"></div>
         <span class="text-accent-forge text-xs font-display tracking-[0.2em] uppercase">Actualités</span>
+        <div class="h-px w-8 bg-gradient-to-l from-transparent to-accent-forge/50"></div>
       </div>
       <h1 class="text-3xl md:text-4xl font-display font-bold text-rift-100 mb-3">Dernières Nouvelles</h1>
-      <p class="text-rift-300 leading-relaxed">Restez informé des dernières nouvelles et annonces de l'univers Riftbound</p>
+      <p class="text-rift-300 leading-relaxed max-w-2xl mx-auto">Restez informé des dernières nouvelles et annonces de l'univers Riftbound</p>
     </div>
 
     {featuredNews.length > 0 && (
@@ -57,18 +58,38 @@ const regularNews = allNews || [];
         <h2 class="text-lg font-display font-bold text-rift-100">Toutes les Actualités</h2>
       </div>
       {regularNews.length > 0 ? (
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {regularNews.map((article) => (
-            <NewsCard
-              title={article.title}
-              summary={article.summary || ''}
-              image={article.image_url || ''}
-              tags={article.tags || []}
-              author=""
-              pubDate={new Date(article.created_at)}
-              slug={article.slug}
-            />
-          ))}
+        <div id="news-grid-container">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="news-grid">
+            {regularNews.map((article, index) => (
+              <div class:list={['news-item transition-all duration-500', index >= 6 ? 'hidden opacity-0 translate-y-4' : '']} data-index={index}>
+                <NewsCard
+                  title={article.title}
+                  summary={article.summary || ''}
+                  image={article.image_url || ''}
+                  tags={article.tags || []}
+                  author=""
+                  pubDate={new Date(article.created_at)}
+                  slug={article.slug}
+                />
+              </div>
+            ))}
+          </div>
+
+          {regularNews.length > 6 && (
+            <div class="mt-12 text-center" id="load-more-container">
+              <button 
+                id="load-more-btn"
+                class="px-8 py-3 rounded-xl bg-rift-800 border border-rift-700 hover:border-accent-spirit/50 text-rift-100 font-display font-bold tracking-widest uppercase text-sm transition-all hover:shadow-lg hover:shadow-accent-spirit/10 group"
+              >
+                <span class="flex items-center gap-2">
+                  Afficher plus
+                  <svg class="w-4 h-4 group-hover:translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </span>
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <div class="text-center py-16">
@@ -77,5 +98,29 @@ const regularNews = allNews || [];
       )}
     </section>
   </div>
+
+  <script>
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    const loadMoreContainer = document.getElementById('load-more-container');
+    const hiddenItems = document.querySelectorAll('.news-item.hidden');
+
+    loadMoreBtn?.addEventListener('click', () => {
+      hiddenItems.forEach((item, index) => {
+        // Show after a small delay for staggered effect
+        setTimeout(() => {
+          item.classList.remove('hidden');
+          // Trigger animation in next frame
+          requestAnimationFrame(() => {
+            item.classList.remove('opacity-0', 'translate-y-4');
+          });
+        }, index * 50);
+      });
+
+      // Hide the button after showing all
+      if (loadMoreContainer) {
+        loadMoreContainer.style.display = 'none';
+      }
+    });
+  </script>
 
 </MainLayout>

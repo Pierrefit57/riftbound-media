@@ -106,9 +106,13 @@ const navLinks = [
   </head>
   <body class="bg-rift-900 text-rift-100 font-sans min-h-screen flex flex-col relative">
 
-    <!-- Global Background Shading (Pink/Gold) -->
-    <div class="absolute inset-0 h-[800px] bg-spirit-radial pointer-events-none z-0"></div>
-    <div class="absolute inset-0 h-[800px] bg-forge-radial pointer-events-none z-0"></div>
+    <!-- Global Background Shading -->
+    <div class="absolute inset-x-0 top-0 h-[800px] bg-spirit-radial pointer-events-none z-0"></div>
+    
+    <!-- Bottom Glow (Anchored to Footer) - Designed to match the user's hand-drawn "mountainous" glow -->
+    <div class="absolute inset-x-0 bottom-0 h-[1000px] bg-[radial-gradient(ellipse_80%_50%_at_50%_100%,_rgba(233,135,15,0.2)_0%,_transparent_70%)] pointer-events-none z-0"></div>
+    <div class="absolute inset-x-0 bottom-0 h-[800px] bg-[radial-gradient(ellipse_60%_40%_at_15%_100%,_rgba(233,135,15,0.15)_0%,_transparent_60%),_radial-gradient(ellipse_60%_40%_at_85%_100%,_rgba(233,135,15,0.15)_0%,_transparent_60%)] pointer-events-none z-0"></div>
+    <div class="absolute inset-x-0 bottom-0 h-[600px] bg-[radial-gradient(ellipse_50%_50%_at_50%_100%,_rgba(227,158,166,0.1)_0%,_transparent_70%)] pointer-events-none z-0"></div>
 
     <!-- Falling Petals (Home Only or Requested) -->
     {(currentPath === '/' || petals) ? (
@@ -282,7 +286,7 @@ const navLinks = [
             <ul class="space-y-2.5">
               <li><a href="#" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">À propos</a></li>
               <li><a href="#" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">Contact</a></li>
-              <li><a href="#" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">Mentions Légales</a></li>
+              <li><a href="/mentions-legales" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">Mentions Légales</a></li>
             </ul>
           </div>
         </div>

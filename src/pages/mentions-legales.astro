@@ -1,0 +1,195 @@
+---
+export const prerender = false;
+
+import MainLayout from '../layouts/MainLayout.astro';
+
+const lastUpdate = "12 Février 2026";
+---
+
+<MainLayout title="Mentions Légales" petals={true}>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 pt-32 pb-20 relative z-10">
+    
+    <div class="mb-12">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="h-px w-12 bg-gradient-to-r from-transparent to-accent-spirit"></div>
+        <span class="text-accent-spirit text-xs font-display tracking-[0.2em] uppercase">Ressources</span>
+      </div>
+      <h1 class="text-4xl md:text-5xl font-display font-bold text-rift-100 mb-4">Mentions Légales</h1>
+      <p class="text-rift-400 text-sm">Dernière mise à jour : {lastUpdate}</p>
+    </div>
+
+    <div class="prose prose-invert prose-rift max-w-none space-y-12">
+      
+      <section>
+        <h2 class="text-2xl font-display font-bold text-white flex items-center gap-3">
+          <span class="w-8 h-8 rounded-lg bg-rift-800 border border-rift-700 flex items-center justify-center text-accent-spirit text-sm">1</span>
+          Introduction et acceptation des conditions
+        </h2>
+        <div class="mt-6 space-y-4 text-rift-200 leading-relaxed">
+          <p class="font-bold text-rift-50">Bienvenue sur Riftbound Media</p>
+          <p>
+            Les présentes Conditions d'Utilisation (« Conditions ») régissent votre accès et votre utilisation du site web situé à l'adresse <a href="https://riftbound-media.com" class="text-accent-spirit hover:underline">https://riftbound-media.com</a> et de tous les services associés (collectivement le « Service ») fournis par Riftbound Media (« nous », « notre » ou « nos »).
+          </p>
+          <p>
+            En accédant au Service ou en l'utilisant, vous signifiez que vous avez lu, compris et accepté d'être lié par ces Conditions, notre Politique de Confidentialité et toute autre politique mentionnée ici. Si vous n'acceptez pas ces Conditions, vous n'êtes pas autorisé à utiliser le Service.
+          </p>
+          <div class="p-4 rounded-xl bg-rift-800/50 border border-rift-700/50">
+            <p><strong class="text-rift-50">Éligibilité :</strong> Vous devez avoir au moins 16 ans pour utiliser ce Service. En utilisant le Service, vous déclarez et garantissez que vous respectez cette condition d'âge.</p>
+          </div>
+          <p><strong class="text-rift-50">Modification des Conditions :</strong></p>
+          <p>
+            Nous nous réservons le droit de modifier ou de remplacer ces Conditions à tout moment. Si une révision est substantielle, nous fournirons un préavis d'au moins 30 jours avant l'entrée en vigueur des nouvelles conditions. Ce qui constitue une modification substantielle sera déterminé à notre seule discrétion. En continuant d'accéder à notre Service ou de l'utiliser après l'entrée en vigueur de ces révisions, vous acceptez d'être lié par les conditions révisées. Si vous n'acceptez pas les nouvelles conditions, vous n'êtes plus autorisé à utiliser le Service.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-display font-bold text-white flex items-center gap-3">
+          <span class="w-8 h-8 rounded-lg bg-rift-800 border border-rift-700 flex items-center justify-center text-accent-spirit text-sm">2</span>
+          Comptes utilisateurs
+        </h2>
+        <div class="mt-6 space-y-4 text-rift-200 leading-relaxed">
+          <p><strong class="text-rift-50">Création de compte :</strong></p>
+          <p>
+            Pour accéder à certaines fonctionnalités du Service, il peut vous être demandé de créer un compte. Vous acceptez de fournir des informations exactes, actuelles et complètes lors du processus d'inscription et de mettre à jour ces informations afin qu'elles restent exactes, actuelles et complètes.
+          </p>
+          <p><strong class="text-rift-50">Sécurité du compte :</strong></p>
+          <p>
+            Vous êtes seul responsable du maintien de la confidentialité du mot de passe de votre compte et de toutes les activités qui se produisent sous votre compte. Vous acceptez de nous informer immédiatement de toute utilisation non autorisée de votre compte. Nous ne sommes pas responsables des pertes ou dommages résultant de votre manquement à ces obligations de sécurité.
+          </p>
+          <p><strong class="text-rift-50">Fermeture de compte :</strong></p>
+          <p>
+            Nous pouvons résilier ou suspendre votre compte et bloquer l'accès au Service immédiatement, sans préavis ni responsabilité, à notre seule discrétion, pour quelque raison que ce soit et sans limitation, y compris, mais sans s'y limiter, en cas de violation des Conditions. Si vous souhaitez résilier votre compte, vous pouvez simplement cesser d'utiliser le Service ou nous contacter pour demander sa suppression.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-display font-bold text-white flex items-center gap-3">
+          <span class="w-8 h-8 rounded-lg bg-rift-800 border border-rift-700 flex items-center justify-center text-accent-spirit text-sm">3</span>
+          Utilisation du Service
+        </h2>
+        <div class="mt-6 space-y-4 text-rift-200 leading-relaxed">
+          <p><strong class="text-rift-50">Utilisation autorisée :</strong></p>
+          <p>
+            Il vous est accordé une licence limitée, non exclusive, non transférable et révocable d'utiliser le Service pour votre usage personnel et non commercial, conformément aux présentes Conditions. Cela inclut la création, la sauvegarde, la gestion et le partage optionnel de vos decks.
+          </p>
+          <p><strong class="text-rift-50">Utilisation interdite :</strong></p>
+          <p>Vous acceptez de ne pas utiliser le Service à des fins illégales ou interdites par les présentes Conditions. Les activités interdites incluent, sans s'y limiter :</p>
+          <ul class="list-disc pl-6 space-y-2">
+            <li>Se livrer à des activités illégales ou promouvoir des actes illégaux.</li>
+            <li>Publier, télécharger ou transmettre tout contenu nuisible, menaçant, abusif, harcelant, diffamatoire, vulgaire, obscène, calomnieux, portant atteinte à la vie privée d'autrui, haineux, ou répréhensible sur le plan racial, ethnic ou autre.</li>
+            <li>Enfreindre les droits de propriété intellectuelle d'autrui.</li>
+            <li>Télécharger ou transmettre des virus, des vers ou tout autre type de code malveillant.</li>
+            <li>Tenter d'obtenir un accès non autorisé à toute partie ou fonctionnalité du Service.</li>
+            <li>Interférer avec ou perturber l'intégrité ou la performance du Service.</li>
+            <li>Utiliser tout système automatisé (ex: « robots », « spiders ») pour accéder au Service de manière abusive.</li>
+            <li>Collecter ou récolter des informations personnellement identifiables à partir du Service.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-display font-bold text-white flex items-center gap-3">
+          <span class="w-8 h-8 rounded-lg bg-rift-800 border border-rift-700 flex items-center justify-center text-accent-spirit text-sm">4</span>
+          Droits de propriété intellectuelle
+        </h2>
+        <div class="mt-6 space-y-4 text-rift-200 leading-relaxed">
+          <p><strong class="text-rift-50">Notre contenu :</strong></p>
+          <p>
+            Tout le contenu du Service, y compris les textes, graphiques, logos, images, logiciels, ainsi que leur compilation, est la propriété de Riftbound Media ou de ses concédants de licence et est protégé par les lois sur la propriété intellectuelle.
+          </p>
+          <div class="p-4 rounded-xl bg-accent-forge/5 border border-accent-forge/20">
+            <p><strong class="text-accent-forge">Actifs de Riot Games et « Legal Jibber Jabber » :</strong></p>
+            <p class="mt-2 italic">
+              Riftbound Media a été créé dans le cadre de la politique « Legal Jibber Jabber » de Riot Games en utilisant des actifs appartenant à Riot Games. Riot Games n'approuve ni ne parraine ce projet.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-display font-bold text-white flex items-center gap-3">
+          <span class="w-8 h-8 rounded-lg bg-rift-800 border border-rift-700 flex items-center justify-center text-accent-spirit text-sm">5</span>
+          Exclusions de responsabilité
+        </h2>
+        <div class="mt-6 space-y-4 text-rift-200 leading-relaxed">
+          <p>
+            Le Service est fourni « EN L'ÉTAT » et « SELON LA DISPONIBILITÉ », sans aucune garantie d'aucune sorte, expresse ou implicite.
+          </p>
+          <p>
+            Riftbound Media ne garantit pas que le Service fonctionnera de manière ininterrompue, sécurisée ou sera disponible à tout moment ; que toute erreur sera corrigée ; ou que le Service est exempt de virus.
+          </p>
+          <p>
+            Tout contenu fourni sur le Service est destiné uniquement à des fins d'information et de divertissemement et ne constitue pas un conseil professionnel.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-display font-bold text-white flex items-center gap-3">
+          <span class="w-8 h-8 rounded-lg bg-rift-800 border border-rift-700 flex items-center justify-center text-accent-spirit text-sm">6</span>
+          Limitation de responsabilité
+        </h2>
+        <div class="mt-6 space-y-4 text-rift-200 leading-relaxed">
+          <p>
+            Dans toute la mesure permise par le droit français, en aucun cas Riftbound Media ne pourra être tenu responsable des dommages indirects, accessoires, spéciaux ou consécutifs résultant de votre accès ou utilisation du Service.
+          </p>
+          <p>
+            Cette limitation de responsabilité ne s'applique pas aux dommages résultant d'une intention délibérée, d'une négligence grave ou d'une atteinte à la vie, au corps ou à la santé.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-display font-bold text-white flex items-center gap-3">
+          <span class="w-8 h-8 rounded-lg bg-rift-800 border border-rift-700 flex items-center justify-center text-accent-spirit text-sm">7</span>
+          Indemnisation
+        </h2>
+        <div class="mt-6 space-y-4 text-rift-200 leading-relaxed">
+          <p>
+            Vous acceptez de défendre, d'indemniser et de dégager de toute responsabilité Riftbound Media contre toute réclamation résultant de votre utilisation du Service ou d'une violation de ces Conditions.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-display font-bold text-white flex items-center gap-3">
+          <span class="w-8 h-8 rounded-lg bg-rift-800 border border-rift-700 flex items-center justify-center text-accent-spirit text-sm">8</span>
+          Droit applicable et juridiction
+        </h2>
+        <div class="mt-6 space-y-4 text-rift-200 leading-relaxed">
+          <p>
+            Les présentes Conditions sont régies et interprétées conformément aux lois de la France. Tout litige sera soumis à la juridiction exclusive des tribunaux situés à Paris, en France.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-display font-bold text-white flex items-center gap-3">
+          <span class="w-8 h-8 rounded-lg bg-rift-800 border border-rift-700 flex items-center justify-center text-accent-spirit text-sm">9</span>
+          Divers
+        </h2>
+        <div class="mt-6 space-y-4 text-rift-200 leading-relaxed">
+          <p><strong class="text-rift-50">Intégralité de l'accord :</strong> Ces Conditions constituent l'intégralité de l'accord entre vous et nous concernant le Service.</p>
+          <p><strong class="text-rift-50">Divisibilité :</strong> Si une disposition est jugée invalide, les autres restent en vigueur.</p>
+          <p><strong class="text-rift-50">Informations de contact :</strong> Si vous avez des questions, veuillez nous contacter à l'adresse <a href="mailto:contact@riftbound-media.com" class="text-accent-spirit hover:underline">contact@riftbound-media.com</a>.</p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</MainLayout>
+
+<style>
+  .prose-rift h2 {
+    margin-top: 3rem;
+    margin-bottom: 1.5rem;
+  }
+  .prose-rift p {
+    margin-bottom: 1rem;
+  }
+  .prose-rift a {
+    transition: all 0.2s;
+  }
+</style>
