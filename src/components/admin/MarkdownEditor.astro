@@ -9,7 +9,26 @@ interface Props {
   label?: string;
 }
 
-const { name, id, value = '', placeholder, rows = 20, required = false, label } = Astro.props;
+const { id, name, value = '', placeholder = '', rows = 20, required = false, label } = Astro.props;
+
+// Lecture dynamique des icônes disponibles
+import fs from 'node:fs';
+import path from 'node:path';
+
+const iconsDir = path.join(process.cwd(), 'public', 'assets', 'icons');
+let availableIcons = [];
+try {
+  if (fs.existsSync(iconsDir)) {
+    availableIcons = fs.readdirSync(iconsDir)
+      .filter(file => file.endsWith('.png') && !file.includes('logo'))
+      .map(file => ({
+        name: file.replace('.png', '').charAt(0).toUpperCase() + file.replace('.png', '').slice(1),
+        filename: file
+      }));
+  }
+} catch (e) {
+  console.error('Erreur lecture icônes:', e);
+}
 ---
 
 <div class="markdown-editor flex flex-col gap-2" data-id={id}>
@@ -27,9 +46,9 @@ const { name, id, value = '', placeholder, rows = 20, required = false, label } 
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 4h-4l-4 16h4" />
       </svg>
     </button>
-    <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Barré" data-action="strike">
+    <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Souligné" data-action="underline">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L15 9M4.5 12h15" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 3v7a6 6 0 006 6 6 6 0 006-6V3M4 21h16" />
       </svg>
     </button>
     
@@ -68,12 +87,103 @@ const { name, id, value = '', placeholder, rows = 20, required = false, label } 
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16M4 6l2 0m-2 6l2 0m-2 6l2 0" />
       </svg>
     </button>
+    
+    <div class="w-px h-4 bg-rift-800 mx-1"></div>
+
+    <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Aligner à gauche" data-action="alignLeft">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h10M4 18h16" />
+      </svg>
+    </button>
+    <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Aligner au centre" data-action="alignCenter">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M7 12h10M4 18h16" />
+      </svg>
+    </button>
+    <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Aligner à droite" data-action="alignRight">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M10 12h10M4 18h16" />
+      </svg>
+    </button>
+
+    <div class="w-px h-4 bg-rift-800 mx-1"></div>
+
+    <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Section Image Gauche + Texte Centré" data-action="sectionLeft">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="6" width="8" height="12" rx="1" stroke-dasharray="2 2" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M14 8h6M14 12h6M14 16h6" />
+      </svg>
+    </button>
+    <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Section Image Droite + Texte Centré" data-action="sectionRight">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <rect x="13" y="6" width="8" height="12" rx="1" stroke-dasharray="2 2" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 8h6M4 12h6M4 16h6" />
+      </svg>
+    </button>
+    </button>
+    <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Arrêter l'habillage / Séparateur" data-action="clearFloat">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 13l-7 7-7-7m14-8l-7 7-7-7" />
+      </svg>
+    </button>
+
+    <div class="h-4 w-px bg-rift-800 mx-1"></div>
+
+    <div class="relative group">
+      <button type="button" class="flex items-center gap-1 px-2 py-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors text-xs font-bold" title="Insérer une icône TCG">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        ICÔNES
+        <svg class="w-3 h-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      
+      <div class="absolute left-0 top-full mt-1 w-48 bg-rift-900 border border-rift-700 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 py-1 overflow-hidden">
+        {availableIcons.length === 0 && (
+          <div class="px-3 py-2 text-[10px] text-rift-500 italic">Aucune icône trouvée</div>
+        )}
+        {availableIcons.map(icon => (
+          <button 
+            type="button" 
+            class="w-full flex items-center gap-3 px-3 py-2 hover:bg-rift-800 text-rift-300 hover:text-rift-50 transition-colors text-left text-xs"
+            data-action="insertTCGIcon"
+            data-icon={icon.filename}
+          >
+            <img src={`/assets/icons/${icon.filename}`} class="w-5 h-5 object-contain pointer-events-none" alt="" />
+            <span class="pointer-events-none">{icon.name}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <!-- Energy Cost Dropdown (0-9) -->
+    <div class="relative group">
+      <button type="button" class="flex items-center gap-1 px-2 py-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors text-[10px] font-bold" title="Coût en énergie">
+        ENERGY
+        <svg class="w-3 h-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      
+      <div class="absolute left-0 top-full mt-1 w-24 bg-rift-900 border border-rift-700 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 py-1 grid grid-cols-2 gap-1 px-1">
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+          <button 
+            type="button" 
+            class="flex items-center justify-center p-1.5 hover:bg-rift-800 rounded transition-colors"
+            data-action="insertEnergyValue"
+            data-value={num}
+          >
+            <div class="w-6 h-6 shrink-0 aspect-square rounded-full border border-rift-400 flex items-center justify-center text-[10px] font-bold text-rift-300 pointer-events-none">{num}</div>
+          </button>
+        ))}
+      </div>
+    </div>
 
     <div class="flex-1"></div>
-    
-    <button type="button" class="editor-status-dot w-3 h-3 rounded-full bg-rift-700 transition-colors" title="Status"></button>
 
-    <button type="button" class="flex items-center gap-1.5 px-3 py-1 rounded bg-accent-spirit text-rift-950 hover:bg-accent-spirit/90 transition-colors text-xs font-bold" title="Image" data-action="image">
+    <button type="button" class="flex-shrink-0 flex items-center gap-1.5 px-3 py-1 rounded bg-accent-spirit text-rift-950 hover:bg-accent-spirit/90 transition-colors text-xs font-bold whitespace-nowrap" title="Image" data-action="image">
       <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
@@ -112,14 +222,30 @@ const { name, id, value = '', placeholder, rows = 20, required = false, label } 
         this.uploadLoading = container.querySelector('.upload-loading');
         this.fontSizeSelect = container.querySelector('.font-size-select');
         this.statusDot = container.querySelector('.editor-status-dot');
-        // Look for the preview area on the page
+        // Look for the preview area on page
         this.preview = document.querySelector('.article-live-preview');
 
         if (!this.textarea) return;
-        this.init();
+        
+        // Ensure marked is available
+        if (!window.marked) {
+          console.warn('Marked library not yet loaded, waiting...');
+          const checkMarked = setInterval(() => {
+            if (window.marked) {
+              clearInterval(checkMarked);
+              this.init();
+            }
+          }, 100);
+        } else {
+          this.init();
+        }
       }
 
       init() {
+        // Prevent duplicate init
+        if (this.textarea._mdEditorInit) return;
+        this.textarea._mdEditorInit = true;
+
         this.textarea.addEventListener('input', () => this.updatePreview());
         
         // Auto-continue blockquotes on Enter
@@ -140,15 +266,42 @@ const { name, id, value = '', placeholder, rows = 20, required = false, label } 
           }
         });
 
+        // Configuration de marked pour les retours à la ligne intuitifs
+        if (window.marked) {
+          window.marked.setOptions({
+            breaks: true,
+            gfm: true,
+            headerIds: false,
+            mangle: false
+          });
+        }
+
         this.initToolbar();
         this.initImageUpload();
+        this.initPasteSupport();
         this.updatePreview();
         if (this.statusDot) this.statusDot.style.backgroundColor = '#22c55e';
       }
 
       updatePreview() {
         if (!this.preview || !window.marked) return;
-        this.preview.innerHTML = window.marked.parse(this.textarea.value || '');
+        
+        // Normalisation des sauts de ligne (\r\n -> \n)
+        const rawValue = (this.textarea.value || '').replace(/\r\n/g, '\n');
+        
+        // Pre-traitement pour préserver les lignes vides multiples
+        // On remplace 3+ sauts de ligne par un nombre équivalent d'espacement HTML
+        const processedValue = rawValue.replace(/\n{3,}/g, (match) => {
+          const count = match.length - 2;
+          return '\n\n' + '<div class="spacer" style="height: ' + (count * 1.5) + 'rem" aria-hidden="true"></div>\n\n';
+        });
+
+        this.preview.innerHTML = window.marked.parse(processedValue, { breaks: true, gfm: true });
+        
+        // Final sanity check: if preview is still empty but text exists
+        if (this.preview.innerHTML.trim() === '' && rawValue.trim() !== '') {
+          this.preview.innerHTML = '<p>' + rawValue + '</p>';
+        }
       }
 
       // Helper to preserve UNDO stack (Ctrl+Z)
@@ -173,11 +326,11 @@ const { name, id, value = '', placeholder, rows = 20, required = false, label } 
           if (!btn) return;
 
           e.preventDefault();
-          this.handleAction(btn.dataset.action);
+          this.handleAction(btn.dataset.action, btn);
         });
       }
 
-      handleAction(action) {
+      handleAction(action, target = null) {
         const start = this.textarea.selectionStart;
         const end = this.textarea.selectionEnd;
         const text = this.textarea.value;
@@ -224,6 +377,11 @@ const { name, id, value = '', placeholder, rows = 20, required = false, label } 
             prefix = '~~'; suffix = '~~';
             if (!content) content = 'barré';
             break;
+          case 'underline':
+            if (toggleWrap('<u>')) return;
+            prefix = '<u>'; suffix = '</u>';
+            if (!content) content = 'souligné';
+            break;
           case 'quote':
             if (selection.includes('\n')) {
               const multiLine = selection.split('\n').map(line => `> ${line}`).join('\n');
@@ -253,6 +411,55 @@ const { name, id, value = '', placeholder, rows = 20, required = false, label } 
             suffix = '</span>';
             if (!content) content = 'Texte';
             break;
+          case 'alignLeft':
+            prefix = '<div style="text-align: left">\n\n';
+            suffix = '\n\n</div>';
+            if (!content) content = 'Texte à gauche';
+            break;
+          case 'alignCenter':
+            prefix = '<div style="text-align: center">\n\n';
+            suffix = '\n\n</div>';
+            if (!content) content = 'Texte centré';
+            break;
+          case 'alignRight':
+            prefix = '<div style="text-align: right">\n\n';
+            suffix = '\n\n</div>';
+            if (!content) content = 'Texte à droite';
+            break;
+          case 'sectionLeft':
+            prefix = '<div style="display: flex; align-items: center; gap: 2rem; margin: 0.5rem 0; flex-wrap: wrap;">\n\n<div style="flex: 1; min-width: 300px;">\n\n';
+            suffix = '\n\n</div>\n\n<div style="flex: 1; min-width: 300px;">\n\nTexte ici\n\n</div>\n\n</div>';
+            if (!content) content = '![Image](url)';
+            break;
+          case 'sectionRight':
+            prefix = '<div style="display: flex; align-items: center; gap: 2rem; margin: 0.5rem 0; flex-wrap: wrap; flex-direction: row-reverse;">\n\n<div style="flex: 1; min-width: 300px;">\n\n';
+            suffix = '\n\n</div>\n\n<div style="flex: 1; min-width: 300px;">\n\nTexte ici\n\n</div>\n\n</div>';
+            if (!content) content = '![Image](url)';
+            break;
+          case 'clearFloat':
+            prefix = '\n<div style="clear: both; height: 1px;"></div><!-- Séparateur -->\n';
+            suffix = '';
+            content = '';
+            break;
+          case 'insertTCGIcon':
+            const iconFile = target.getAttribute('data-icon');
+            const iconName = iconFile.replace('.png', '');
+            prefix = `<img src="/assets/icons/${iconFile}" class="icon-tcg" alt="${iconName}" />`;
+            suffix = '';
+            content = '';
+            break;
+          case 'insertEnergy':
+            const manualCost = prompt('Coût en énergie ?', '1') || '1';
+            prefix = `<span class="icon-energy">${manualCost}</span>`;
+            suffix = '';
+            content = '';
+            break;
+          case 'insertEnergyValue':
+            const cost = target.getAttribute('data-value');
+            prefix = `<span class="icon-energy">${cost}</span>`;
+            suffix = '';
+            content = '';
+            break;
           case 'image':
             this.fileInput.click();
             return;
@@ -271,29 +478,48 @@ const { name, id, value = '', placeholder, rows = 20, required = false, label } 
         initImageUpload() {
           this.fileInput.addEventListener('change', async () => {
              const file = this.fileInput.files[0];
-             if (!file) return;
-
-             this.uploadLoading.classList.remove('hidden');
-             const fd = new FormData(); fd.append('image', file);
-             
-             try {
-               const res = await fetch('/api/upload-image', { method: 'POST', body: fd });
-               const data = await res.json();
-               if (data.url) {
-                 const tag = `\n![Image](${data.url})\n`;
-                 const start = this.textarea.selectionStart;
-                 this.textarea.value = this.textarea.value.substring(0, start) + tag + this.textarea.value.substring(this.textarea.selectionEnd);
-                 this.textarea.dispatchEvent(new Event('input'));
-               } else {
-                 alert('Upload échoué: ' + (data.error || 'Erreur inconnue'));
-               }
-             } catch (e) {
-               alert('Erreur réseau upload');
-             } finally {
-               this.uploadLoading.classList.add('hidden');
+             if (file) {
+               await this.uploadImageFile(file);
                this.fileInput.value = '';
              }
           });
+        }
+
+        initPasteSupport() {
+          this.textarea.addEventListener('paste', async (e) => {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (const item of items) {
+              if (item.type.indexOf('image') !== -1) {
+                const file = item.getAsFile();
+                if (file) {
+                  e.preventDefault();
+                  this.uploadImageFile(file);
+                }
+              }
+            }
+          });
+        }
+
+        async uploadImageFile(file) {
+          this.uploadLoading.classList.remove('hidden');
+          const fd = new FormData(); 
+          fd.append('image', file);
+          
+          try {
+            const res = await fetch('/api/upload-image', { method: 'POST', body: fd });
+            const data = await res.json();
+            if (data.url) {
+              const tag = `\n![Image](${data.url})\n`;
+              const start = this.textarea.selectionStart;
+              this.insertText(tag, start, this.textarea.selectionEnd);
+            } else {
+              alert('Upload échoué: ' + (data.error || 'Erreur inconnue'));
+            }
+          } catch (e) {
+            alert('Erreur réseau upload');
+          } finally {
+            this.uploadLoading.classList.add('hidden');
+          }
         }
       }
 
@@ -327,6 +553,68 @@ const { name, id, value = '', placeholder, rows = 20, required = false, label } 
   </script>
 
   <style is:global>
+    /* Better paragraph spacing */
+    .article-live-preview .prose p,
+    .prose.prose-invert p {
+      margin-top: 1.5em;
+      margin-bottom: 1.5em;
+    }
+
+    /* Reset first child margins inside floating blocks to ensure top alignment */
+    .article-live-preview div[style*="float"] > *:first-child,
+    .prose div[style*="float"] > *:first-child {
+      margin-top: 0 !important;
+    }
+
+    /* Flex Section Resets - Ensure perfect vertical centering */
+    .article-live-preview div[style*="display: flex"] > div > *:first-child,
+    .prose div[style*="display: flex"] > div > *:first-child {
+      margin-top: 0 !important;
+    }
+
+    .article-live-preview div[style*="display: flex"] > div > *:last-child,
+    .prose div[style*="display: flex"] > div > *:last-child {
+      margin-bottom: 0 !important;
+    }
+
+    /* Ensure images in flex sections are centered - EXCEPT TCG Icons */
+    .article-live-preview div[style*="display: flex"] img:not(.icon-tcg) {
+      margin-left: auto !important;
+      margin-right: auto !important;
+      display: block !important;
+    }
+
+    /* Spacer for multiple empty lines */
+    /* TCG Icons */
+    .article-live-preview .icon-tcg,
+    .prose .icon-tcg {
+      display: inline-block;
+      height: 1.3em;
+      width: auto;
+      vertical-align: middle;
+      margin: 0 0.2em;
+      transform: translateY(-1px);
+    }
+
+    .article-live-preview .icon-energy,
+    .prose .icon-energy {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.4em;
+      height: 1.4em;
+      border-radius: 50%;
+      background-color: #1a1a1a;
+      color: #fff;
+      font-size: 0.85em;
+      font-weight: 800;
+      border: 1px solid rgba(255,255,255,0.2);
+      vertical-align: middle;
+      margin: 0 0.2em;
+      transform: translateY(-1px);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+
     /* Ensure font-size spans are respected within Tailwind's prose */
     .article-live-preview span[style*="font-size"] {
       display: inline-block !important;

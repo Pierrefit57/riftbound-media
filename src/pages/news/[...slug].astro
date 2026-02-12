@@ -5,6 +5,12 @@ import MainLayout from '../../layouts/MainLayout.astro';
 import { supabase } from '../../lib/supabase';
 import { marked } from 'marked';
 
+// Configurer marked pour les retours à la ligne
+marked.use({
+  breaks: true,
+  gfm: true
+});
+
 const { slug } = Astro.params;
 
 // Fetch article first (without join to avoid PGRST200 error if relation cache is stale)
@@ -33,9 +39,15 @@ if (article.author_id) {
   }
 }
 
-const htmlContent = await marked.parse(article.content || '');
+const rawContent = (article.content || '').replace(/\r\n/g, '\n');
+const processedContent = rawContent.replace(/\n{3,}/g, (match) => {
+  const count = match.length - 2;
+  return '\n\n' + '<div class="spacer" style="height: ' + (count * 1.5) + 'rem" aria-hidden="true"></div>\n\n';
+});
 
-const formattedDate = new Date(article.created_at).toLocaleDateString('fr-FR', {
+const htmlContent = await marked.parse(processedContent);
+
+const formattedDate = new Date(article.published_at || article.created_at).toLocaleDateString('fr-FR', {
   day: 'numeric',
   month: 'long',
   year: 'numeric',
@@ -46,12 +58,12 @@ const authorName = article.profiles?.username || 'Équipe Riftbound';
 function getTagStyle(tag: string): string {
   const t = tag.toLowerCase().trim();
   
-  if (t.includes('riot') || t.includes('officiel')) return 'bg-domain-order/15 text-domain-order border-domain-order/30';
+  if (t.includes('riot') || t.includes('officiel') || t.includes('store')) return 'bg-domain-order/15 text-domain-order border-domain-order/30';
   if (t.includes('tournoi') || t.includes('compétitif')) return 'bg-accent-spirit/15 text-accent-spirit border-accent-spirit/30';
   if (t.includes('mise à jour') || t.includes('actualité') || t.includes('news')) return 'bg-domain-calm/15 text-domain-calm border-domain-calm/30';
   if (t.includes('équilibrage') || t.includes('patch')) return 'bg-accent-forge/15 text-accent-forge border-accent-forge/30';
   if (t.includes('lore') || t.includes('fun')) return 'bg-domain-chaos/15 text-domain-chaos border-domain-chaos/30';
-  if (t.includes('carte')) return 'bg-domain-mind/15 text-domain-mind border-domain-mind/30';
+  if (t.includes('carte') || t.includes('règles')) return 'bg-domain-mind/15 text-domain-mind border-domain-mind/30';
   if (t.includes('interview')) return 'bg-accent-sakura/20 text-accent-sakura border-accent-sakura/30';
   if (t.includes('errata')) return 'bg-domain-body/15 text-domain-body border-domain-body/30';
 
@@ -116,7 +128,7 @@ function getTagStyle(tag: string): string {
       )}
     </div>
 
-    <div class="prose prose-invert prose-orange max-w-none
+    <div class="prose prose-invert prose-orange max-w-none flow-root
       prose-headings:font-display prose-headings:font-bold prose-headings:text-rift-50
       prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4
       prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3
@@ -133,7 +145,7 @@ function getTagStyle(tag: string): string {
       set:html={htmlContent}
     />
 
-    <div class="mt-12 pt-8 border-t border-rift-700/50">
+    <div class="mt-12 pt-8 border-t border-rift-700/50 clear-both">
       <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
         <a href="/news" class="inline-flex items-center gap-1.5 text-sm text-accent-spirit hover:text-accent-forge font-medium transition-colors duration-300 group">
           <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -158,3 +170,66 @@ function getTagStyle(tag: string): string {
   </article>
 
 </MainLayout>
+
+<style is:global>
+  /* Spacer for multiple empty lines */
+  .prose .spacer {
+    display: block;
+    width: 100%;
+  }
+
+  /* TCG Icons */
+  .prose .icon-tcg {
+    display: inline-block;
+    height: 1.3em;
+    width: auto;
+    vertical-align: middle;
+    margin: 0 0.2em;
+    transform: translateY(-1px);
+  }
+
+  .prose .icon-energy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.4em;
+    height: 1.4em;
+    border-radius: 50%;
+    background-color: #1a1a1a;
+    color: #fff;
+    font-size: 0.85em;
+    font-weight: 800;
+    border: 1px solid rgba(255,255,255,0.2);
+    vertical-align: middle;
+    margin: 0 0.2em;
+    transform: translateY(-1px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  }
+
+  /* Better paragraph spacing on frontend */
+  .prose.prose-invert p {
+    margin-top: 0.8em;
+    margin-bottom: 0.8em;
+  }
+
+  /* Reset first child margins inside floating blocks to ensure top alignment */
+  .prose div[style*="float"] > *:first-child {
+    margin-top: 0 !important;
+  }
+
+  /* Flex Section Resets - Ensure perfect vertical centering */
+  .prose div[style*="display: flex"] > div > *:first-child {
+    margin-top: 0 !important;
+  }
+
+  .prose div[style*="display: flex"] > div > *:last-child {
+    margin-bottom: 0 !important;
+  }
+
+  /* Ensure images in flex sections are centered - EXCEPT TCG Icons */
+  .prose div[style*="display: flex"] img:not(.icon-tcg) {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    display: block !important;
+  }
+</style>

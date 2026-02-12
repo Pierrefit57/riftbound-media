@@ -14,6 +14,7 @@ if (Astro.request.method === 'POST') {
 
   if (action === 'delete' && articleId) {
     await supabase.from('articles').delete().eq('id', articleId);
+    return Astro.redirect('/admin/articles?success=deleted');
   }
 
   if (action === 'toggle-publish' && articleId) {
@@ -30,80 +31,276 @@ if (Astro.request.method === 'POST') {
         .eq('id', articleId);
     }
   }
+
+  if (action === 'toggle-featured' && articleId) {
+    const { data: article } = await supabase
+      .from('articles')
+      .select('featured')
+      .eq('id', articleId)
+      .single();
+
+    if (article) {
+      await supabase
+        .from('articles')
+        .update({ featured: !article.featured })
+        .eq('id', articleId);
+    }
+  }
 }
 
-const { data: articles } = await supabase
+let { data: articles, error: fetchError } = await supabase
   .from('articles')
-  .select('id, title, slug, published, featured, created_at, summary')
+  .select('id, title, slug, published, featured, created_at, published_at, summary, sort_order')
+  .order('sort_order', { ascending: false })
+  .order('published_at', { ascending: false })
   .order('created_at', { ascending: false });
+
+// Fallback if sort_order or published_at column doesn't exist yet
+if (fetchError && (fetchError.code === 'PGRST204' || fetchError.message.includes('sort_order') || fetchError.message.includes('published_at'))) {
+  console.warn('Falling back to created_at sort (columns missing)');
+  const fallback = await supabase
+    .from('articles')
+    .select('id, title, slug, published, featured, created_at, summary')
+    .order('created_at', { ascending: false });
+  articles = fallback.data;
+  fetchError = fallback.error;
+}
 ---
 
 <AdminLayout title="Articles" activeItem="articles">
   <div class="space-y-4">
 
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-      <p class="text-sm text-rift-400">{articles?.length || 0} article(s)</p>
-      <a href="/admin/articles/new" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-cyan text-rift-950 text-sm font-semibold hover:bg-accent-cyan/90 transition-colors">
-        + Nouvel article
+    {fetchError && (
+      <div class="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
+        Erreur de chargement: {fetchError.message}
+        {fetchError.message.includes('sort_order') && (
+          <p class="mt-2 font-bold whitespace-pre-wrap">Note: Vous devez exécuter la migration SQL dans Supabase pour activer le tri personnalisé.</p>
+        )}
+      </div>
+    )}
+
+    <!-- Notification Toast -->
+    <div id="success-toast" class="fixed top-24 right-8 z-50 transform translate-x-full opacity-0 transition-all duration-500 ease-out">
+      <div class="flex items-center gap-3 px-6 py-4 rounded-xl bg-emerald-500 text-white shadow-2xl shadow-emerald-500/20 border border-white/10">
+        <div class="w-2 h-2 rounded-full bg-white animate-pulse"></div>
+        <span class="text-sm font-bold uppercase tracking-wider" id="toast-message">L'article est en ligne</span>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="fixed inset-0 z-[100] hidden">
+      <div class="absolute inset-0 bg-rift-950/80 backdrop-blur-sm"></div>
+      <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="bg-rift-900 border border-rift-700 rounded-2xl shadow-2xl max-w-md w-full p-8 transform transition-all">
+          <div class="flex items-center justify-center w-16 h-16 rounded-full bg-red-500/10 text-red-500 mx-auto mb-6">
+            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h2 class="text-xl font-bold text-rift-50 text-center mb-2 font-display uppercase tracking-wider">Supprimer l'article ?</h2>
+          <p class="text-rift-400 text-center mb-8">Cette action est irréversible. Toutes les données liées à cet article seront définitivement supprimées.</p>
+          
+          <div class="flex items-center gap-3">
+            <button type="button" id="cancel-delete" class="flex-1 px-4 py-3 rounded-xl bg-rift-800 text-rift-200 font-semibold hover:bg-rift-700 transition-colors uppercase tracking-widest text-xs">
+              Annuler
+            </button>
+            <form method="POST" id="confirm-delete-form" class="flex-1">
+              <input type="hidden" name="id" id="delete-article-id" value="" />
+              <input type="hidden" name="action" value="delete" />
+              <button type="submit" class="w-full px-4 py-3 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20 uppercase tracking-widest text-xs">
+                Supprimer
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div slot="header-actions">
+      <a href="/admin/articles/new" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-spirit text-rift-950 text-sm font-bold hover:bg-accent-spirit/90 transition-all shadow-lg shadow-accent-spirit/20 hover:-translate-y-0.5 uppercase tracking-wider">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
+        Nouvel article
       </a>
     </div>
 
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+      <p class="text-sm text-rift-400">{articles?.length || 0} article(s) — <span class="text-accent-cyan/70 text-[10px] uppercase tracking-widest">Glissez pour réorganiser</span></p>
+    </div>
+
     <!-- Articles list -->
-    <div class="space-y-2">
+    <div id="sortable-articles" class="space-y-2">
       {articles && articles.length > 0 ? (
         articles.map((article) => (
-          <div class="flex items-center justify-between gap-4 p-4 bg-rift-800/50 rounded-xl border border-rift-700/50 hover:border-rift-600/50 transition-colors">
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-2 mb-1">
-                <a href={`/news/${article.slug}`} target="_blank" class="text-sm font-bold text-rift-100 truncate hover:text-accent-cyan transition-colors" title="Lire l'article">
-                  {article.title} ↗
-                </a>
-                {article.featured && (
-                  <span class="px-1.5 py-0.5 text-[10px] font-medium rounded bg-accent-forge/20 text-accent-forge">★ Featured</span>
-                )}
+          <div data-id={article.id} class="sortable-item flex items-center justify-between gap-4 p-4 bg-rift-800/40 rounded-xl border border-rift-700/50 hover:border-accent-cyan/30 transition-all group">
+            <div class="flex items-center gap-4 min-w-0 flex-1">
+              <!-- Drag Handle -->
+              <div class="drag-handle cursor-grab active:cursor-grabbing p-1.5 rounded-lg text-rift-600 hover:text-accent-cyan hover:bg-accent-cyan/5 transition-colors group-hover:opacity-100 opacity-40">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16" />
+                </svg>
               </div>
-              <div class="flex items-center gap-3 text-xs text-rift-400">
-                <span class:list={[
-                  'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium',
-                  article.published
-                    ? 'bg-emerald-500/15 text-emerald-400'
-                    : 'bg-amber-500/15 text-amber-400'
-                ]}>
-                  {article.published ? '● Publié' : '○ Brouillon'}
-                </span>
-                <span>/{article.slug}</span>
-                <span>{new Date(article.created_at).toLocaleDateString('fr-FR')}</span>
+
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <a href={`/news/${article.slug}`} target="_blank" class="text-sm font-bold text-rift-50 truncate hover:text-accent-cyan transition-colors" title="Lire l'article">
+                    {article.title} ↗
+                  </a>
+                  {article.featured && (
+                    <span class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-accent-forge/20 text-accent-forge uppercase tracking-wider">★ Épinglé</span>
+                  )}
+                </div>
+                <div class="flex items-center gap-3 text-xs text-rift-400">
+                  <span class:list={[
+                    'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium leading-none',
+                    article.published
+                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20'
+                      : 'bg-amber-500/15 text-amber-400 border border-amber-500/20'
+                  ]}>
+                    {article.published ? '● Publié' : '○ Brouillon'}
+                  </span>
+                  <span class="opacity-60">/{article.slug}</span>
+                  <span class="opacity-60">{new Date(article.published_at || article.created_at).toLocaleDateString('fr-FR')}</span>
+                </div>
               </div>
             </div>
 
-            <div class="flex items-center gap-2 flex-shrink-0">
+            <div class="flex items-center gap-2 flex-shrink-0 opacity-80 group-hover:opacity-100 transition-opacity">
+              <form method="POST">
+                <input type="hidden" name="id" value={article.id} />
+                <input type="hidden" name="action" value="toggle-featured" />
+                <button type="submit" class:list={[
+                  "px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors uppercase tracking-wider",
+                  article.featured 
+                    ? "bg-accent-forge/10 text-accent-forge border-accent-forge/20 hover:bg-accent-forge/20" 
+                    : "bg-rift-950 text-rift-400 border-rift-700/50 hover:bg-rift-800"
+                ]}>
+                  {article.featured ? 'Désépingler' : 'Épingler'}
+                </button>
+              </form>
               <form method="POST">
                 <input type="hidden" name="id" value={article.id} />
                 <input type="hidden" name="action" value="toggle-publish" />
-                <button type="submit" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-rift-800 text-rift-300 hover:bg-rift-700 border border-rift-700/50 transition-colors">
+                <button type="submit" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-rift-950 text-rift-300 hover:bg-rift-800 border border-rift-700/50 transition-colors uppercase tracking-wider">
                   {article.published ? 'Dépublier' : 'Publier'}
                 </button>
               </form>
-              <a href={`/admin/articles/${article.id}`} class="px-3 py-1.5 rounded-lg text-xs font-medium bg-accent-cyan/10 text-accent-cyan hover:bg-accent-cyan/20 border border-accent-cyan/20 transition-colors">
+              <a href={`/admin/articles/${article.id}`} class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-accent-cyan/10 text-accent-cyan hover:bg-accent-cyan/20 border border-accent-cyan/20 transition-colors uppercase tracking-wider">
                 Éditer
               </a>
-              <form method="POST" onsubmit="return confirm('Supprimer cet article ?')">
-                <input type="hidden" name="id" value={article.id} />
-                <input type="hidden" name="action" value="delete" />
-                <button type="submit" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors">
-                  Supprimer
-                </button>
-              </form>
+              <button 
+                type="button" 
+                class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors uppercase tracking-wider delete-btn"
+                data-id={article.id}
+              >
+                Supprimer
+              </button>
             </div>
           </div>
         ))
       ) : (
-        <div class="text-center py-12 text-gray-500">
-          <p class="text-lg mb-2">Aucun article</p>
-          <p class="text-sm">Créez votre premier article pour commencer.</p>
+        <div class="text-center py-20 bg-rift-800/20 rounded-2xl border border-dashed border-rift-700/50">
+          <p class="text-rift-400 text-lg mb-2">Aucun article</p>
+          <p class="text-rift-600 text-sm">Créez votre premier article pour commencer.</p>
         </div>
       )}
     </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js" is:inline></script>
+  <script is:inline>
+    // Sortable initialization
+    const el = document.getElementById('sortable-articles');
+    if (el && typeof Sortable !== 'undefined') {
+      Sortable.create(el, {
+        animation: 150,
+        handle: '.drag-handle',
+        ghostClass: 'bg-accent-cyan/5',
+        onEnd: async () => {
+          const items = el.querySelectorAll('.sortable-item');
+          const orders = Array.from(items).map((item, index) => ({
+            id: item.dataset.id,
+            // Higher order = appears first in "DESC" sort
+            sort_order: items.length - index 
+          }));
+
+          try {
+            const res = await fetch('/api/admin/articles/reorder', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ orders })
+            });
+            
+            if (!res.ok) {
+              console.error('Failed to save order');
+              alert('Erreur lors de la sauvegarde de l\'ordre.');
+            }
+          } catch (err) {
+            console.error('Network error saving order:', err);
+          }
+        }
+      });
+    }
+
+    // Success Toast Logic
+    const params = new URLSearchParams(window.location.search);
+    const successAction = params.get('success');
+    if (successAction) {
+      const toast = document.getElementById('success-toast');
+      const toastMsg = document.getElementById('toast-message');
+      
+      if (toast && toastMsg) {
+        if (successAction === 'created') {
+          toastMsg.textContent = "L'article a été créé avec succès !";
+        } else if (successAction === 'updated') {
+          toastMsg.textContent = "L'article a été mis à jour !";
+        } else if (successAction === 'deleted') {
+          toastMsg.textContent = "L'article a été supprimé.";
+          toast.firstElementChild.classList.remove('bg-emerald-500');
+          toast.firstElementChild.classList.add('bg-red-500');
+        }
+
+        // Show toast
+        setTimeout(() => {
+          toast.classList.remove('translate-x-full', 'opacity-0');
+          toast.classList.add('translate-x-0', 'opacity-100');
+        }, 100);
+
+        // Hide toast after 4s
+        setTimeout(() => {
+          toast.classList.add('translate-x-full', 'opacity-0');
+          toast.classList.remove('translate-x-0', 'opacity-100');
+        }, 4000);
+
+        // Clean URL
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, '', newUrl);
+      }
+    }
+
+    // Modal Logic
+    const modal = document.getElementById('delete-modal');
+    const cancelBtn = document.getElementById('cancel-delete');
+    const deleteIdInput = document.getElementById('delete-article-id');
+    const deleteBtns = document.querySelectorAll('.delete-btn');
+
+    deleteBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        deleteIdInput.value = btn.dataset.id;
+        modal.classList.remove('hidden');
+      });
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      modal.classList.add('hidden');
+    });
+
+    window.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+      }
+    });
+  </script>
 </AdminLayout>

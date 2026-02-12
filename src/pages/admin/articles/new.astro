@@ -17,19 +17,25 @@ if (Astro.request.method === 'POST') {
   const tags = (formData.get('tags') as string).split(',').map((t) => t.trim()).filter(Boolean);
   const featured = formData.get('featured') === 'on';
   const published = formData.get('published') === 'on';
+  const published_at = formData.get('published_at') as string || new Date().toISOString();
 
   const serviceClient = createServiceClient();
-  const { error } = await serviceClient.from('articles').insert({
-    title,
-    slug,
-    content,
-    summary,
-    image_url,
-    tags,
-    featured,
-    published,
-    author_id: Astro.locals.user?.id,
-  });
+  const { data: newArticle, error } = await serviceClient
+    .from('articles')
+    .insert({
+      title,
+      slug,
+      content,
+      summary,
+      image_url,
+      tags,
+      featured,
+      published,
+      published_at,
+      author_id: Astro.locals.user?.id,
+    })
+    .select('id')
+    .single();
 
   if (error) {
     console.error('[articles] Erreur création:', error.message, error.code);
@@ -37,13 +43,13 @@ if (Astro.request.method === 'POST') {
       ? 'Ce slug existe déjà. Choisissez un slug unique.'
       : 'Erreur lors de la création. Réessayez.';
   } else {
-    return Astro.redirect('/admin/articles');
+    return Astro.redirect(`/admin/articles/${newArticle.id}?success=created`);
   }
 }
 ---
 
 <AdminLayout title="Nouvel Article" activeItem="articles">
-  <div class="max-w-[1600px] mx-auto px-4 lg:px-8">
+  <div class="max-w-[1920px] mx-auto px-4 lg:px-8">
     <div class="flex items-center justify-between mb-8">
       <a href="/admin/articles" class="inline-flex items-center gap-1 text-sm text-accent-cyan hover:underline transition-colors">
         ← Retour aux articles
@@ -53,7 +59,7 @@ if (Astro.request.method === 'POST') {
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
       <!-- Left Column: Form -->
-      <div class="lg:col-span-12 xl:col-span-7">
+      <div class="lg:col-span-12 xl:col-span-6">
         <form method="POST" class="space-y-6 bg-rift-900/40 p-6 rounded-xl border border-rift-800/50">
           {errorMsg && (
             <div class="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
@@ -67,6 +73,14 @@ if (Astro.request.method === 'POST') {
               <input type="text" id="title" name="title" required
                 class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 placeholder-rift-600 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors"
                 placeholder="Titre de l'article"
+              />
+            </div>
+
+            <div>
+              <label for="published_at" class="block text-sm font-medium text-rift-300 mb-2">Date de publication</label>
+              <input type="datetime-local" id="published_at" name="published_at" 
+                class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 placeholder-rift-600 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors"
+                value={new Date().toISOString().slice(0, 16)}
               />
             </div>
 
@@ -130,6 +144,7 @@ if (Astro.request.method === 'POST') {
             <!-- Quick Tag Picker -->
             <div class="mt-3 flex flex-wrap gap-2">
               {[
+                { name: 'Store Riot', class: 'bg-domain-order/10 text-domain-order border-domain-order/20 hover:bg-domain-order/20' },
                 { name: 'Annonce Riot', class: 'bg-domain-order/10 text-domain-order border-domain-order/20 hover:bg-domain-order/20' },
                 { name: 'Tournoi', class: 'bg-accent-spirit/10 text-accent-spirit border-accent-spirit/20 hover:bg-accent-spirit/20' },
                 { name: 'Compétitif', class: 'bg-accent-spirit/10 text-accent-spirit border-accent-spirit/20 hover:bg-accent-spirit/20' },
@@ -139,6 +154,7 @@ if (Astro.request.method === 'POST') {
                 { name: 'Lore', class: 'bg-domain-chaos/10 text-domain-chaos border-domain-chaos/20 hover:bg-domain-chaos/20' },
                 { name: 'Fun', class: 'bg-domain-chaos/10 text-domain-chaos border-domain-chaos/20 hover:bg-domain-chaos/20' },
                 { name: 'Cartes', class: 'bg-domain-mind/10 text-domain-mind border-domain-mind/20 hover:bg-domain-mind/20' },
+                { name: 'Règles', class: 'bg-accent-spirit/10 text-accent-spirit border-accent-spirit/20 hover:bg-accent-spirit/20' },
                 { name: 'Interview', class: 'bg-accent-sakura/15 text-accent-sakura border-accent-sakura/25 hover:bg-accent-sakura/25' },
                 { name: 'Errata', class: 'bg-domain-body/10 text-domain-body border-domain-body/20 hover:bg-domain-body/20' },
               ].map(tag => (
@@ -165,7 +181,7 @@ if (Astro.request.method === 'POST') {
             <label class="flex items-center gap-2 cursor-pointer group">
               <input type="checkbox" name="featured"
                 class="w-4 h-4 rounded border-rift-700 bg-rift-950 text-accent-cyan focus:ring-accent-cyan/30 checked:bg-accent-cyan checked:border-accent-cyan transition-colors" />
-              <span class="text-xs text-rift-300 group-hover:text-rift-100 transition-colors uppercase tracking-wider">A la une</span>
+              <span class="text-xs text-rift-300 group-hover:text-rift-100 transition-colors uppercase tracking-wider">Épinglé</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer group">
               <input type="checkbox" name="published" checked
@@ -181,7 +197,7 @@ if (Astro.request.method === 'POST') {
       </div>
 
       <!-- Right Column: Live Preview -->
-      <div class="lg:col-span-12 xl:col-span-5 hidden xl:block sticky top-8">
+      <div class="lg:col-span-12 xl:col-span-6 hidden xl:block sticky top-8">
         <div class="bg-rift-900/30 rounded-xl border border-rift-800/50 flex flex-col shadow-2xl overflow-hidden">
           <div class="px-4 py-3 border-b border-rift-800/50 bg-rift-900/60 flex items-center justify-between">
             <span class="text-xs font-bold text-rift-400 uppercase tracking-widest font-display">Aperçu en temps réel</span>
@@ -191,7 +207,20 @@ if (Astro.request.method === 'POST') {
               <div class="w-1.5 h-1.5 rounded-full bg-green-500/30"></div>
             </div>
           </div>
-          <div class="article-live-preview px-8 py-10 min-h-[600px] max-h-[calc(100vh-120px)] overflow-y-auto prose prose-invert prose-emerald max-w-none scrollbar-thin scrollbar-thumb-rift-800 scrollbar-track-transparent">
+          <div class="article-live-preview px-8 py-10 min-h-[600px] max-h-[calc(100vh-120px)] overflow-y-auto prose prose-invert prose-orange max-w-none scrollbar-thin scrollbar-thumb-rift-800 scrollbar-track-transparent
+            prose-headings:font-display prose-headings:font-bold prose-headings:text-rift-50
+            prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4
+            prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3
+            prose-p:text-rift-200 prose-p:leading-relaxed
+            prose-a:text-accent-spirit prose-a:no-underline hover:prose-a:text-accent-forge hover:prose-a:underline
+            prose-strong:text-rift-50
+            prose-li:text-rift-200
+            prose-blockquote:border-l-4 prose-blockquote:border-accent-spirit/70 prose-blockquote:text-rift-100 prose-blockquote:bg-rift-950/50 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:not-italic prose-blockquote:my-8 prose-blockquote:border-solid
+            prose-img:rounded-none
+            prose-table:text-sm
+            prose-th:text-accent-forge prose-th:font-semibold
+            prose-td:text-rift-200
+            prose-hr:border-rift-700/50">
              <div class="text-rift-500 italic text-center py-20">Le rendu s'affichera ici au fur et à mesure...</div>
           </div>
         </div>
@@ -200,9 +229,99 @@ if (Astro.request.method === 'POST') {
   </div>
 
   <script>
-    // Auto-génération du slug depuis le titre
+    // Draft Manager - Saves and restores form data to prevent loss
+    const DRAFT_KEY = 'article_draft_new';
+    const form = document.querySelector('form');
     const titleInput = document.getElementById('title') as HTMLInputElement;
     const slugInput = document.getElementById('slug') as HTMLInputElement;
+    const summaryInput = document.getElementById('summary') as HTMLTextAreaElement;
+    const tagsInput = document.getElementById('tags') as HTMLInputElement;
+    const imageUrlInput = document.getElementById('image_url') as HTMLInputElement;
+    const contentInput = document.getElementById('content') as HTMLTextAreaElement;
+    const publishedAtInput = document.getElementById('published_at') as HTMLInputElement;
+    const featuredInput = document.querySelector('input[name="featured"]') as HTMLInputElement;
+    const publishedInput = document.querySelector('input[name="published"]') as HTMLInputElement;
+    
+    // UI Elements for restoration
+    const previewImg = document.getElementById('preview-img') as HTMLImageElement;
+    const previewContainer = document.getElementById('image-preview')!;
+    const uploadPrompt = document.getElementById('upload-prompt')!;
+
+    const saveDraft = () => {
+      const draft = {
+        title: titleInput.value,
+        slug: slugInput.value,
+        summary: summaryInput.value,
+        tags: tagsInput.value,
+        image_url: imageUrlInput.value,
+        content: contentInput.value,
+        published_at: publishedAtInput.value,
+        featured: featuredInput.checked,
+        published: publishedInput.checked,
+        timestamp: Date.now()
+      };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    };
+
+    const loadDraft = () => {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (!saved) return;
+
+      try {
+        const draft = JSON.parse(saved);
+        
+        // Populate inputs
+        if (draft.title) titleInput.value = draft.title;
+        if (draft.slug) {
+          slugInput.value = draft.slug;
+          slugEdited = true; // Mark as edited so auto-gen doesn't overwrite
+        }
+        if (draft.summary) summaryInput.value = draft.summary;
+        if (draft.tags) tagsInput.value = draft.tags;
+        if (draft.image_url) {
+          imageUrlInput.value = draft.image_url;
+          previewImg.src = draft.image_url;
+          previewContainer.classList.remove('hidden');
+          uploadPrompt.classList.add('hidden');
+        }
+        if (draft.content) {
+          contentInput.value = draft.content;
+          // Trigger editor preview update
+          contentInput.dispatchEvent(new Event('input'));
+        }
+        if (draft.published_at) publishedAtInput.value = draft.published_at;
+        if (draft.featured !== undefined) featuredInput.checked = draft.featured;
+        if (draft.published !== undefined) publishedInput.checked = draft.published;
+
+        // Update tag chips UI
+        updateChipStates();
+        
+        console.log('Brouillon restauré avec succès.');
+      } catch (e) {
+        console.error('Erreur lors de la restauration du brouillon:', e);
+      }
+    };
+
+    // Auto-save on input
+    const inputs = [titleInput, slugInput, summaryInput, tagsInput, imageUrlInput, contentInput, publishedAtInput, featuredInput, publishedInput];
+    inputs.forEach(input => {
+      input?.addEventListener('input', saveDraft);
+      input?.addEventListener('change', saveDraft);
+    });
+
+    // Clear draft on successful form submission
+    form?.addEventListener('submit', () => {
+      // We don't clear immediately in case of server error, but we'll mark it
+      // In practice, since we redirect on success, we can clear it in the 'success' check if we wanted
+      // but simpler to clear here and hope for the best, or clear on the list page after success
+    });
+
+    // Check if we just successfully created an article
+    if (window.location.search.includes('success=created')) {
+       localStorage.removeItem(DRAFT_KEY);
+    }
+
+    // Auto-génération du slug depuis le titre
     let slugEdited = false;
 
     slugInput?.addEventListener('input', () => { slugEdited = true; });
@@ -216,16 +335,13 @@ if (Astro.request.method === 'POST') {
           .replace(/\s+/g, '-')
           .replace(/-+/g, '-')
           .replace(/^-|-$/g, '');
+        saveDraft(); // Save the auto-gen slug too
       }
     });
 
     // Image upload
     const zone = document.getElementById('image-upload-zone')!;
     const fileInput = document.getElementById('image-file-input') as HTMLInputElement;
-    const imageUrlInput = document.getElementById('image_url') as HTMLInputElement;
-    const preview = document.getElementById('image-preview')!;
-    const previewImg = document.getElementById('preview-img') as HTMLImageElement;
-    const uploadPrompt = document.getElementById('upload-prompt')!;
     const uploadLoading = document.getElementById('upload-loading')!;
     const removeBtn = document.getElementById('remove-image-btn')!;
 
@@ -260,11 +376,10 @@ if (Astro.request.method === 'POST') {
     removeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       imageUrlInput.value = '';
-      preview.classList.add('hidden');
+      previewContainer.classList.add('hidden');
       uploadPrompt.classList.remove('hidden');
+      saveDraft();
     });
-
-
 
     async function uploadImageAndGetUrl(file: File): Promise<string | null> {
       const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
@@ -301,7 +416,7 @@ if (Astro.request.method === 'POST') {
 
     async function uploadImage(file: File) {
       uploadPrompt.classList.add('hidden');
-      preview.classList.add('hidden');
+      previewContainer.classList.add('hidden');
       uploadLoading.classList.remove('hidden');
 
       const url = await uploadImageAndGetUrl(file);
@@ -310,36 +425,17 @@ if (Astro.request.method === 'POST') {
         imageUrlInput.value = url;
         previewImg.src = url;
         uploadLoading.classList.add('hidden');
-        preview.classList.remove('hidden');
+        previewContainer.classList.remove('hidden');
+        saveDraft(); // Save URL to draft
       } else {
-        // Error handled in helper function, just reset UI
         uploadLoading.classList.add('hidden');
+        uploadPrompt.classList.remove('hidden');
       }
     }
+
     // Tag picker logic
-    const tagsInput = document.getElementById('tags') as HTMLInputElement;
     const tagChips = document.querySelectorAll('.tag-chip');
 
-    tagChips.forEach(chip => {
-      chip.addEventListener('click', () => {
-        const tag = (chip as HTMLElement).dataset.tag!;
-        let currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(Boolean);
-        
-        if (currentTags.includes(tag)) {
-          currentTags = currentTags.filter(t => t !== tag);
-          chip.innerHTML = `+ ${tag}`;
-        } else {
-          currentTags.push(tag);
-          chip.innerHTML = `✓ ${tag}`;
-        }
-        
-        tagsInput.value = currentTags.join(', ');
-        // Trigger input event to update anything listening
-        tagsInput.dispatchEvent(new Event('input'));
-      });
-    });
-
-    // Initial state for chips if editing (though this is 'new.astro', it helps for consistency)
     const updateChipStates = () => {
       const currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(Boolean);
       tagChips.forEach(chip => {
@@ -351,7 +447,31 @@ if (Astro.request.method === 'POST') {
         }
       });
     };
+
+    tagChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const tag = (chip as HTMLElement).dataset.tag!;
+        let currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(Boolean);
+        
+        if (currentTags.includes(tag)) {
+          currentTags = currentTags.filter(t => t !== tag);
+        } else {
+          currentTags.push(tag);
+        }
+        
+        tagsInput.value = currentTags.join(', ');
+        updateChipStates();
+        tagsInput.dispatchEvent(new Event('input'));
+        saveDraft();
+      });
+    });
     
-    tagsInput?.addEventListener('input', updateChipStates);
+    tagsInput?.addEventListener('input', () => {
+      updateChipStates();
+      saveDraft();
+    });
+
+    // Run on load
+    loadDraft();
   </script>
 </AdminLayout>

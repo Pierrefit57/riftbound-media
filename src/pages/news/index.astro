@@ -5,11 +5,24 @@ import MainLayout from '../../layouts/MainLayout.astro';
 import NewsCard from '../../components/NewsCard.astro';
 import { supabase } from '../../lib/supabase';
 
-const { data: allNews } = await supabase
+let { data: allNews, error: newsError } = await supabase
   .from('articles')
   .select('*')
   .eq('published', true)
+  .order('sort_order', { ascending: false })
+  .order('published_at', { ascending: false })
   .order('created_at', { ascending: false });
+
+// Fallback si la colonne published_at n'existe pas encore
+if (newsError && newsError.message.includes('published_at')) {
+  const fallback = await supabase
+    .from('articles')
+    .select('*')
+    .eq('published', true)
+    .order('sort_order', { ascending: false })
+    .order('created_at', { ascending: false });
+  allNews = fallback.data;
+}
 
 const featuredNews = allNews?.filter((n) => n.featured).slice(0, 2) || [];
 const regularNews = allNews || [];
@@ -33,7 +46,7 @@ const regularNews = allNews || [];
       <section class="mb-14">
         <div class="flex items-center gap-3 mb-6">
           <div class="w-1 h-6 rounded-full bg-gradient-to-b from-accent-spirit to-accent-sakura"></div>
-          <h2 class="text-lg font-display font-bold text-rift-100">À la Une</h2>
+          <h2 class="text-lg font-display font-bold text-rift-100">Épinglés</h2>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           {featuredNews.map((article) => (

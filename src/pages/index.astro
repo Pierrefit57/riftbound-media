@@ -7,14 +7,28 @@ import { supabase } from '../lib/supabase';
 import { getCollection } from 'astro:content';
 
 // Articles depuis Supabase (Limité à 6 pour laisser de la place aux tournois)
-const { data: allNews } = await supabase
+let { data: latestArticles, error: latestError } = await supabase
   .from('articles')
   .select('*')
   .eq('published', true)
+  .order('sort_order', { ascending: false })
+  .order('published_at', { ascending: false })
   .order('created_at', { ascending: false })
   .limit(6);
 
-const latestNews = allNews || [];
+// Fallback si la colonne published_at n'existe pas encore
+if (latestError && latestError.message.includes('published_at')) {
+  const fallback = await supabase
+    .from('articles')
+    .select('*')
+    .eq('published', true)
+    .order('sort_order', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(6);
+  latestArticles = fallback.data;
+}
+
+const latestNews = latestArticles || [];
 
 // Fetch Tournaments specifically (check for 'tournoi' or 'Tournoi')
 const { data: tournamentNews } = await supabase
