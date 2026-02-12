@@ -3,8 +3,23 @@ export const prerender = false;
 
 import MainLayout from '../layouts/MainLayout.astro';
 import PDFViewer from '../components/PDFViewer.tsx';
-
-// Core Rules Content removed as we are now using PDF Viewer
+import ErrataViewer from '../components/ErrataViewer.tsx';
+const errataArticles = [
+  {
+    title: "Errata Spiritforged",
+    content: "https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/PDFrules/UPDATED%20Riftbound%20Erratas%20Spiritforged.pdf",
+    date: "14-01-2026",
+    activeClass: "bg-[#A5A9B4] text-rift-950 border-[#A5A9B4] shadow-[#A5A9B4]/20",
+    textClass: "text-[#A5A9B4]"
+  },
+  {
+    title: "Errata Origins",
+    content: "https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/PDFrules/Riftbound%20Card%20Errata%20Origins%20.pdf",
+    date: "28-10-2025",
+    activeClass: "bg-[#C5A059] text-rift-950 border-[#C5A059] shadow-[#C5A059]/20",
+    textClass: "text-[#C5A059]"
+  }
+];
 ---
 
 <MainLayout title="Règles du Jeu" petalMode="sides">
@@ -76,10 +91,7 @@ import PDFViewer from '../components/PDFViewer.tsx';
 
     <!-- Erratas Content -->
     <div id="erratas" class="rules-content hidden animate-fade-in">
-        <div class="bg-rift-800/50 border border-rift-700/50 rounded-2xl p-8 text-center text-rift-300">
-            <h2 class="text-2xl font-display font-bold text-accent-sakura mb-4">Erratas & FAQ</h2>
-            <p>Le contenu des Erratas sera disponible prochainement.</p>
-        </div>
+        <ErrataViewer client:visible articles={errataArticles} />
     </div>
 
   </div>

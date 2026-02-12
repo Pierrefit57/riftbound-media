@@ -94,6 +94,8 @@
 
         const container = document.getElementById('viewerContainer');
         const eventBus = new pdfjsViewer.EventBus();
+        // Move urlParams here
+        const urlParams = new URLSearchParams(window.location.search);
 
         const pdfLinkService = new pdfjsViewer.PDFLinkService({
             eventBus,
@@ -111,16 +113,22 @@
             findController: pdfFindController,
             textLayerMode: 1,
             annotationMode: 1,
+            maxCanvasPixels: 16777216, // Increase limit for high-DPI screens
         });
 
         pdfLinkService.setViewer(pdfViewer);
 
         // --- Init Logic ---
         let hasInitialized = false;
+        const initialZoom = urlParams.get('zoom');
 
         const applyInitialScale = () => {
-            // Force 120% Zoom by default
-            pdfViewer.currentScaleValue = '1.2';
+            if (initialZoom) {
+                pdfViewer.currentScaleValue = initialZoom;
+            } else {
+                // Default fallback
+                pdfViewer.currentScaleValue = '1.2';
+            }
         };
 
         const reportScale = () => {
@@ -180,7 +188,6 @@
         });
 
         // Load Document
-        const urlParams = new URLSearchParams(window.location.search);
         const file = urlParams.get('file');
 
         if (file) {

@@ -183,6 +183,7 @@ if (successParam === 'created') successMsg = 'Article créé avec succès ! Cont
                 { name: 'Règles', class: 'bg-accent-spirit/10 text-accent-spirit border-accent-spirit/20 hover:bg-accent-spirit/20' },
                 { name: 'Interview', class: 'bg-accent-sakura/15 text-accent-sakura border-accent-sakura/25 hover:bg-accent-sakura/25' },
                 { name: 'Errata', class: 'bg-domain-body/10 text-domain-body border-domain-body/20 hover:bg-domain-body/20' },
+                { name: 'FAQ', class: 'bg-domain-body/10 text-domain-body border-domain-body/20 hover:bg-domain-body/20' },
               ].map(tag => (
                 <button 
                   type="button" 
@@ -260,6 +261,21 @@ if (successParam === 'created') successMsg = 'Article créé avec succès ! Cont
     const articleId = window.location.pathname.split('/').pop();
     const DRAFT_KEY = `article_draft_${articleId}`;
     
+    // IMMEDIATE CLEANUP: Check for success flags right away
+    try {
+      if (window.location.search.includes('success=updated')) {
+         localStorage.removeItem(DRAFT_KEY);
+         console.log('[Draft] Draft cleared after update');
+      }
+      if (window.location.search.includes('success=created')) {
+         localStorage.removeItem(DRAFT_KEY);
+         localStorage.removeItem('article_draft_new'); // Critical: Clear the 'new' draft
+         console.log('[Draft] New article draft cleared after creation');
+      }
+    } catch (e) {
+      console.error('[Draft] Error clearing draft:', e);
+    }
+    
     // Draft Manager - Saves and restores form data to prevent loss
     const form = document.querySelector('form');
     const titleInput = document.getElementById('title') as HTMLInputElement;
@@ -336,11 +352,6 @@ if (successParam === 'created') successMsg = 'Article créé avec succès ! Cont
       input?.addEventListener('input', saveDraft);
       input?.addEventListener('change', saveDraft);
     });
-
-    // Check if we just successfully updated
-    if (window.location.search.includes('success=updated')) {
-       localStorage.removeItem(DRAFT_KEY);
-    }
 
     // Image upload
     const zone = document.getElementById('image-upload-zone')!;

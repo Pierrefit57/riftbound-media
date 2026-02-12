@@ -427,13 +427,13 @@ try {
             if (!content) content = 'Texte à droite';
             break;
           case 'sectionLeft':
-            prefix = '<div style="display: flex; align-items: center; gap: 2rem; margin: 0.5rem 0; flex-wrap: wrap;">\n\n<div style="flex: 1; min-width: 300px;">\n\n';
-            suffix = '\n\n</div>\n\n<div style="flex: 1; min-width: 300px;">\n\nTexte ici\n\n</div>\n\n</div>';
+            prefix = '<div style="display: flex; align-items: center; gap: 2rem; margin: 0.5rem 0; flex-wrap: wrap;">\n<div style="flex: 1; min-width: 300px;">\n';
+            suffix = '\n</div>\n<div style="flex: 1; min-width: 300px;">\nTexte ici\n</div>\n</div>';
             if (!content) content = '![Image](url)';
             break;
           case 'sectionRight':
-            prefix = '<div style="display: flex; align-items: center; gap: 2rem; margin: 0.5rem 0; flex-wrap: wrap; flex-direction: row-reverse;">\n\n<div style="flex: 1; min-width: 300px;">\n\n';
-            suffix = '\n\n</div>\n\n<div style="flex: 1; min-width: 300px;">\n\nTexte ici\n\n</div>\n\n</div>';
+            prefix = '<div style="display: flex; align-items: center; gap: 2rem; margin: 0.5rem 0; flex-wrap: wrap; flex-direction: row-reverse;">\n<div style="flex: 1; min-width: 300px;">\n';
+            suffix = '\n</div>\n<div style="flex: 1; min-width: 300px;">\nTexte ici\n</div>\n</div>';
             if (!content) content = '![Image](url)';
             break;
           case 'clearFloat':
@@ -509,7 +509,7 @@ try {
             const res = await fetch('/api/upload-image', { method: 'POST', body: fd });
             const data = await res.json();
             if (data.url) {
-              const tag = `\n![Image](${data.url})\n`;
+              const tag = `![Image](${data.url})`;
               const start = this.textarea.selectionStart;
               this.insertText(tag, start, this.textarea.selectionEnd);
             } else {

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 
-export default function PDFViewer({ url }: { url: string }) {
+export default function PDFViewer({ url, initialScale }: { url: string; initialScale?: string }) {
     const [searchText, setSearchText] = useState('');
     const [matchesCount, setMatchesCount] = useState({ current: 0, total: 0 });
     const [currentScale, setCurrentScale] = useState<number | null>(null);
@@ -117,7 +117,7 @@ export default function PDFViewer({ url }: { url: string }) {
             <div className="pdf-container bg-rift-900/50 rounded-xl border border-rift-700/50 overflow-hidden h-[800px] relative">
                 <iframe
                     ref={iframeRef}
-                    src={`/lib/pdfjs/viewer.html?file=${encodeURIComponent(url)}`}
+                    src={`/lib/pdfjs/viewer.html?file=${encodeURIComponent(url)}${initialScale ? `&zoom=${initialScale}` : ''}`}
                     className="w-full h-full border-none"
                     title="PDF Viewer"
                 />

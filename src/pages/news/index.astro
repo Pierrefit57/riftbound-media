@@ -56,7 +56,7 @@ const regularNews = allNews || [];
               image={article.image_url || ''}
               tags={article.tags || []}
               author=""
-              pubDate={new Date(article.created_at)}
+              pubDate={new Date(article.published_at || article.created_at)}
               slug={article.slug}
               featured={true}
             />
@@ -81,7 +81,7 @@ const regularNews = allNews || [];
                   image={article.image_url || ''}
                   tags={article.tags || []}
                   author=""
-                  pubDate={new Date(article.created_at)}
+                  pubDate={new Date(article.published_at || article.created_at)}
                   slug={article.slug}
                 />
               </div>
