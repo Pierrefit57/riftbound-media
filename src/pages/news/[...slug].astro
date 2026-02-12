@@ -44,12 +44,18 @@ const formattedDate = new Date(article.created_at).toLocaleDateString('fr-FR', {
 const authorName = article.profiles?.username || 'Équipe Riftbound';
 
 function getTagStyle(tag: string): string {
-  const t = tag.toLowerCase();
-  if (t.includes('lore') || t.includes('événement')) return 'bg-domain-chaos/20 text-domain-chaos border-domain-chaos/30';
-  if (t.includes('compétitif') || t.includes('tournoi')) return 'bg-accent-spirit/20 text-accent-spirit border-accent-spirit/30';
-  if (t.includes('patch') || t.includes('équilibrage')) return 'bg-accent-forge/20 text-accent-forge border-accent-forge/30';
+  const t = tag.toLowerCase().trim();
+  
+  if (t.includes('riot') || t.includes('officiel')) return 'bg-domain-order/15 text-domain-order border-domain-order/30';
+  if (t.includes('tournoi') || t.includes('compétitif')) return 'bg-accent-spirit/15 text-accent-spirit border-accent-spirit/30';
+  if (t.includes('mise à jour') || t.includes('actualité') || t.includes('news')) return 'bg-domain-calm/15 text-domain-calm border-domain-calm/30';
+  if (t.includes('équilibrage') || t.includes('patch')) return 'bg-accent-forge/15 text-accent-forge border-accent-forge/30';
+  if (t.includes('lore') || t.includes('fun')) return 'bg-domain-chaos/15 text-domain-chaos border-domain-chaos/30';
+  if (t.includes('carte')) return 'bg-domain-mind/15 text-domain-mind border-domain-mind/30';
   if (t.includes('interview')) return 'bg-accent-sakura/20 text-accent-sakura border-accent-sakura/30';
-  return 'bg-rift-800 text-rift-300 border-rift-700';
+  if (t.includes('errata')) return 'bg-domain-body/15 text-domain-body border-domain-body/30';
+
+  return 'bg-rift-800/50 text-rift-200 border-rift-700/50';
 }
 ---
 
@@ -119,13 +125,27 @@ function getTagStyle(tag: string): string {
       set:html={htmlContent}
     />
 
-    <div class="mt-12 pt-8 border-t border-rift-200">
-      <a href="/news" class="inline-flex items-center gap-1.5 text-sm text-accent-spirit hover:text-accent-forge font-medium transition-colors duration-300 group">
-        <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
-        </svg>
-        Retour aux actualités
-      </a>
+    <div class="mt-12 pt-8 border-t border-rift-700/50">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+        <a href="/news" class="inline-flex items-center gap-1.5 text-sm text-accent-spirit hover:text-accent-forge font-medium transition-colors duration-300 group">
+          <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+          </svg>
+          Retour aux actualités
+        </a>
+
+        <button 
+          onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+          class="inline-flex items-center gap-3 text-sm text-rift-400 hover:text-accent-spirit transition-all duration-300 group"
+        >
+          <span class="font-medium tracking-wide">Remonter en haut</span>
+          <div class="w-9 h-9 rounded-full border border-rift-700/50 group-hover:border-accent-spirit/50 flex items-center justify-center transition-all group-hover:bg-accent-spirit/5">
+            <svg class="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+          </div>
+        </button>
+      </div>
     </div>
   </article>
 
