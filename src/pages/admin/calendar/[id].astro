@@ -35,6 +35,7 @@ if (Astro.request.method === 'POST') {
   const image_url = formData.get('image_url') as string || null;
   const image_position = formData.get('image_position') as string || '50% 50%';
   const image_size = formData.get('image_size') as string || 'cover';
+  const all_day = formData.get('all_day') === 'on';
 
   const { error } = await supabase
     .from('calendar_events')
@@ -43,6 +44,7 @@ if (Astro.request.method === 'POST') {
       description,
       start_date: new Date(start_date).toISOString(),
       end_date: end_date ? new Date(end_date).toISOString() : null,
+      all_day,
       type,
       url,
       location,
@@ -100,6 +102,15 @@ if (successParam === 'updated') successMsg = 'Événement mis à jour !';
             class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors"
             value={event.title}
           />
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="flex items-center gap-2 cursor-pointer group">
+            <input type="checkbox" id="all_day" name="all_day" checked={event.all_day}
+              class="w-4 h-4 rounded border-rift-700 bg-rift-950 text-accent-spirit focus:ring-accent-spirit/30 cursor-pointer"
+            />
+            <span class="text-sm font-medium text-rift-300 group-hover:text-rift-100 transition-colors">Événement toute la journée (masquer l'heure)</span>
+          </label>
         </div>
 
         <div>
@@ -221,6 +232,43 @@ if (successParam === 'updated') successMsg = 'Événement mis à jour !';
 
 
     uploadBtn?.addEventListener('click', () => fileInput?.click());
+
+    // All Day toggle logic
+    window.addEventListener('load', () => {
+      const allDayToggle = document.getElementById('all_day') as HTMLInputElement;
+      const startDateInput = document.getElementById('start_date') as HTMLInputElement;
+      const endDateInput = document.getElementById('end_date') as HTMLInputElement;
+
+      const updateInputs = () => {
+        const isAllDay = allDayToggle?.checked;
+        if (isAllDay) {
+          if (startDateInput.type !== 'date') {
+            const val = startDateInput.value.split('T')[0];
+            startDateInput.type = 'date';
+            startDateInput.value = val;
+          }
+          if (endDateInput.type !== 'date') {
+            const val = endDateInput.value.split('T')[0];
+            endDateInput.type = 'date';
+            endDateInput.value = val;
+          }
+        } else {
+          if (startDateInput.type !== 'datetime-local') {
+            const val = startDateInput.value;
+            startDateInput.type = 'datetime-local';
+            if (val && !val.includes('T')) startDateInput.value = val + 'T12:00';
+          }
+          if (endDateInput.type !== 'datetime-local') {
+            const val = endDateInput.value;
+            endDateInput.type = 'datetime-local';
+            if (val && !val.includes('T')) endDateInput.value = val + 'T12:00';
+          }
+        }
+      };
+
+      allDayToggle?.addEventListener('change', updateInputs);
+      updateInputs();
+    });
 
     fileInput?.addEventListener('change', async () => {
       const file = fileInput.files?.[0];

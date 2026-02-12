@@ -21,6 +21,7 @@ let country = '';
 let image_url = '';
 let image_position = '50% 50%';
 let image_size = 'cover';
+let all_day = false;
 
 if (Astro.request.method === 'POST') {
   const formData = await Astro.request.formData();
@@ -36,6 +37,7 @@ if (Astro.request.method === 'POST') {
   image_url = formData.get('image_url') as string || null;
   image_position = formData.get('image_position') as string || '50% 50%';
   image_size = formData.get('image_size') as string || 'cover';
+  all_day = formData.get('all_day') === 'on';
 
   const serviceClient = createServiceClient();
   const { data: newEvent, error } = await serviceClient
@@ -45,9 +47,9 @@ if (Astro.request.method === 'POST') {
       description,
       start_date: new Date(start_date).toISOString(),
       end_date: end_date ? new Date(end_date).toISOString() : null,
+      all_day,
       type,
       url,
-
       location,
       country,
       image_url,
@@ -92,6 +94,15 @@ if (Astro.request.method === 'POST') {
             placeholder="Ex: Tournoi Riftbound #1"
             value={title}
           />
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="flex items-center gap-2 cursor-pointer group">
+            <input type="checkbox" id="all_day" name="all_day" checked={all_day}
+              class="w-4 h-4 rounded border-rift-700 bg-rift-950 text-accent-spirit focus:ring-accent-spirit/30 cursor-pointer"
+            />
+            <span class="text-sm font-medium text-rift-300 group-hover:text-rift-100 transition-colors">Événement toute la journée (masquer l'heure)</span>
+          </label>
         </div>
 
         <div>
@@ -244,6 +255,24 @@ if (Astro.request.method === 'POST') {
     // Clear form if success query param is present (meaning we just came back from a create)
     // or if the page is loaded fresh to prevent browser autofill issues
     window.addEventListener('load', () => {
+      const allDayToggle = document.getElementById('all_day') as HTMLInputElement;
+      const startDateInput = document.getElementById('start_date') as HTMLInputElement;
+      const endDateInput = document.getElementById('end_date') as HTMLInputElement;
+
+      const updateInputs = () => {
+        const isAllDay = allDayToggle?.checked;
+        if (isAllDay) {
+          if (startDateInput.type !== 'date') startDateInput.type = 'date';
+          if (endDateInput.type !== 'date') endDateInput.type = 'date';
+        } else {
+          if (startDateInput.type !== 'datetime-local') startDateInput.type = 'datetime-local';
+          if (endDateInput.type !== 'datetime-local') endDateInput.type = 'datetime-local';
+        }
+      };
+
+      allDayToggle?.addEventListener('change', updateInputs);
+      updateInputs();
+
       const form = document.querySelector('form');
       if (form && !window.location.search.includes('error')) {
         // We don't want to clear if there was an error being displayed

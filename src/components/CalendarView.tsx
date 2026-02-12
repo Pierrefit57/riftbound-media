@@ -15,6 +15,7 @@ interface CalendarEvent {
     image_position?: string; // CSS object-position / background-position
     image_size?: string; // CSS background-size / width-height percentage
     country?: string; // ISO 2-letter code
+    all_day?: boolean;
 }
 
 interface Props {
@@ -84,31 +85,11 @@ const CalendarView: React.FC<Props> = ({ initialEvents }) => {
         });
     };
 
-    const getEventClass = (type: string, onImage: boolean = false) => {
+    const getEventClass = (onImage: boolean = false) => {
         if (onImage) {
-            switch (type) {
-                case 'Tournoi':
-                case 'Tournoi International': return 'bg-accent-spirit text-rift-950 border-accent-spirit/50';
-                case 'Tournoi FR': return 'bg-[#0080ff] text-white border-[#0080ff]/50';
-                case 'Stream':
-                case 'Événement': return 'bg-accent-sakura text-rift-950 border-accent-sakura/50';
-                default: return 'bg-rift-900/90 text-white border-rift-700';
-            }
+            return 'bg-rift-900/80 text-white border-rift-700/50 backdrop-blur-sm';
         }
-
-        switch (type) {
-            case 'Tournoi': // Legacy
-            case 'Tournoi International': return 'bg-accent-spirit/20 border-accent-spirit/30 text-accent-spirit';
-
-            case 'Tournoi FR': return 'bg-[#0080ff]/20 border-[#0080ff]/30 text-[#0080ff]';
-
-            case 'Stream': // Legacy
-            case 'Événement': return 'bg-accent-sakura/20 border-accent-sakura/30 text-accent-sakura';
-
-            case 'Communauté': return 'bg-rift-700/30 border-rift-600/50 text-rift-200';
-
-            default: return 'bg-rift-700/30 border-rift-600/50 text-rift-200';
-        }
+        return 'bg-rift-800/50 border-rift-700/50 text-rift-200 hover:bg-rift-700/50 hover:text-rift-50';
     };
 
     // Handle Escape key to close modal
@@ -180,26 +161,16 @@ const CalendarView: React.FC<Props> = ({ initialEvents }) => {
                     const showBigCard = events.length === 1 && !!events[0].image_url;
                     const bigEvent = showBigCard ? events[0] : null;
 
-                    // Helper to get border/shadow based on event type
+                    // Helper to get border/shadow based on event presence
                     const getDayBorderClass = () => {
                         if (!date) return 'bg-transparent border-transparent';
                         if (isToday) return 'bg-rift-900 border-accent-spirit shadow-[0_0_15px_-3px_rgba(233,135,15,0.3)]';
 
-                        // If we have events, use the first one's type for the border
                         if (events.length > 0) {
-                            const type = events[0].type;
-                            switch (type) {
-                                case 'Tournoi':
-                                case 'Tournoi International': return 'bg-rift-900/40 border-accent-spirit/50 shadow-[0_0_12px_-4px_rgba(233,135,15,0.25)] hover:border-accent-spirit/80';
-                                case 'Tournoi FR': return 'bg-rift-900/40 border-[#0080ff]/50 shadow-[0_0_12px_-4px_rgba(0,128,255,0.25)] hover:border-[#0080ff]/80';
-                                case 'Stream':
-                                case 'Événement': return 'bg-rift-900/40 border-accent-sakura/50 shadow-[0_0_12px_-4px_rgba(255,182,193,0.25)] hover:border-accent-sakura/80';
-                                case 'Communauté': return 'bg-rift-900/40 border-rift-600/70 hover:border-rift-500';
-                                default: return 'bg-rift-900/40 border-rift-700/70 hover:border-rift-600';
-                            }
+                            return 'bg-rift-900/60 border-rift-600/50 hover:border-rift-400';
                         }
 
-                        return 'bg-rift-900/40 border-rift-700/70 hover:border-rift-600';
+                        return 'bg-rift-900/40 border-rift-800/40 hover:border-rift-700';
                     };
 
                     return (
@@ -234,11 +205,12 @@ const CalendarView: React.FC<Props> = ({ initialEvents }) => {
                                                     {(() => {
                                                         const isWorld = bigEvent.country?.toUpperCase() === 'WORLD';
                                                         return isWorld ? (
-                                                            <div className="w-7 h-7 flex items-center justify-center bg-rift-950/80 rounded-full border border-rift-700 shadow-lg backdrop-blur-md">
-                                                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
-                                                                    <circle cx="12" cy="12" r="10" fill="#3B82F6" />
-                                                                    <path d="M7 6C8.5 7.5 10 9 10 12M17 18C15.5 16.5 14 15 14 12" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" />
-                                                                </svg>
+                                                            <div className="w-7 h-7 flex items-center justify-center bg-rift-950/80 rounded-full border border-rift-700 shadow-lg backdrop-blur-md overflow-hidden">
+                                                                <img
+                                                                    src="/assets/icons/864e0e4584241547.svg"
+                                                                    className="w-5 h-5 drop-shadow-sm"
+                                                                    alt="World"
+                                                                />
                                                             </div>
                                                         ) : (
                                                             <img
@@ -269,7 +241,7 @@ const CalendarView: React.FC<Props> = ({ initialEvents }) => {
                                                         setSelectedEvent(event);
                                                     }}
                                                     className={`w-full group/event text-left p-0 rounded-lg border text-[10px] font-bold shadow-sm relative overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98]
-                                                        ${getEventClass(event.type, !!event.image_url)}
+                                                        ${getEventClass(!!event.image_url)}
                                                     `}
                                                     style={event.image_url ? {
                                                         backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.75)), url(${event.image_url})`,
@@ -289,10 +261,13 @@ const CalendarView: React.FC<Props> = ({ initialEvents }) => {
                                                             {(() => {
                                                                 const isWorld = event.country?.toUpperCase() === 'WORLD';
                                                                 return isWorld ? (
-                                                                    <svg className="w-3 h-3 drop-shadow-md" viewBox="0 0 24 24" fill="none">
-                                                                        <circle cx="12" cy="12" r="10" fill="#3B82F6" />
-                                                                        <path d="M7 6C8.5 7.5 10 9 10 12M17 18C15.5 16.5 14 15 14 12" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" />
-                                                                    </svg>
+                                                                    <div className="w-3 h-3 flex items-center justify-center bg-rift-950/60 rounded-full border border-rift-700/50 shadow-sm overflow-hidden">
+                                                                        <img
+                                                                            src="/assets/icons/864e0e4584241547.svg"
+                                                                            className="w-2.5 h-2.5"
+                                                                            alt="World"
+                                                                        />
+                                                                    </div>
                                                                 ) : (
                                                                     <img
                                                                         src={`https://flagcdn.com/w20/${event.country.toLowerCase()}.png`}
@@ -316,26 +291,6 @@ const CalendarView: React.FC<Props> = ({ initialEvents }) => {
                         </div>
                     );
                 })}
-            </div>
-
-            {/* Legend */}
-            <div className="mt-8 flex flex-wrap items-center gap-6 justify-center">
-                <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-accent-spirit shadow-spirit-sm scale-110"></div>
-                    <span className="text-xs font-medium text-rift-400 uppercase tracking-wider">Tournoi Inter.</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-[#0080ff] shadow-[0_0_10px_-2px_rgba(0,128,255,0.5)] scale-110"></div>
-                    <span className="text-xs font-medium text-rift-400 uppercase tracking-wider">Tournoi FR</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-accent-sakura shadow-sakura-sm scale-110"></div>
-                    <span className="text-xs font-medium text-rift-400 uppercase tracking-wider">Événement</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-rift-600 scale-110"></div>
-                    <span className="text-xs font-medium text-rift-400 uppercase tracking-wider">Communauté</span>
-                </div>
             </div>
 
             {/* Modal / Details Popup */}
@@ -365,17 +320,12 @@ const CalendarView: React.FC<Props> = ({ initialEvents }) => {
                                                 {(() => {
                                                     const isWorld = selectedEvent.country?.toUpperCase() === 'WORLD';
                                                     return isWorld ? (
-                                                        <div className="w-10 h-10 flex items-center justify-center bg-rift-950/80 rounded-full border border-rift-700 shadow-xl backdrop-blur-md">
-                                                            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
-                                                                <circle cx="12" cy="12" r="10" fill="#3B82F6" />
-                                                                <path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2Z" fill="#3B82F6" />
-                                                                <path d="M12 2C9.5 2 7 6 7 12C7 18 9.5 22 12 22C14.5 22 17 18 17 12C17 6 14.5 2 12 2Z" stroke="white" strokeWidth="1" strokeOpacity="0.3" />
-                                                                <path d="M2 12H22M12 2V22" stroke="white" strokeWidth="1" strokeOpacity="0.3" />
-                                                                <path d="M7 6C8.5 7.5 10 9 10 12C10 15 8.5 16.5 7 18" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" />
-                                                                <path d="M17 18C15.5 16.5 14 15 14 12C14 9 15.5 7.5 17 6" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" />
-                                                                <path d="M12 5C13 6 14 8 14 10H10C10 8 11 6 12 5Z" fill="#10B981" />
-                                                                <path d="M12 19C11 18 10 16 10 14H14C14 16 13 18 12 19Z" fill="#10B981" />
-                                                            </svg>
+                                                        <div className="w-10 h-10 flex items-center justify-center bg-rift-950/80 rounded-full border border-rift-700 shadow-xl backdrop-blur-md overflow-hidden">
+                                                            <img
+                                                                src="/assets/icons/864e0e4584241547.svg"
+                                                                className="w-7 h-7 drop-shadow-lg"
+                                                                alt="World"
+                                                            />
                                                         </div>
                                                     ) : (
                                                         <img
@@ -388,28 +338,23 @@ const CalendarView: React.FC<Props> = ({ initialEvents }) => {
                                                 })()}
                                             </div>
                                         )}
-                                        <div className={`absolute bottom-0 left-0 w-full h-1 ${getEventClass(selectedEvent.type).split(' ')[0]} z-20`}></div>
+                                        <div className="absolute bottom-0 left-0 w-full h-1 bg-accent-spirit/50 z-20"></div>
                                     </div>
                                 )}
                                 {!selectedEvent.image_url && (
                                     <div className="relative">
-                                        <div className={`h-2 w-full ${getEventClass(selectedEvent.type).split(' ')[0]}`}></div>
+                                        <div className="h-2 w-full bg-rift-700/50"></div>
                                         {selectedEvent.country && (
                                             <div className="absolute top-4 right-4 z-30 pointer-events-none">
                                                 {(() => {
                                                     const isWorld = selectedEvent.country?.toUpperCase() === 'WORLD';
                                                     return isWorld ? (
-                                                        <div className="w-10 h-10 flex items-center justify-center bg-rift-950/80 rounded-full border border-rift-700 shadow-xl backdrop-blur-md">
-                                                            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
-                                                                <circle cx="12" cy="12" r="10" fill="#3B82F6" />
-                                                                <path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2Z" fill="#3B82F6" />
-                                                                <path d="M12 2C9.5 2 7 6 7 12C7 18 9.5 22 12 22C14.5 22 17 18 17 12C17 6 14.5 2 12 2Z" stroke="white" strokeWidth="1" strokeOpacity="0.3" />
-                                                                <path d="M2 12H22M12 2V22" stroke="white" strokeWidth="1" strokeOpacity="0.3" />
-                                                                <path d="M7 6C8.5 7.5 10 9 10 12C10 15 8.5 16.5 7 18" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" />
-                                                                <path d="M17 18C15.5 16.5 14 15 14 12C14 9 15.5 7.5 17 6" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" />
-                                                                <path d="M12 5C13 6 14 8 14 10H10C10 8 11 6 12 5Z" fill="#10B981" />
-                                                                <path d="M12 19C11 18 10 16 10 14H14C14 16 13 18 12 19Z" fill="#10B981" />
-                                                            </svg>
+                                                        <div className="w-10 h-10 flex items-center justify-center bg-rift-950/80 rounded-full border border-rift-700 shadow-xl backdrop-blur-md overflow-hidden">
+                                                            <img
+                                                                src="/assets/icons/864e0e4584241547.svg"
+                                                                className="w-7 h-7 drop-shadow-lg"
+                                                                alt="World"
+                                                            />
                                                         </div>
                                                     ) : (
                                                         <img
@@ -428,11 +373,6 @@ const CalendarView: React.FC<Props> = ({ initialEvents }) => {
                                 <div className="p-8">
                                     <div className="flex justify-between items-start gap-4 mb-6">
                                         <div>
-                                            <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border mb-3
-                    ${getEventClass(selectedEvent.type)}
-                  `}>
-                                                {selectedEvent.type}
-                                            </span>
                                             <h3 className="text-2xl font-display font-bold text-rift-50 leading-tight">
                                                 {selectedEvent.title}
                                             </h3>
@@ -467,8 +407,10 @@ const CalendarView: React.FC<Props> = ({ initialEvents }) => {
                                                                 weekday: 'long',
                                                                 day: 'numeric',
                                                                 month: 'long',
-                                                                hour: '2-digit',
-                                                                minute: '2-digit'
+                                                                ...(selectedEvent.all_day ? {} : {
+                                                                    hour: '2-digit',
+                                                                    minute: '2-digit'
+                                                                })
                                                             });
 
                                                             if (!end || start.toDateString() === end.toDateString()) {

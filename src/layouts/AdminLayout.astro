@@ -33,7 +33,7 @@ const sidebarItems = [
       <div class="p-4 border-b border-rift-800">
         <a href="/" class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-lg overflow-hidden"><img src="/riftbound-logo.png" alt="Riftbound" class="w-full h-full object-contain" /></div>
-          <span class="text-sm font-bold"><span class="text-rift-900">Riftbound</span> <span class="text-accent-forge">Admin</span></span>
+          <span class="text-sm font-bold"><span class="text-rift-900">Riftbound</span> <span class="text-accent-spirit">Admin</span></span>
         </a>
       </div>
 
@@ -56,12 +56,16 @@ const sidebarItems = [
 
       <div class="p-4 border-t border-rift-800">
         <div class="flex items-center gap-3 mb-3">
-          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-accent-spirit to-accent-sakura flex items-center justify-center text-sm font-bold text-white">
-            {profile?.username?.charAt(0)?.toUpperCase() || '?'}
-          </div>
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt="Avatar" class="w-9 h-9 rounded-full object-cover" />
+          ) : (
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-accent-spirit to-accent-sakura flex items-center justify-center text-sm font-bold text-white">
+              {profile?.username?.charAt(0)?.toUpperCase() || '?'}
+            </div>
+          )}
           <div class="min-w-0">
             <p class="text-sm font-medium text-rift-100 truncate">{profile?.username || 'Utilisateur'}</p>
-            <p class="text-xs text-accent-forge capitalize font-display">{profile?.role || 'user'}</p>
+            <p class="text-[10px] text-accent-spirit uppercase tracking-widest font-bold">{profile?.role || 'user'}</p>
           </div>
         </div>
         <form action="/api/auth/logout" method="POST">
