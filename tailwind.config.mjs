@@ -1,6 +1,16 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-    content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
+    content: ['src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
+    // Force grid generation if JIT misses it
+    safelist: [
+        'grid',
+        'grid-cols-7',
+        'gap-3',
+        'gap-6',
+        'col-span-1',
+        'col-span-2',
+        'col-span-full',
+    ],
     theme: {
         extend: {
             fontFamily: {

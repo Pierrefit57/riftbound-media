@@ -30,13 +30,17 @@ const regularNews = allNews?.filter((n) => !featuredNews.some(f => f.slug === n.
 
 <MainLayout title="Actualités">
 
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-10 pb-16">
+  <div class="relative pt-16 pb-24 overflow-hidden">
+    <!-- Spiritforged Shading Background -->
+    <div class="absolute inset-x-0 top-0 h-[500px] bg-spirit-radial pointer-events-none z-0"></div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
 
     <div class="mb-12 text-center">
       <div class="flex items-center justify-center gap-3 mb-3">
-        <div class="h-px w-8 bg-gradient-to-r from-transparent to-accent-forge/50"></div>
-        <span class="text-accent-forge text-xs font-display tracking-[0.2em] uppercase">Actualités</span>
-        <div class="h-px w-8 bg-gradient-to-l from-transparent to-accent-forge/50"></div>
+        <div class="h-px w-8 bg-gradient-to-r from-transparent to-accent-sakura/50"></div>
+        <span class="text-accent-sakura text-xs font-display tracking-[0.2em] uppercase">Actualités</span>
+        <div class="h-px w-8 bg-gradient-to-l from-transparent to-accent-sakura/50"></div>
       </div>
       <h1 class="text-3xl md:text-4xl font-display font-bold text-rift-100 mb-3">Dernières Nouvelles</h1>
       <p class="text-rift-300 leading-relaxed max-w-2xl mx-auto">Restez informés des dernières nouvelles et annonces de l'univers Riftbound<br />Le tout traduit pour vous en français</p>
@@ -110,6 +114,7 @@ const regularNews = allNews?.filter((n) => !featuredNews.some(f => f.slug === n.
         </div>
       )}
     </section>
+  </div>
   </div>
 
   <script>

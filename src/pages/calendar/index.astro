@@ -1,0 +1,111 @@
+---
+export const prerender = false;
+
+import MainLayout from '../../layouts/MainLayout.astro';
+import CalendarView from '../../components/CalendarView.tsx';
+import { supabase } from '../../lib/supabase';
+
+// Récupérer tous les événements (on pourrait filtrer, mais le composant gère le tri par mois)
+const { data: events, error } = await supabase
+  .from('calendar_events')
+  .select('*, image_url')
+  .order('start_date', { ascending: true });
+
+const calendarEvents = events || [];
+---
+
+<MainLayout title="Calendrier">
+  <div class="relative pt-16 pb-24 overflow-hidden">
+    <!-- Spiritforged Shading Background (Coordinated with DA) -->
+    <div class="absolute inset-x-0 top-0 h-[500px] bg-spirit-radial pointer-events-none z-0"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+      <div class="text-center mb-12">
+        <div class="flex items-center justify-center gap-4 mb-4 animate-fade-in">
+          <div class="h-px w-12 bg-gradient-to-r from-transparent to-accent-sakura/50"></div>
+          <span class="text-accent-sakura text-xs font-display tracking-[0.3em] uppercase">Événements & Communauté</span>
+          <div class="h-px w-12 bg-gradient-to-l from-transparent to-accent-sakura/50"></div>
+        </div>
+        
+        <h1 class="text-3xl md:text-4xl font-display font-bold text-rift-50 tracking-tight mb-4">
+          Calendrier
+        </h1>
+        
+        <p class="text-rift-300 max-w-xl mx-auto leading-relaxed text-balance text-sm">
+          Suivez les tournois, les lives et les mises à jour majeures de l'univers Riftbound. 
+          Ne manquez aucun rendez-vous !
+        </p>
+      </div>
+
+      <!-- Error State -->
+      {error && (
+        <div class="max-w-2xl mx-auto p-6 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-center mb-12">
+          <p class="font-bold mb-2">Oups ! Impossible de charger les événements.</p>
+          <p class="text-sm opacity-80">{error.message}</p>
+        </div>
+      )}
+
+      <!-- Interactive Calendar Component -->
+      <div class="animate-fade-in-up" style="animation-delay: 200ms;">
+        <CalendarView client:load initialEvents={calendarEvents} />
+      </div>
+
+      <!-- Additional Info / CTA -->
+      <div class="mt-20 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="p-8 rounded-3xl bg-rift-800/20 border border-rift-700/50 backdrop-blur-sm group hover:border-accent-spirit/30 transition-all duration-500">
+          <div class="w-12 h-12 rounded-2xl bg-accent-spirit/10 flex items-center justify-center text-accent-spirit mb-6 group-hover:scale-110 transition-transform duration-500">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-display font-bold text-rift-50 mb-3">Organiser un événement ?</h3>
+          <p class="text-rift-400 text-sm leading-relaxed mb-6">
+            Vous souhaitez organiser un tournoi ou une soirée communautaire et apparaître sur le calendrier officiel ? 
+            Contactez notre équipe de modération.
+          </p>
+          <a href="/contact" class="inline-flex items-center gap-2 text-accent-spirit text-sm font-bold uppercase tracking-widest hover:text-accent-sakura transition-colors">
+            Nous contacter
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </a>
+        </div>
+
+        <div class="p-8 rounded-3xl bg-rift-800/20 border border-rift-700/50 backdrop-blur-sm group hover:border-accent-forge/30 transition-all duration-500">
+          <div class="w-12 h-12 rounded-2xl bg-accent-spirit/10 flex items-center justify-center text-accent-spirit mb-6 group-hover:scale-110 transition-transform duration-500">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-display font-bold text-rift-50 mb-3">RESTEZ ALERTÉS</h3>
+          <p class="text-rift-400 text-sm leading-relaxed mb-6">
+            Rejoignez notre Discord officiel pour recevoir des notifications en temps réel avant chaque début d'événement.
+          </p>
+          <a href="#" class="inline-flex items-center gap-2 text-accent-spirit text-sm font-bold uppercase tracking-widest hover:text-accent-forge transition-colors">
+            Rejoindre le Discord
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</MainLayout>
+
+<style>
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in-up {
+    animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .animate-fade-in {
+    animation: fade-in 1s ease forwards;
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+</style>
