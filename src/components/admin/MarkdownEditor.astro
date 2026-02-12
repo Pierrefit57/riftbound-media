@@ -121,6 +121,25 @@ const { name, id, value = '', placeholder, rows = 20, required = false, label } 
 
       init() {
         this.textarea.addEventListener('input', () => this.updatePreview());
+        
+        // Auto-continue blockquotes on Enter
+        this.textarea.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            const start = this.textarea.selectionStart;
+            const text = this.textarea.value;
+            const before = text.substring(0, start);
+            const currentLine = before.split('\n').pop();
+            
+            if (currentLine.trim().startsWith('>')) {
+              e.preventDefault();
+              const prefix = '\n> ';
+              this.insertText(prefix, start, start);
+              const newPos = start + prefix.length;
+              this.textarea.setSelectionRange(newPos, newPos);
+            }
+          }
+        });
+
         this.initToolbar();
         this.initImageUpload();
         this.updatePreview();
@@ -130,6 +149,22 @@ const { name, id, value = '', placeholder, rows = 20, required = false, label } 
       updatePreview() {
         if (!this.preview || !window.marked) return;
         this.preview.innerHTML = window.marked.parse(this.textarea.value || '');
+      }
+
+      // Helper to preserve UNDO stack (Ctrl+Z)
+      insertText(newText, sStart, sEnd) {
+        this.textarea.focus();
+        this.textarea.setSelectionRange(sStart, sEnd);
+        
+        try {
+          if (!document.execCommand('insertText', false, newText)) {
+            throw new Error('execCommand failed');
+          }
+        } catch (e) {
+          const val = this.textarea.value;
+          this.textarea.value = val.substring(0, sStart) + newText + val.substring(sEnd);
+          this.textarea.dispatchEvent(new Event('input'));
+        }
       }
 
       initToolbar() {
@@ -148,24 +183,6 @@ const { name, id, value = '', placeholder, rows = 20, required = false, label } 
         const text = this.textarea.value;
         const selection = text.substring(start, end);
 
-        // Helper to preserve UNDO stack (Ctrl+Z)
-        const insertText = (newText, sStart, sEnd) => {
-          this.textarea.focus();
-          this.textarea.setSelectionRange(sStart, sEnd);
-          
-          try {
-            // execCommand is deprecated but still the only way to preserve undo stack in textareas
-            if (!document.execCommand('insertText', false, newText)) {
-               throw new Error('execCommand failed');
-            }
-          } catch (e) {
-            // Fallback for browsers that don't support it or if it fails
-            const val = this.textarea.value;
-            this.textarea.value = val.substring(0, sStart) + newText + val.substring(sEnd);
-            this.textarea.dispatchEvent(new Event('input'));
-          }
-        };
-
         const checkToggle = (tag) => {
           if (text.substring(start - tag.length, start) === tag && text.substring(end, end + tag.length) === tag) {
              return { before: tag.length, after: tag.length };
@@ -176,10 +193,9 @@ const { name, id, value = '', placeholder, rows = 20, required = false, label } 
         const toggleWrap = (tag) => {
           const info = checkToggle(tag);
           if (info) {
-             // Remove tags using insertText to keep undo history
              const sStart = start - info.before;
              const sEnd = end + info.after;
-             insertText(selection, sStart, sEnd);
+             this.insertText(selection, sStart, sEnd);
              
              const newStart = start - info.before;
              const newEnd = end - info.before;
@@ -209,7 +225,13 @@ const { name, id, value = '', placeholder, rows = 20, required = false, label } 
             if (!content) content = 'barré';
             break;
           case 'quote':
-            prefix = '\n> '; suffix = '\n';
+            if (selection.includes('\n')) {
+              const multiLine = selection.split('\n').map(line => `> ${line}`).join('\n');
+              this.insertText(multiLine, start, end);
+              this.textarea.setSelectionRange(start, start + multiLine.length);
+              return;
+            }
+            prefix = '> ';
             if (!content) content = 'citation';
             break;
           case 'link':
@@ -218,7 +240,7 @@ const { name, id, value = '', placeholder, rows = 20, required = false, label } 
             if (!content) content = 'lien';
             break;
           case 'list':
-            prefix = '\n- '; suffix = '\n';
+            prefix = '- ';
             if (!content) content = 'élément';
             break;
           case 'fontSize':
@@ -238,7 +260,7 @@ const { name, id, value = '', placeholder, rows = 20, required = false, label } 
 
         if (prefix || suffix) {
           const replacement = prefix + content + suffix;
-          insertText(replacement, start, end);
+          this.insertText(replacement, start, end);
           
           const newStart = start + prefix.length;
           const newEnd = newStart + content.length;
