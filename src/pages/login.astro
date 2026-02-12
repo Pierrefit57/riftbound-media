@@ -63,8 +63,8 @@ if (Astro.request.method === 'POST') {
         <span class="text-accent-forge text-xs font-display tracking-[0.2em] uppercase">Accès</span>
         <div class="h-px w-8 bg-gradient-to-l from-transparent to-accent-forge/50"></div>
       </div>
-      <h1 class="text-3xl font-display font-bold text-rift-900 mb-2">Connexion</h1>
-      <p class="text-rift-500 text-sm">Connectez-vous à votre compte Riftbound Media</p>
+      <h1 class="text-3xl font-display font-bold text-rift-100 mb-2">Connexion</h1>
+      <p class="text-rift-400 text-sm">Connectez-vous à votre compte Riftbound Media</p>
     </div>
 
     <!-- Card -->
@@ -108,7 +108,10 @@ if (Astro.request.method === 'POST') {
         </div>
 
         <div>
-          <label for="password" class="block text-sm font-medium text-rift-200 mb-1.5">Mot de passe</label>
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="password" class="block text-sm font-medium text-rift-200">Mot de passe</label>
+            <a href="/forgot-password" class="text-xs text-accent-spirit hover:text-accent-forge transition-colors">Mot de passe oublié ?</a>
+          </div>
           <input
             type="password"
             id="password"
@@ -128,9 +131,9 @@ if (Astro.request.method === 'POST') {
         </button>
       </form>
 
-      <p class="text-center text-sm text-rift-500">
+      <p class="text-center text-sm text-rift-400">
         Pas encore de compte ?
-        <a href="/register" class="text-accent-spirit hover:text-accent-forge transition-colors duration-200 font-medium">Créer un compte</a>
+        <a href="/register" class="text-accent-spirit hover:text-accent-forge transition-colors duration-200 font-medium ml-1">Créer un compte</a>
       </p>
     </div>
   </div>
