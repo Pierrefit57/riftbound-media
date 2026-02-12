@@ -1,0 +1,254 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { createServiceClient } from '../../../lib/supabase';
+
+let errorMsg = '';
+let title = '';
+let description = '';
+let start_date = "";
+// Set default to current local time in YYYY-MM-DDTHH:mm format
+const now = new Date();
+const offset = now.getTimezoneOffset() * 60000;
+start_date = new Date(now.getTime() - offset).toISOString().slice(0, 16);
+let end_date = '';
+let type = 'community';
+let url = '';
+
+let location = '';
+let country = '';
+let image_url = '';
+let image_position = '50% 50%';
+let image_size = 'cover';
+
+if (Astro.request.method === 'POST') {
+  const formData = await Astro.request.formData();
+  
+  title = formData.get('title') as string;
+  description = formData.get('description') as string;
+  start_date = formData.get('start_date') as string;
+  end_date = formData.get('end_date') as string || null;
+  type = formData.get('type') as string;
+  url = formData.get('url') as string || null;
+  location = formData.get('location') as string || null;
+  country = formData.get('country') as string || null;
+  image_url = formData.get('image_url') as string || null;
+  image_position = formData.get('image_position') as string || '50% 50%';
+  image_size = formData.get('image_size') as string || 'cover';
+
+  const serviceClient = createServiceClient();
+  const { data: newEvent, error } = await serviceClient
+    .from('calendar_events')
+    .insert({
+      title,
+      description,
+      start_date: new Date(start_date).toISOString(),
+      end_date: end_date ? new Date(end_date).toISOString() : null,
+      type,
+      url,
+
+      location,
+      country,
+      image_url,
+      image_position,
+      image_size,
+      author_id: Astro.locals.user?.id,
+    })
+    .select('id')
+    .single();
+
+  if (error) {
+    console.error('[calendar] ERROR INSERT:', error);
+    console.error('[calendar] ERROR DETAILS:', error.message, error.details, error.hint);
+    errorMsg = `Erreur lors de la création de l'événement: ${error.message}`;
+  } else {
+    return Astro.redirect(`/admin/calendar?success=created`);
+  }
+}
+---
+
+<AdminLayout title="Nouvel Événement" activeItem="calendar">
+  <div class="max-w-4xl mx-auto px-4">
+    <div class="flex items-center justify-between mb-8">
+      <a href="/admin/calendar" class="inline-flex items-center gap-1 text-sm text-accent-cyan hover:underline transition-colors">
+        ← Retour au calendrier
+      </a>
+      <h1 class="text-2xl font-bold text-rift-100 font-display uppercase tracking-wider">Nouvel Événement</h1>
+    </div>
+
+    <form method="POST" autocomplete="off" class="space-y-6 bg-rift-900/40 p-6 rounded-xl border border-rift-800/50">
+      {errorMsg && (
+        <div class="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+          {errorMsg}
+        </div>
+      )}
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="md:col-span-2">
+          <label for="title" class="block text-sm font-medium text-rift-300 mb-2">Titre de l'événement</label>
+          <input type="text" id="title" name="title" required
+            class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 placeholder-rift-600 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors"
+            placeholder="Ex: Tournoi Riftbound #1"
+            value={title}
+          />
+        </div>
+
+        <div>
+          <label for="start_date" class="block text-sm font-medium text-rift-300 mb-2">Date de début</label>
+          <input type="datetime-local" id="start_date" name="start_date" required
+            class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 placeholder-rift-600 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors [color-scheme:dark]"
+            value={start_date}
+          />
+        </div>
+
+        <div>
+          <label for="end_date" class="block text-sm font-medium text-rift-300 mb-2">Date de fin (optionnelle)</label>
+          <input type="datetime-local" id="end_date" name="end_date"
+            class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 placeholder-rift-600 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors [color-scheme:dark]"
+            value={end_date}
+          />
+        </div>
+
+        <div>
+          <label for="type" class="block text-sm font-medium text-rift-300 mb-2">Type d'événement</label>
+          <select id="type" name="type"
+            class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors cursor-pointer">
+            <option value="Tournoi International" selected={type === 'Tournoi International'}>Tournoi International</option>
+            <option value="Tournoi FR" selected={type === 'Tournoi FR'}>Tournoi FR</option>
+            <option value="Événement" selected={type === 'Événement'}>Événement</option>
+            <option value="Communauté" selected={type === 'Communauté'}>Communauté</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="location" class="block text-sm font-medium text-rift-300 mb-2">Lieu / Plateforme</label>
+          <input type="text" id="location" name="location"
+            class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 placeholder-rift-600 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors"
+            placeholder="Ex: Discord, Twitch, Paris..."
+            value={location}
+          />
+        </div>
+
+        <div>
+          <label for="country" class="block text-sm font-medium text-rift-300 mb-2">Code Pays (2 lettres)</label>
+          <div class="flex gap-2">
+             <input type="text" id="country" name="country" maxlength="5"
+               class="w-24 px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 placeholder-rift-600 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors text-center uppercase"
+               placeholder="FR"
+               value={country}
+             />
+             <div class="flex items-center text-xs text-rift-500 italic">
+               Ex: FR, KR, WORLD... (pour le drapeau)
+             </div>
+          </div>
+        </div>
+
+        <div class="md:col-span-2">
+          <label for="url" class="block text-sm font-medium text-rift-300 mb-2">Lien externe (optionnel)</label>
+          <input type="url" id="url" name="url"
+            class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 placeholder-rift-600 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors"
+            placeholder="https://..."
+            value={url}
+          />
+        </div>
+
+        <div class="md:col-span-2 space-y-4">
+          <label class="block text-sm font-medium text-rift-300">Image de couverture (optionnelle)</label>
+          <div class="flex items-center gap-4">
+             <input type="hidden" id="image_url" name="image_url" value={image_url} />
+             <div id="image-preview" class="w-16 h-16 rounded-lg bg-rift-950 border border-rift-700 flex items-center justify-center overflow-hidden">
+                {image_url ? (
+                  <img src={image_url} class="w-full h-full object-cover" style={`object-position: ${image_position}`} />
+                ) : (
+                  <svg class="w-6 h-6 text-rift-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                )}
+             </div>
+             <button type="button" id="upload-btn" class="px-4 py-2 rounded-lg bg-rift-800 text-rift-300 text-sm hover:bg-rift-700 transition-colors border border-rift-700">
+               Choisir une image
+             </button>
+             <input type="file" id="file-input" accept="image/*" class="hidden" />
+             <span id="upload-status" class="text-xs text-rift-500"></span>
+          </div>
+
+        </div>
+
+        <div class="md:col-span-2">
+          <label for="description" class="block text-sm font-medium text-rift-300 mb-2">Description</label>
+          <textarea id="description" name="description" rows="4"
+            class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 placeholder-rift-600 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors resize-none text-sm"
+            placeholder="Détails de l'événement..."
+          >{description}</textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-4 pt-4 border-t border-rift-800/50">
+        <a href="/admin/calendar" class="px-6 py-2.5 rounded-lg text-rift-400 font-medium hover:text-rift-100 transition-colors text-sm uppercase tracking-widest">
+          Annuler
+        </a>
+        <button type="submit" class="px-8 py-2.5 rounded-lg bg-accent-spirit text-rift-950 font-bold text-sm hover:bg-accent-spirit/90 transition-all shadow-lg shadow-accent-spirit/20 uppercase tracking-widest">
+          Créer l'événement
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const uploadBtn = document.getElementById('upload-btn');
+    const fileInput = document.getElementById('file-input') as HTMLInputElement;
+    const imageUrlInput = document.getElementById('image_url') as HTMLInputElement;
+    const imagePositionInput = document.getElementById('image_position') as HTMLInputElement;
+    const imagePreview = document.getElementById('image-preview');
+    const uploadStatus = document.getElementById('upload-status');
+
+    uploadBtn?.addEventListener('click', () => fileInput?.click());
+
+    fileInput?.addEventListener('change', async () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+
+      if (uploadStatus) uploadStatus.textContent = 'Envoi...';
+      
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
+        const data = await res.json();
+        
+        if (data.url) {
+          imageUrlInput.value = data.url;
+          const pos = imagePositionInput?.value || 'center 50%';
+
+          if (imagePreview) {
+             imagePreview.innerHTML = `<img src="${data.url}" class="w-full h-full object-cover" style="object-position: ${pos}" />`;
+          }
+
+          if (uploadStatus) {
+            uploadStatus.textContent = 'Upload réussi !';
+            uploadStatus.className = 'text-xs text-emerald-400';
+          }
+        } else {
+          throw new Error(data.error || 'Erreur upload');
+        }
+      } catch (e: any) {
+        if (uploadStatus) {
+           uploadStatus.textContent = 'Erreur: ' + e.message;
+           uploadStatus.className = 'text-xs text-red-400';
+        }
+      }
+    });
+
+    // Clear form if success query param is present (meaning we just came back from a create)
+    // or if the page is loaded fresh to prevent browser autofill issues
+    window.addEventListener('load', () => {
+      const form = document.querySelector('form');
+      if (form && !window.location.search.includes('error')) {
+        // We don't want to clear if there was an error being displayed
+        // but for a fresh "New" page, let's be safe
+      }
+    });
+  </script>
+</AdminLayout>
