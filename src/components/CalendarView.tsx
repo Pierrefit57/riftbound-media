@@ -180,6 +180,28 @@ const CalendarView: React.FC<Props> = ({ initialEvents }) => {
                     const showBigCard = events.length === 1 && !!events[0].image_url;
                     const bigEvent = showBigCard ? events[0] : null;
 
+                    // Helper to get border/shadow based on event type
+                    const getDayBorderClass = () => {
+                        if (!date) return 'bg-transparent border-transparent';
+                        if (isToday) return 'bg-rift-900 border-accent-spirit shadow-[0_0_15px_-3px_rgba(233,135,15,0.3)]';
+
+                        // If we have events, use the first one's type for the border
+                        if (events.length > 0) {
+                            const type = events[0].type;
+                            switch (type) {
+                                case 'Tournoi':
+                                case 'Tournoi International': return 'bg-rift-900/40 border-accent-spirit/50 shadow-[0_0_12px_-4px_rgba(233,135,15,0.25)] hover:border-accent-spirit/80';
+                                case 'Tournoi FR': return 'bg-rift-900/40 border-[#0080ff]/50 shadow-[0_0_12px_-4px_rgba(0,128,255,0.25)] hover:border-[#0080ff]/80';
+                                case 'Stream':
+                                case 'Événement': return 'bg-rift-900/40 border-accent-sakura/50 shadow-[0_0_12px_-4px_rgba(255,182,193,0.25)] hover:border-accent-sakura/80';
+                                case 'Communauté': return 'bg-rift-900/40 border-rift-600/70 hover:border-rift-500';
+                                default: return 'bg-rift-900/40 border-rift-700/70 hover:border-rift-600';
+                            }
+                        }
+
+                        return 'bg-rift-900/40 border-rift-700/70 hover:border-rift-600';
+                    };
+
                     return (
                         <div
                             key={i}
@@ -187,16 +209,11 @@ const CalendarView: React.FC<Props> = ({ initialEvents }) => {
                                 if (bigEvent) setSelectedEvent(bigEvent);
                             }}
                             className={`min-h-[120px] md:min-h-[140px] p-2 rounded-xl border transition-all relative overflow-hidden flex flex-col group
-                                ${!date
-                                    ? 'bg-transparent border-transparent'
-                                    : isToday
-                                        ? 'bg-rift-900 border-accent-spirit shadow-[0_0_15px_-3px_rgba(233,135,15,0.3)]'
-                                        : 'bg-rift-900/40 border-rift-700/70 hover:bg-rift-800/60 hover:border-rift-600'
-                                }
-                                ${bigEvent ? 'cursor-pointer hover:border-accent-spirit/50 p-0' : ''}
+                                ${getDayBorderClass()}
+                                ${bigEvent ? 'cursor-pointer p-0' : ''}
                             `}
                             style={bigEvent && bigEvent.image_url ? {
-                                backgroundImage: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.6)), url(${bigEvent.image_url})`,
+                                backgroundImage: `linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.75)), url(${bigEvent.image_url})`,
                                 backgroundSize: bigEvent.image_size || 'cover',
                                 backgroundPosition: bigEvent.image_position || '50% 50%'
                             } : {}}
@@ -235,12 +252,6 @@ const CalendarView: React.FC<Props> = ({ initialEvents }) => {
                                                     })()}
                                                 </div>
                                             )}
-                                            <span className={`
-                                                inline-block px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider mb-1
-                                                ${getEventClass(bigEvent.type, true)}
-                                            `}>
-                                                {bigEvent.type === 'Tournoi International' ? 'TOURNOI INT.' : bigEvent.type}
-                                            </span>
                                             <p className="font-bold text-white leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] text-xs line-clamp-2">
                                                 {bigEvent.title}
                                             </p>
@@ -261,7 +272,7 @@ const CalendarView: React.FC<Props> = ({ initialEvents }) => {
                                                         ${getEventClass(event.type, !!event.image_url)}
                                                     `}
                                                     style={event.image_url ? {
-                                                        backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url(${event.image_url})`,
+                                                        backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.75)), url(${event.image_url})`,
                                                         backgroundSize: 'cover',
                                                         backgroundPosition: event.image_position || '50% 50%',
                                                         minHeight: '40px',
@@ -293,7 +304,7 @@ const CalendarView: React.FC<Props> = ({ initialEvents }) => {
                                                             })()}
                                                         </div>
                                                     )}
-                                                    <span className="truncate w-full leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] block">
+                                                    <span className="truncate w-full leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] block text-white">
                                                         {event.title}
                                                     </span>
                                                 </button>
