@@ -4,20 +4,51 @@ export const prerender = false;
 import MainLayout from '../layouts/MainLayout.astro';
 import PDFViewer from '../components/PDFViewer.tsx';
 import ErrataViewer from '../components/ErrataViewer.tsx';
+import { supabase } from '../lib/supabase';
+
+// Fetch metadata for the visual errata articles
+const { data: visualArticleSpiritforged } = await supabase
+  .from('articles')
+  .select('*')
+  .eq('slug', 'les-errata-spiritforged')
+  .single();
+
+const { data: visualArticleOrigins } = await supabase
+  .from('articles')
+  .select('*')
+  .eq('slug', 'les-errata-origins')
+  .single();
+
 const errataArticles = [
   {
     title: "Errata Spiritforged",
     content: "https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/PDFrules/UPDATED%20Riftbound%20Erratas%20Spiritforged.pdf",
     date: "14-01-2026",
     activeClass: "bg-[#A5A9B4] text-rift-950 border-[#A5A9B4] shadow-[#A5A9B4]/20",
-    textClass: "text-[#A5A9B4]"
+    textClass: "text-[#A5A9B4]",
+    visualLink: "/news/les-errata-spiritforged",
+    visualTitle: visualArticleSpiritforged?.title || "LES ERRATA SPIRITFORGED",
+    visualSummary: visualArticleSpiritforged?.summary || "Un résumé rapide des derniers Errata pour Origins et Spiritforged.",
+    visualImage: visualArticleSpiritforged?.image_url || undefined,
+    visualDate: visualArticleSpiritforged?.published_at 
+      ? new Date(visualArticleSpiritforged.published_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+      : "12 février 2026",
+    visualTags: visualArticleSpiritforged?.tags || ["Règles", "Errata"]
   },
   {
     title: "Errata Origins",
     content: "https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/PDFrules/Riftbound%20Card%20Errata%20Origins%20.pdf",
     date: "28-10-2025",
     activeClass: "bg-[#C5A059] text-rift-950 border-[#C5A059] shadow-[#C5A059]/20",
-    textClass: "text-[#C5A059]"
+    textClass: "text-[#C5A059]",
+    visualLink: "/news/les-errata-origins",
+    visualTitle: visualArticleOrigins?.title || "LES ERRATA ORIGINS",
+    visualSummary: visualArticleOrigins?.summary || "Découvrez les errata pour le set Origins.",
+    visualImage: visualArticleOrigins?.image_url || undefined,
+    visualDate: visualArticleOrigins?.published_at 
+      ? new Date(visualArticleOrigins.published_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+      : "28 octobre 2025",
+    visualTags: visualArticleOrigins?.tags || ["Règles", "Errata"]
   }
 ];
 ---
@@ -53,9 +84,9 @@ const errataArticles = [
       </button>
       <button 
         class="tab-btn w-48 px-2 py-2.5 rounded-xl font-display font-bold text-sm transition-all duration-300 border border-transparent text-center"
-        data-target="#erratas"
+        data-target="#errata"
       >
-        Erratas et FAQ
+        Errata et FAQ
       </button>
     </div>
 
@@ -89,8 +120,8 @@ const errataArticles = [
         </div>
     </div>
 
-    <!-- Erratas Content -->
-    <div id="erratas" class="rules-content hidden animate-fade-in">
+    <!-- Errata Content -->
+    <div id="errata" class="rules-content hidden animate-fade-in">
         <ErrataViewer client:visible articles={errataArticles} />
     </div>
 

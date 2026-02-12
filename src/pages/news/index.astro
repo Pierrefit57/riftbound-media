@@ -25,7 +25,7 @@ if (newsError && newsError.message.includes('published_at')) {
 }
 
 const featuredNews = allNews?.filter((n) => n.featured).slice(0, 2) || [];
-const regularNews = allNews || [];
+const regularNews = allNews?.filter((n) => !featuredNews.some(f => f.slug === n.slug)) || [];
 ---
 
 <MainLayout title="Actualités">
@@ -39,7 +39,7 @@ const regularNews = allNews || [];
         <div class="h-px w-8 bg-gradient-to-l from-transparent to-accent-forge/50"></div>
       </div>
       <h1 class="text-3xl md:text-4xl font-display font-bold text-rift-100 mb-3">Dernières Nouvelles</h1>
-      <p class="text-rift-300 leading-relaxed max-w-2xl mx-auto">Restez informé des dernières nouvelles et annonces de l'univers Riftbound</p>
+      <p class="text-rift-300 leading-relaxed max-w-2xl mx-auto">Restez informés des dernières nouvelles et annonces de l'univers Riftbound<br />Le tout traduit pour vous en français</p>
     </div>
 
     {featuredNews.length > 0 && (
@@ -74,7 +74,7 @@ const regularNews = allNews || [];
         <div id="news-grid-container">
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="news-grid">
             {regularNews.map((article, index) => (
-              <div class:list={['news-item transition-all duration-500', index >= 6 ? 'hidden opacity-0 translate-y-4' : '']} data-index={index}>
+              <div class:list={['news-item transition-all duration-500', index >= 9 ? 'hidden opacity-0 translate-y-4' : '']} data-index={index}>
                 <NewsCard
                   title={article.title}
                   summary={article.summary || ''}
@@ -88,7 +88,7 @@ const regularNews = allNews || [];
             ))}
           </div>
 
-          {regularNews.length > 6 && (
+          {regularNews.length > 9 && (
             <div class="mt-12 text-center" id="load-more-container">
               <button 
                 id="load-more-btn"
