@@ -85,9 +85,17 @@ function getTagStyle(tag: string): string {
 
       <div class="flex items-center gap-3 text-sm text-rift-500">
         <div class="flex items-center gap-2">
-          <div class="w-7 h-7 rounded-full bg-gradient-to-br from-accent-spirit to-accent-sakura flex items-center justify-center text-[10px] font-bold text-white">
-            {authorName.charAt(0)}
-          </div>
+          {article.profiles?.avatar_url ? (
+            <img 
+              src={article.profiles.avatar_url} 
+              alt={authorName} 
+              class="w-7 h-7 rounded-full object-cover border border-rift-700/50" 
+            />
+          ) : (
+            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-accent-spirit to-accent-sakura flex items-center justify-center text-[10px] font-bold text-white">
+              {authorName.charAt(0)}
+            </div>
+          )}
           <span>{authorName}</span>
         </div>
         <span class="text-rift-300">·</span>
