@@ -96,9 +96,9 @@ function getTagStyle(tag: string): string {
     </header>
 
     <!-- Hero image -->
-    <div class="relative w-full h-56 md:h-72 overflow-hidden mb-8">
+    <div class="relative w-full overflow-hidden mb-12 rounded-lg border border-rift-700/30">
       {article.image_url ? (
-        <img src={article.image_url} alt={article.title} class="w-full h-full object-cover" />
+        <img src={article.image_url} alt={article.title} class="w-full h-auto block" />
       ) : (
         <>
           <div class="absolute inset-0 bg-gradient-to-br from-accent-sakura/15 via-rift-100 to-accent-forge/10"></div>
