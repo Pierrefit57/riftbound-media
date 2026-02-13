@@ -1,11 +1,17 @@
 ---
 interface Props {
   title: string;
+  description?: string;
   petalMode?: 'full' | 'sides';
   petals?: boolean;
 }
 
-const { title, petalMode = 'full', petals = false } = Astro.props;
+const { 
+  title, 
+  description = "Votre source francophone pour l'univers Riftbound. Actualités, Tournois, Règles et communauté.",
+  petalMode = 'full', 
+  petals = false 
+} = Astro.props;
 const currentPath = Astro.url.pathname;
 const user = Astro.locals.user;
 const profile = Astro.locals.profile;
@@ -49,7 +55,7 @@ const ongoingEvent = activeEvents?.find(event => {
 <html lang="fr" class="bg-rift-900">
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content="Riftbound Media — Votre source d'actualités, guides et lore pour l'univers Riftbound." />
+    <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
