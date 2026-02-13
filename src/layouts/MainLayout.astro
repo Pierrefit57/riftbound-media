@@ -133,11 +133,21 @@ const ongoingEvent = activeEvents?.find(event => {
       
       /* Floating Event Notification */
       .event-toast {
-        animation: toast-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        /* Smooth entrance with a slight scale and blur for premium feel */
+        animation: toast-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        will-change: transform, opacity;
       }
       @keyframes toast-in {
-        from { transform: translateX(100%) translateY(-20px); opacity: 0; }
-        to { transform: translateX(0) translateY(0); opacity: 1; }
+        0% { 
+          transform: translateX(40px) scale(0.9); 
+          opacity: 0; 
+          filter: blur(8px);
+        }
+        100% { 
+          transform: translateX(0) scale(1); 
+          opacity: 1; 
+          filter: blur(0);
+        }
       }
     </style>
   </head>
