@@ -22,7 +22,7 @@ if (Astro.request.method === 'POST') {
     password,
     options: {
       data: { full_name: username },
-      emailRedirectTo: `${Astro.url.origin}/auth/confirm`,
+      emailRedirectTo: `${Astro.url.origin}/api/auth/confirm`,
     },
   });
 

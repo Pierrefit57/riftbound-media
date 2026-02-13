@@ -17,6 +17,31 @@ const navLinks = [
   { href: '/calendar', label: 'Calendrier' },
 ];
 
+import { supabase } from '../lib/supabase';
+
+// Détection d'événement en cours pour l'effet "foil"
+const now = new Date();
+const todayISO = now.toISOString().split('T')[0]; // YYYY-MM-DD
+const tomorrow = new Date(now);
+tomorrow.setDate(now.getDate() + 1);
+const tomorrowISO = tomorrow.toISOString().split('T')[0];
+
+const { data: activeEvents } = await supabase
+  .from('calendar_events')
+  .select('id, title, start_date, end_date, image_url')
+  .lte('start_date', tomorrowISO + 'T23:59:59');
+
+const ongoingEvent = activeEvents?.find(event => {
+    const start = new Date(event.start_date);
+    const end = event.end_date ? new Date(event.end_date) : start;
+    
+    const startD = new Date(start).setHours(0,0,0,0);
+    const endD = new Date(end).setHours(23,59,59,999);
+    const currentT = now.getTime();
+    
+    return currentT >= startD && currentT <= endD;
+});
+
 
 ---
 
@@ -103,6 +128,17 @@ const navLinks = [
 
       /* Nav link underline animation */
       /* Nav link underline animation removed for centering */
+
+      /* Nav link underline animation removed for centering */
+      
+      /* Floating Event Notification */
+      .event-toast {
+        animation: toast-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      @keyframes toast-in {
+        from { transform: translateX(100%) translateY(-20px); opacity: 0; }
+        to { transform: translateX(0) translateY(0); opacity: 1; }
+      }
     </style>
   </head>
   <body class="bg-rift-900 text-rift-100 font-sans min-h-screen flex flex-col relative">
@@ -246,6 +282,43 @@ const navLinks = [
 
     <!-- Main -->
     <main class="flex-1 relative z-10">
+      {ongoingEvent && (
+        <div 
+          id="event-notification" 
+          data-event-id={ongoingEvent.id}
+          style="display: none;"
+          class="fixed top-24 right-4 z-[60] w-72 event-toast pointer-events-none transition-opacity duration-300"
+        >
+          <div class="group relative">
+            <a 
+              href="/calendar" 
+              class="bg-rift-900/90 backdrop-blur-md border border-accent-spirit/30 rounded-2xl overflow-hidden shadow-2xl flex items-center p-3 gap-3 hover:border-accent-spirit/60 transition-all duration-300 block"
+              onclick={`localStorage.setItem('dismissed-event-${ongoingEvent.id}', 'true')`}
+            >
+              {ongoingEvent.image_url && (
+                <div class="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0">
+                  <img src={ongoingEvent.image_url} alt="" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                </div>
+              )}
+              <div class="flex-1 min-w-0" id="notification-content">
+                <p class="text-[10px] font-bold text-accent-spirit uppercase tracking-widest mb-0.5">Aujourd'hui</p>
+                <p class="text-xs font-bold text-rift-50 leading-tight truncate">{ongoingEvent.title}</p>
+                <span class="text-[10px] text-rift-400 group-hover:text-accent-spirit mt-1 inline-block transition-colors">Voir le calendrier</span>
+              </div>
+            </a>
+            
+            <button 
+              onclick={`event.preventDefault(); event.stopPropagation(); localStorage.setItem('dismissed-event-${ongoingEvent.id}', 'true'); document.getElementById('event-notification').remove()`} 
+              class="absolute top-2 right-2 p-1 text-rift-500 hover:text-rift-300 z-10" 
+              aria-label="Fermer"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
       <slot />
     </main>
 
@@ -325,8 +398,24 @@ const navLinks = [
       });
 
       // Verification proactive du hash (sécurité pour la prod)
-      if (window.location.hash.includes('type=recovery') && window.location.pathname !== '/reset-password') {
-        window.location.href = '/reset-password' + window.location.hash;
+      const hash = window.location.hash;
+      if (hash.includes('type=recovery') && window.location.pathname !== '/reset-password') {
+        window.location.href = '/reset-password' + hash;
+      } else if (hash.includes('type=signup') && window.location.pathname !== '/login') {
+        window.location.href = '/login' + hash;
+      }
+
+      // Check for dismissed event notification
+      const notification = document.getElementById('event-notification');
+      if (notification) {
+        const eventId = notification.getAttribute('data-event-id');
+        if (localStorage.getItem(`dismissed-event-${eventId}`)) {
+          notification.remove();
+        } else {
+          // Show it if not dismissed
+          notification.style.display = 'block';
+          notification.classList.remove('pointer-events-none');
+        }
       }
     </script>
   </body>
