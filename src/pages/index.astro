@@ -57,28 +57,10 @@ if (tournamentError && tournamentError.message.includes('published_at')) {
 const realTournaments = tournamentNews || [];
 
 // Mock items to ensure 3 real-looking slots (copies of the interview style)
-const mockTournaments = [
-  {
-    title: "TOURNOI DE PRINTEMPS : LES INSCRIPTIONS",
-    summary: "Le prochain grand rendez-vous compétitif approche. Découvrez les dates et les récompenses exclusives de cette édition.",
-    image_url: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=2070",
-    tags: ["Tournoi", "Compétitif", "Annonce"],
-    created_at: new Date().toISOString(),
-    published_at: null,
-    slug: "#"
-  },
-  {
-    title: "LES RÈGLES DE TOURNOI : MISE À JOUR 1.2",
-    summary: "Tout ce qu'il faut savoir sur l'évolution du format compétitif pour les prochains événements officiels.",
-    image_url: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&q=80&w=2070",
-    tags: ["Règles", "Tournoi", "Info"],
-    created_at: new Date().toISOString(),
-    published_at: null,
-    slug: "#"
-  }
-];
+// Mock items removed as per user request
+const mockTournaments = [];
 
-const tournaments = [...realTournaments, ...mockTournaments]
+const tournaments = realTournaments
   .sort((a, b) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime())
   .slice(0, 3);
 
@@ -155,6 +137,7 @@ const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
   )}
 
   <!-- Tournaments Section -->
+  {tournaments.length > 0 && (
   <section class="max-w-7xl mx-auto px-4 sm:px-6 mb-16">
     <div class="flex items-center justify-between mb-8">
       <div class="flex items-center gap-3">
@@ -178,6 +161,7 @@ const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
     </div>
     </div>
   </section>
+  )}
 
 
 
@@ -208,3 +192,23 @@ const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
   </section>
 
 </MainLayout>
+
+<script>
+  // Simple Parallax Effect
+  const heroSection = document.querySelector('section.relative');
+  const bgElement = heroSection?.querySelector('.bg-spirit-radial') as HTMLElement;
+
+  if (heroSection) {
+    window.addEventListener('scroll', () => {
+      const scrolled = window.scrollY;
+      
+      // Optimize: stop calculating if out of view
+      if (scrolled > 800) return;
+
+      // Background moves slower (depth)
+      if (bgElement) {
+        bgElement.style.transform = `translateY(${scrolled * 0.4}px)`;
+      }
+    });
+  }
+</script>

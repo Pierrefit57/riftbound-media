@@ -182,6 +182,18 @@
         });
 
         eventBus.on('updatefindcontrolstate', (e) => {
+            if (e.matchesCount) {
+                if (window.parent) {
+                    window.parent.postMessage({
+                        type: 'MATCH_COUNT',
+                        payload: {
+                            total: e.matchesCount.total,
+                            current: e.matchesCount.current
+                        }
+                    }, '*');
+                }
+            }
+
             if (e.state === 1 /* NOT_FOUND */) {
                 if (window.parent) window.parent.postMessage({ type: 'NO_MATCH' }, '*');
             }

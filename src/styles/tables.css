@@ -1,0 +1,51 @@
+/* Custom Table Styling to match Spiritforged Theme */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  font-size: 0.875rem; /* text-sm */
+  background-color: transparent;
+}
+
+.prose thead {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.prose thead th {
+  text-align: left;
+  padding: 1rem;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  color: #f3f4f6; /* text-rift-100 */
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.prose tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background-color 0.2s;
+}
+
+.prose tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.prose tbody td {
+  padding: 1.5rem 1rem;
+  vertical-align: top;
+  color: #d1d5db; /* text-rift-300 */
+  line-height: 1.6;
+}
+
+/* List fix inside tables */
+.prose tbody td ul {
+  margin: 0;
+  padding-left: 1rem;
+  list-style-type: disc;
+}
+
+.prose tbody td li {
+  margin: 0.25rem 0;
+  padding: 0;
+}
