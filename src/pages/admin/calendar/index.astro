@@ -21,7 +21,7 @@ if (Astro.request.method === 'POST') {
 let { data: events, error: fetchError } = await supabase
   .from('calendar_events')
   .select('*')
-  .order('start_date', { ascending: true });
+  .order('start_date', { ascending: false });
 
 function getEventColor(type: string) {
   switch (type) {

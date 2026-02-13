@@ -2,6 +2,7 @@
 export const prerender = false;
 
 import AdminLayout from '../../../layouts/AdminLayout.astro';
+import DateTimePicker from '../../../components/admin/DateTimePicker';
 import { createServiceClient } from '../../../lib/supabase';
 
 let errorMsg = '';
@@ -106,18 +107,22 @@ if (Astro.request.method === 'POST') {
         </div>
 
         <div>
-          <label for="start_date" class="block text-sm font-medium text-rift-300 mb-2">Date de début</label>
-          <input type="datetime-local" id="start_date" name="start_date" required
-            class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 placeholder-rift-600 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors [color-scheme:dark]"
-            value={start_date}
+          <DateTimePicker 
+            client:load 
+            id="start_date" 
+            name="start_date" 
+            label="Date de début"
+            initialDate={start_date} 
           />
         </div>
 
         <div>
-          <label for="end_date" class="block text-sm font-medium text-rift-300 mb-2">Date de fin (optionnelle)</label>
-          <input type="datetime-local" id="end_date" name="end_date"
-            class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 placeholder-rift-600 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors [color-scheme:dark]"
-            value={end_date}
+          <DateTimePicker 
+            client:load 
+            id="end_date" 
+            name="end_date" 
+            label="Date de fin (optionnelle)"
+            initialDate={end_date} 
           />
         </div>
 
@@ -259,19 +264,9 @@ if (Astro.request.method === 'POST') {
       const startDateInput = document.getElementById('start_date') as HTMLInputElement;
       const endDateInput = document.getElementById('end_date') as HTMLInputElement;
 
-      const updateInputs = () => {
-        const isAllDay = allDayToggle?.checked;
-        if (isAllDay) {
-          if (startDateInput.type !== 'date') startDateInput.type = 'date';
-          if (endDateInput.type !== 'date') endDateInput.type = 'date';
-        } else {
-          if (startDateInput.type !== 'datetime-local') startDateInput.type = 'datetime-local';
-          if (endDateInput.type !== 'datetime-local') endDateInput.type = 'datetime-local';
-        }
-      };
-
-      allDayToggle?.addEventListener('change', updateInputs);
-      updateInputs();
+      // Removed updateInputs logic as DateTimePicker handles date/time unifiedly.
+      // const updateInputs = () => { ... }
+      // allDayToggle?.addEventListener('change', updateInputs);
 
       const form = document.querySelector('form');
       if (form && !window.location.search.includes('error')) {

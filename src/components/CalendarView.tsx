@@ -41,6 +41,14 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
     const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
     const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
 
+    const getCountryCode = (country: string | undefined) => {
+        if (!country) return '';
+        const c = country.toUpperCase();
+        if (c === 'UK') return 'gb';
+        if (c === 'USA' || c === 'US') return 'us';
+        return country.toLowerCase();
+    };
+
     const calendarDays = useMemo(() => {
         const days = [];
         const totalDays = daysInMonth(year, month);
@@ -202,9 +210,9 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
                             <div
                                 key={i}
                                 onClick={() => { if (bigEvent) setSelectedEvent(bigEvent); }}
-                                className={`min-h-[120px] md:min-h-[140px] p-2 rounded-xl border transition-all relative overflow-hidden flex flex-col group
+                                className={`min-h-[120px] md:min-h-[140px] rounded-xl border transition-all relative overflow-hidden flex flex-col group
                                     ${getDayBorderClass()}
-                                    ${bigEvent ? 'cursor-pointer p-0' : ''}
+                                    ${bigEvent ? 'cursor-pointer p-0' : 'p-1'}
                                 `}
                                 style={bigEvent && bigEvent.image_url ? {
                                     backgroundImage: `linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.75)), url(${bigEvent.image_url})`,
@@ -213,56 +221,72 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
                                 } : {}}
                             >
                                 {date && (
-                                    <div className={`relative z-10 flex flex-col h-full w-full ${bigEvent ? 'p-3' : ''}`}>
-                                        <div className="flex justify-between items-start mb-1">
-                                            <span className={`text-[11px] font-bold ${isToday ? 'text-accent-spirit' : bigEvent ? 'text-white' : 'text-rift-400'}`}>
+                                    <>
+                                        <div className="absolute top-2 left-2 z-20 pointer-events-none">
+                                            <span className={`text-[11px] font-bold drop-shadow-md ${isToday ? 'text-accent-spirit' : (events.length > 0 ? 'text-white' : 'text-rift-400')}`}>
                                                 {date.getDate()}
                                             </span>
                                         </div>
 
-                                        {bigEvent && (
-                                            <div className="mt-auto">
-                                                {bigEvent.country && (
-                                                    <div className="absolute top-2 right-2">
-                                                        {(() => {
-                                                            const isWorld = bigEvent.country?.toUpperCase() === 'WORLD';
-                                                            return isWorld ? (
-                                                                <div className="w-6 h-6 flex items-center justify-center bg-rift-900 rounded-full border border-rift-700">
-                                                                    <img src="/assets/icons/864e0e4584241547.svg" className="w-4 h-4" alt="World" />
-                                                                </div>
-                                                            ) : (
-                                                                <img src={`https://flagcdn.com/w40/${bigEvent.country.toLowerCase()}.png`} width="20" alt={bigEvent.country} className="rounded-sm border border-white/10" />
-                                                            );
-                                                        })()}
-                                                    </div>
-                                                )}
-                                                <p className="font-bold text-white text-xs line-clamp-2 drop-shadow-md">
-                                                    {bigEvent.title}
-                                                </p>
-                                            </div>
-                                        )}
+                                        <div className={`relative z-10 flex flex-col h-full w-full ${bigEvent ? 'p-3' : ''}`}>
+                                            {bigEvent && (
+                                                <div className="mt-auto">
+                                                    {bigEvent.country && (
+                                                        <div className="absolute top-2 right-2">
+                                                            {(() => {
+                                                                const isWorld = bigEvent.country?.toUpperCase() === 'WORLD';
+                                                                return isWorld ? (
+                                                                    <div className="w-6 h-6 flex items-center justify-center bg-rift-900 rounded-full border border-rift-700">
+                                                                        <img src="/assets/icons/864e0e4584241547.svg" className="w-4 h-4" alt="World" />
+                                                                    </div>
+                                                                ) : (
+                                                                    <img src={`https://flagcdn.com/w40/${getCountryCode(bigEvent.country)}.png`} width="20" alt={bigEvent.country} className="rounded-sm border border-white/10" />
+                                                                );
+                                                            })()}
+                                                        </div>
+                                                    )}
+                                                    <p className="font-bold text-white text-xs line-clamp-2 drop-shadow-md">
+                                                        {bigEvent.title}
+                                                    </p>
+                                                </div>
+                                            )}
 
-                                        {!bigEvent && (
-                                            <div className="space-y-1 w-full mt-1">
-                                                {events.map(event => (
-                                                    <button
-                                                        key={event.id}
-                                                        onClick={(e) => { e.stopPropagation(); setSelectedEvent(event); }}
-                                                        className={`w-full text-left p-1.5 rounded-md border text-[10px] font-bold truncate transition-all ${getEventClass(!!event.image_url)}`}
-                                                        style={event.image_url ? {
-                                                            backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.8)), url(${event.image_url})`,
-                                                            backgroundSize: 'cover',
-                                                            backgroundPosition: event.image_position || '50% 50%',
-                                                            color: 'white',
-                                                            border: 'none'
-                                                        } : {}}
-                                                    >
-                                                        {event.title}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
+                                            {!bigEvent && (
+                                                <div className="flex flex-col gap-1 w-full h-full">
+                                                    {events.map(event => (
+                                                        <button
+                                                            key={event.id}
+                                                            onClick={(e) => { e.stopPropagation(); setSelectedEvent(event); }}
+                                                            className={`w-full text-left p-2 rounded-lg border text-xs font-bold truncate transition-all flex-1 min-h-0 flex flex-col justify-end items-start relative group/btn overflow-hidden ${getEventClass(!!event.image_url)}`}
+                                                            style={event.image_url ? {
+                                                                backgroundImage: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.8)), url(${event.image_url})`,
+                                                                backgroundSize: 'cover',
+                                                                backgroundPosition: event.image_position || '50% 50%',
+                                                                color: 'white',
+                                                                border: 'none'
+                                                            } : {}}
+                                                        >
+                                                            {event.country && (
+                                                                <div className="absolute top-1.5 right-1.5 z-20">
+                                                                    {(() => {
+                                                                        const isWorld = event.country?.toUpperCase() === 'WORLD';
+                                                                        return isWorld ? (
+                                                                            <div className="w-5 h-5 flex items-center justify-center bg-rift-900 rounded-full border border-rift-700 shadow-sm">
+                                                                                <img src="/assets/icons/864e0e4584241547.svg" className="w-3 h-3" alt="World" />
+                                                                            </div>
+                                                                        ) : (
+                                                                            <img src={`https://flagcdn.com/w40/${getCountryCode(event.country)}.png`} width="16" alt={event.country} className="rounded-sm border border-white/10 shadow-sm" />
+                                                                        );
+                                                                    })()}
+                                                                </div>
+                                                            )}
+                                                            <span className="relative z-10 truncate w-full drop-shadow-md">{event.title}</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </>
                                 )}
                             </div>
                         );
@@ -310,7 +334,7 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
                                                         <img src="/assets/icons/864e0e4584241547.svg" className="w-4 h-4" alt="World" />
                                                     </div>
                                                 ) : (
-                                                    <img src={`https://flagcdn.com/w40/${selectedEvent.country.toLowerCase()}.png`} width="24" alt={selectedEvent.country} className="rounded-sm border border-white/10" />
+                                                    <img src={`https://flagcdn.com/w40/${getCountryCode(selectedEvent.country)}.png`} width="24" alt={selectedEvent.country} className="rounded-sm border border-white/10" />
                                                 );
                                             })()}
                                         </div>

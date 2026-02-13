@@ -2,6 +2,8 @@
 export const prerender = false;
 
 import AdminLayout from '../../../layouts/AdminLayout.astro';
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import DateTimePicker from '../../../components/admin/DateTimePicker';
 import { createServiceClient } from '../../../lib/supabase';
 
 const { id } = Astro.params;
@@ -114,27 +116,22 @@ if (successParam === 'updated') successMsg = 'Événement mis à jour !';
         </div>
 
         <div>
-          <label for="start_date" class="block text-sm font-medium text-rift-300 mb-2">Date de début</label>
-          <input type="datetime-local" id="start_date" name="start_date" required
-            class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors [color-scheme:dark]"
-            value={(() => {
-              const d = new Date(event.start_date);
-              const offset = d.getTimezoneOffset() * 60000;
-              return new Date(d.getTime() - offset).toISOString().slice(0, 16);
-            })()}
+          <DateTimePicker 
+            client:load 
+            id="start_date" 
+            name="start_date" 
+            label="Date de début"
+            initialDate={event.start_date} 
           />
         </div>
 
         <div>
-          <label for="end_date" class="block text-sm font-medium text-rift-300 mb-2">Date de fin (optionnelle)</label>
-          <input type="datetime-local" id="end_date" name="end_date"
-            class="w-full px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors [color-scheme:dark]"
-            value={(() => {
-              if (!event.end_date) return '';
-              const d = new Date(event.end_date);
-              const offset = d.getTimezoneOffset() * 60000;
-              return new Date(d.getTime() - offset).toISOString().slice(0, 16);
-            })()}
+          <DateTimePicker 
+            client:load 
+            id="end_date" 
+            name="end_date" 
+            label="Date de fin (optionnelle)"
+            initialDate={event.end_date} 
           />
         </div>
 
@@ -234,41 +231,8 @@ if (successParam === 'updated') successMsg = 'Événement mis à jour !';
     uploadBtn?.addEventListener('click', () => fileInput?.click());
 
     // All Day toggle logic
-    window.addEventListener('load', () => {
-      const allDayToggle = document.getElementById('all_day') as HTMLInputElement;
-      const startDateInput = document.getElementById('start_date') as HTMLInputElement;
-      const endDateInput = document.getElementById('end_date') as HTMLInputElement;
-
-      const updateInputs = () => {
-        const isAllDay = allDayToggle?.checked;
-        if (isAllDay) {
-          if (startDateInput.type !== 'date') {
-            const val = startDateInput.value.split('T')[0];
-            startDateInput.type = 'date';
-            startDateInput.value = val;
-          }
-          if (endDateInput.type !== 'date') {
-            const val = endDateInput.value.split('T')[0];
-            endDateInput.type = 'date';
-            endDateInput.value = val;
-          }
-        } else {
-          if (startDateInput.type !== 'datetime-local') {
-            const val = startDateInput.value;
-            startDateInput.type = 'datetime-local';
-            if (val && !val.includes('T')) startDateInput.value = val + 'T12:00';
-          }
-          if (endDateInput.type !== 'datetime-local') {
-            const val = endDateInput.value;
-            endDateInput.type = 'datetime-local';
-            if (val && !val.includes('T')) endDateInput.value = val + 'T12:00';
-          }
-        }
-      };
-
-      allDayToggle?.addEventListener('change', updateInputs);
-      updateInputs();
-    });
+    // Removed updateInputs logic as DateTimePicker handles date/time unifiedly.
+    // window.addEventListener('load', () => { ... })
 
     fileInput?.addEventListener('change', async () => {
       const file = fileInput.files?.[0];

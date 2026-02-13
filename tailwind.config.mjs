@@ -37,7 +37,7 @@ export default {
                     DEFAULT: '#1c2541',  // Fond de carte (Bleu sombre)
                     light: '#3a506b',    // Fond de carte survol
                     darker: '#0a1128',   // Fond principal
-                    border: 'rgba(255, 107, 53, 0.2)', // Bordure orange subtile
+                    border: 'rgba(233, 135, 15, 0.2)', // Bordure orange spirit
                 },
                 // Accents Orange & Or
                 'accent': {

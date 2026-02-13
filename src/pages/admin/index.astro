@@ -3,6 +3,7 @@ export const prerender = false;
 
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import DashboardCharts from '../../components/admin/DashboardCharts';
+import StatCard from '../../components/admin/StatCard';
 import { createServiceClient } from '../../lib/supabase';
 
 // Utiliser le service client pour contourner les RLS (lecture logs admin)
@@ -11,8 +12,15 @@ const supabase = createServiceClient();
 // 1. Articles Stats
 const { data: articles } = await supabase
   .from('articles')
-  .select('id, published')
+
+  .select('id, published, title, slug')
   .order('created_at', { ascending: false });
+
+// Map slugs to titles for "Top Articles"
+const articleTitleMap = new Map();
+articles?.forEach(a => {
+    if (a.slug) articleTitleMap.set(`/news/${a.slug}`, a.title);
+});
 
 const totalArticles = articles?.length || 0;
 const publishedCount = articles?.filter((a) => a.published)?.length || 0;
@@ -42,6 +50,9 @@ const { data: logs } = await supabase
 // Process Logs for Charts
 const dailyStats = new Map<string, { visits: number; logins: number }>();
 const pageStats = new Map<string, number>();
+let viewsToday = 0;
+let totalViews30d = 0;
+const todayStr = new Date().toISOString().split('T')[0];
 
 // Initialize last 30 days with 0
 for (let i = 0; i < 30; i++) {
@@ -55,11 +66,13 @@ logs?.forEach(log => {
    const dateStr = log.created_at.split('T')[0];
    
    if (log.event_type === 'page_view') {
+       totalViews30d++;
+       if (dateStr === todayStr) viewsToday++;
+
        if (dailyStats.has(dateStr)) { 
           const stat = dailyStats.get(dateStr)!;
           stat.visits++; 
        } else {
-           // Should ideally ensure map has all dates, but fallbacks handled by init loop usually
            dailyStats.set(dateStr, { visits: 1, logins: 0 });
        }
        
@@ -78,47 +91,92 @@ logs?.forEach(log => {
 });
 
 // Convert Maps to Arrays and Sort
+const dailyVisits = Array.from(dailyStats.entries())
+    .map(([date, stats]) => ({ date, ...stats }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+// Top Articles Logic
+const topArticles = Array.from(pageStats.entries())
+    .filter(([path]) => path.startsWith('/news/') && path.split('/').length > 2)
+    .map(([path, views]) => ({
+        title: articleTitleMap.get(path) || path,
+        path,
+        views
+    }))
+    .sort((a, b) => b.views - a.views)
+    .slice(0, 5);
+
 const chartData = {
-    dailyVisits: Array.from(dailyStats.entries())
-        .map(([date, stats]) => ({ date, ...stats }))
-        .sort((a, b) => a.date.localeCompare(b.date)), // Sort by date ascending
-    topPages: Array.from(pageStats.entries())
-        .map(([name, value]) => ({ name, value }))
-        .sort((a, b) => b.value - a.value)
-        .slice(0, 5), // Top 5
-    onlineCount: onlineCount || 0
+    dailyVisits,
+    topArticles,
+    onlineCount
 };
 
 ---
 
 <AdminLayout title="Dashboard" activeItem="dashboard">
-  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+  <div class="space-y-8">
     
-    <!-- Left Column: Quick Actions -->
-    <div class="lg:col-span-1 space-y-6">
-       <div class="bg-rift-800/50 rounded-2xl border border-rift-700/50 p-5 shadow-card sticky top-6">
-          <h2 class="text-base font-display font-bold text-rift-100 mb-4">Actions rapides</h2>
-          <div class="flex flex-col gap-3">
-            <a href="/admin/articles/new" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-accent-spirit text-white text-sm font-semibold hover:bg-accent-spirit/90 shadow-spirit transition-all duration-300 hover:-translate-y-0.5 w-full">
-              ✦ Nouvel article
-            </a>
-            <a href="/admin/articles" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-rift-300 text-sm font-medium border border-rift-700 bg-rift-800/60 hover:border-accent-spirit/30 hover:text-accent-spirit transition-all duration-300 w-full">
-              Gérer les articles
-            </a>
-            <a href="/admin/calendar" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-rift-300 text-sm font-medium border border-rift-700 bg-rift-800/60 hover:border-accent-cyan/30 hover:text-accent-cyan transition-all duration-300 w-full">
-              Gérer le calendrier
-            </a>
-            <a href="/" target="_blank" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-rift-300 text-sm font-medium border border-rift-700 bg-rift-800/60 hover:border-accent-forge/30 hover:text-accent-forge transition-all duration-300 w-full">
-              Voir le site ↗
-            </a>
-          </div>
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard 
+            title="En ligne" 
+            value={onlineCount} 
+            color="spirit"
+        >
+            <span slot="icon" class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-spirit opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-accent-spirit"></span></span>
+        </StatCard>
+        <StatCard 
+            title="Vues Aujourd'hui" 
+            value={viewsToday} 
+            color="forge"
+        >
+            <svg slot="icon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+        </StatCard>
+        <StatCard 
+            title="Vues Totales (30j)" 
+            value={totalViews30d} 
+            color="blue"
+        >
+            <svg slot="icon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+        </StatCard>
+        <StatCard 
+            title="Total Articles" 
+            value={totalArticles} 
+            color="sakura"
+        >
+            <svg slot="icon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
+        </StatCard>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
+        <!-- Left Column: Quick Actions -->
+        <div class="lg:col-span-1 space-y-6">
+           <div class="bg-rift-800/50 rounded-2xl border border-rift-700/50 p-5 shadow-card sticky top-6">
+              <h2 class="text-base font-display font-bold text-rift-100 mb-4">Actions rapides</h2>
+              <div class="flex flex-col gap-3">
+                <a href="/admin/articles/new" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-accent-spirit text-white text-sm font-semibold hover:bg-accent-spirit/90 shadow-spirit transition-all duration-300 hover:-translate-y-0.5 w-full">
+                  ✦ Nouvel article
+                </a>
+                <a href="/admin/articles" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-rift-300 text-sm font-medium border border-rift-700 bg-rift-800/60 hover:border-accent-spirit/30 hover:text-accent-spirit transition-all duration-300 w-full">
+                  Gérer les articles
+                </a>
+                <a href="/admin/calendar" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-rift-300 text-sm font-medium border border-rift-700 bg-rift-800/60 hover:border-accent-spirit/30 hover:text-accent-spirit transition-all duration-300 w-full">
+                  Gérer le calendrier
+                </a>
+                <a href="/" target="_blank" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-rift-300 text-sm font-medium border border-rift-700 bg-rift-800/60 hover:border-accent-spirit/30 hover:text-accent-spirit transition-all duration-300 w-full">
+                  Voir le site ↗
+                </a>
+              </div>
+            </div>
         </div>
+    
+        <!-- Right Column: Charts -->
+        <div class="lg:col-span-3">
+           <DashboardCharts client:load data={chartData} />
+        </div>
+    
     </div>
-
-    <!-- Right Column: Charts -->
-    <div class="lg:col-span-3">
-       <DashboardCharts client:load data={chartData} />
-    </div>
-
   </div>
 </AdminLayout>
