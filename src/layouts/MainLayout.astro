@@ -156,7 +156,7 @@ const navLinks = [
               <a
                 href={link.href}
                 class:list={[
-                  'nav-link px-5 py-2.5 text-base font-medium transition-all duration-200',
+                  'nav-link px-5 pt-2.5 pb-4 text-base font-medium transition-all duration-200',
                   currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href))
                     ? 'nav-link-active text-accent-spirit'
                     : 'text-rift-300 hover:text-accent-spirit',
@@ -165,7 +165,7 @@ const navLinks = [
                 {link.label}
               </a>
               {/* Hover line */}
-              <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-accent-spirit group-hover:w-full transition-all duration-300"></span>
+              <span class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-accent-spirit group-hover:w-full transition-all duration-300"></span>
             </div>
           ))}
         </div>
@@ -307,9 +307,27 @@ const navLinks = [
     </footer>
 
     <script>
+      import { supabase } from '../lib/supabase';
+
+      // Mobile menu
       const btn = document.getElementById('mobile-menu-btn');
       const menu = document.getElementById('mobile-menu');
       btn?.addEventListener('click', () => menu?.classList.toggle('hidden'));
+
+      // Global Auth Listener (ex: Password Recovery redirect)
+      supabase.auth.onAuthStateChange((event) => {
+        if (event === 'PASSWORD_RECOVERY') {
+          console.log('Password recovery event detected, redirecting...');
+          if (window.location.pathname !== '/reset-password') {
+            window.location.href = '/reset-password';
+          }
+        }
+      });
+
+      // Verification proactive du hash (sécurité pour la prod)
+      if (window.location.hash.includes('type=recovery') && window.location.pathname !== '/reset-password') {
+        window.location.href = '/reset-password' + window.location.hash;
+      }
     </script>
   </body>
 </html>

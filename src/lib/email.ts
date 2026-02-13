@@ -24,7 +24,7 @@ export async function sendEmail({ to, subject, html, from }: SendEmailOptions) {
 
     try {
         const { data, error } = await resend.emails.send({
-            from: from || 'Riftbound Media <notifications@riftbound-media.com>',
+            from: from || 'Riftbound Media <notifications@riftbound-media.fr>',
             to,
             subject,
             html,
