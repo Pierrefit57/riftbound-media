@@ -1,0 +1,175 @@
+---
+export const prerender = false;
+
+import MainLayout from '../layouts/MainLayout.astro';
+import { sendEmail } from '../lib/email';
+
+let successMsg = '';
+let errorMsg = '';
+
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const name = formData.get('name') as string;
+    const email = formData.get('email') as string;
+    const company = formData.get('company') as string;
+    const message = formData.get('message') as string;
+
+    const { error } = await sendEmail({
+      to: 'contact@riftbound-media.fr',
+      subject: `[Partenariat] Demande de ${name}${company ? ` (${company})` : ''}`,
+      html: `
+        <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
+          <h2 style="color: #E9870F;">Nouvelle demande de partenariat</h2>
+          <p><strong>Nom :</strong> ${name}</p>
+          <p><strong>Email :</strong> ${email}</p>
+          <p><strong>Organisation/Entreprise :</strong> ${company || 'Non spécifié'}</p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p><strong>Message :</strong></p>
+          <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+            ${message.replace(/\n/g, '<br>')}
+          </div>
+        </div>
+      `,
+    });
+
+    if (error) {
+      console.error("Erreur d'envoi de formulaire partenariat:", error);
+      errorMsg = "Une erreur est survenue lors de l'envoi du message. Veuillez réessayer.";
+    } else {
+      successMsg = 'Merci ! Votre demande a bien été envoyée. Nous reviendrons vers vous rapidement.';
+    }
+  } catch (err) {
+    console.error("Exception lors de l'envoi du formulaire partenariat:", err);
+    errorMsg = "Une erreur inattendue est survenue.";
+  }
+}
+---
+
+<MainLayout title="Nos Partenaires" petals={true}>
+  <!-- Background Shading -->
+  <div class="absolute inset-x-0 top-0 h-[500px] bg-spirit-radial pointer-events-none z-0"></div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-20 relative z-10">
+    
+    <!-- Hero Header -->
+    <div class="text-center mb-12">
+      <div class="flex items-center justify-center gap-4 mb-6 animate-fade-in text-accent-sakura">
+        <div class="h-px w-12 bg-gradient-to-r from-transparent to-accent-sakura/50"></div>
+        <span class="text-xs font-display tracking-[0.3em] uppercase">Collaborations</span>
+        <div class="h-px w-12 bg-gradient-to-l from-transparent to-accent-sakura/50"></div>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-display font-bold text-rift-100 mb-4 uppercase tracking-tight">Nos Partenaires</h1>
+      <p class="text-rift-300 max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
+        Découvrez les acteurs qui soutiennent Riftbound Media et contribuent à faire grandir la communauté francophone.
+      </p>
+    </div>
+
+    <!-- Placeholder Section -->
+    <div class="mb-16">
+      <div class="max-w-4xl mx-auto rounded-3xl border border-rift-700/50 bg-rift-800/20 backdrop-blur-xl p-10 md:p-16 text-center relative overflow-hidden group">
+        <div class="absolute inset-0 bg-spirit-radial opacity-30 group-hover:opacity-40 transition-opacity pointer-events-none"></div>
+        <div class="relative z-10">
+          <h2 class="text-2xl md:text-3xl font-display font-bold text-rift-100 uppercase tracking-tight mb-4">
+            Envie de devenir <span class="text-accent-spirit">partenaire</span> ?
+          </h2>
+          <div class="w-12 h-1 bg-accent-spirit mx-auto rounded-full mb-8"></div>
+          <p class="text-rift-300 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+            Nous construisons actuellement notre réseau de partenaires. Si vous partagez notre passion pour l'univers Riftbound, nous serions ravis d'échanger avec vous.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Form Section -->
+    <div class="max-w-2xl mx-auto">
+      <div class="rounded-3xl border border-rift-700/50 bg-rift-900/40 backdrop-blur-xl p-8 lg:p-10 shadow-2xl ring-1 ring-white/5">
+        <div class="flex items-center gap-3 mb-10">
+          <div class="w-10 h-10 rounded-xl bg-accent-forge/10 border border-accent-forge/20 flex items-center justify-center text-accent-forge">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h2 class="text-xl font-display font-bold text-white uppercase tracking-wider">Rejoindre l'aventure</h2>
+        </div>
+
+        {successMsg ? (
+          <div class="py-12 text-center animate-slide-up">
+            <div class="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-6 shadow-xl shadow-emerald-500/10">
+              <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-display font-bold text-white mb-2">{successMsg}</h3>
+            <p class="text-rift-400 text-sm">Nous avons bien reçu votre demande et reviendrons vers vous très prochainement.</p>
+          </div>
+        ) : (
+          <form method="POST" class="space-y-6">
+            {errorMsg && (
+              <div class="p-4 rounded-xl bg-accent-spirit/10 border border-accent-spirit/25 text-accent-spirit text-sm animate-shake">
+                {errorMsg}
+              </div>
+            )}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="space-y-2">
+                <label for="name" class="block text-xs font-bold text-rift-400 uppercase tracking-widest pl-1">Nom Complet *</label>
+                <input 
+                  type="text" 
+                  id="name" 
+                  name="name" 
+                  required 
+                  placeholder="Votre nom"
+                  class="w-full px-4 py-3.5 rounded-xl bg-rift-950/50 border border-rift-700 text-rift-100 placeholder-rift-600 focus:outline-none focus:border-accent-spirit focus:ring-1 focus:ring-accent-spirit transition-all text-sm font-medium"
+                />
+              </div>
+              <div class="space-y-2">
+                <label for="email" class="block text-xs font-bold text-rift-400 uppercase tracking-widest pl-1">Email professionnel *</label>
+                <input 
+                  type="email" 
+                  id="email" 
+                  name="email" 
+                  required 
+                  placeholder="votre.email@exemple.com"
+                  class="w-full px-4 py-3.5 rounded-xl bg-rift-950/50 border border-rift-700 text-rift-100 placeholder-rift-600 focus:outline-none focus:border-accent-spirit focus:ring-1 focus:ring-accent-spirit transition-all text-sm font-medium"
+                />
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label for="company" class="block text-xs font-bold text-rift-400 uppercase tracking-widest pl-1">Organisation / Entreprise</label>
+              <input 
+                type="text" 
+                id="company" 
+                name="company" 
+                placeholder="Le nom de votre structure"
+                class="w-full px-4 py-3.5 rounded-xl bg-rift-950/50 border border-rift-700 text-rift-100 placeholder-rift-600 focus:outline-none focus:border-accent-spirit focus:ring-1 focus:ring-accent-spirit transition-all text-sm font-medium"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <label for="message" class="block text-xs font-bold text-rift-400 uppercase tracking-widest pl-1">Parlez-nous de votre projet *</label>
+              <textarea 
+                id="message" 
+                name="message" 
+                rows="5" 
+                required 
+                placeholder="Comment envisagez-vous une collaboration avec Riftbound Media ?"
+                class="w-full px-4 py-3.5 rounded-xl bg-rift-950/50 border border-rift-700 text-rift-100 placeholder-rift-600 focus:outline-none focus:border-accent-spirit focus:ring-1 focus:ring-accent-spirit transition-all text-sm font-medium resize-none"
+              ></textarea>
+            </div>
+
+            <button 
+              type="submit" 
+              class="w-full px-8 py-4 rounded-xl bg-accent-spirit text-white font-display font-bold tracking-widest uppercase text-sm transition-all hover:bg-accent-spirit/90 hover:shadow-lg hover:shadow-accent-spirit/20 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-3 group"
+            >
+              Envoyer la proposition
+              <svg class="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+  </div>
+</MainLayout>

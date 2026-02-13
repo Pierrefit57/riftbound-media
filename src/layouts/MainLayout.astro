@@ -8,7 +8,7 @@ interface Props {
 
 const { 
   title, 
-  description = "Votre source francophone pour l'univers Riftbound. Actualités, Tournois, Règles et communauté.",
+  description = "Votre source francophone pour l'univers Riftbound. Actualités, tournois, règles et communauté.",
   petalMode = 'full', 
   petals = false 
 } = Astro.props;
@@ -375,7 +375,7 @@ const ongoingEvent = activeEvents?.find(event => {
           <div class="pt-2">
             <h4 class="text-xs font-display font-semibold uppercase tracking-widest text-accent-spirit mb-4">Ressources</h4>
             <ul class="space-y-2.5">
-              <li><a href="#" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">Nos partenaires</a></li>
+              <li><a href="/partners" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">Nos partenaires</a></li>
               <li><a href="/contact" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">Contact</a></li>
               <li><a href="/mentions-legales" class="text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200">Mentions Légales</a></li>
             </ul>

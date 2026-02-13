@@ -201,7 +201,7 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
                             if (!date) return 'bg-transparent border-transparent';
                             if (isToday) return 'bg-rift-900 border-accent-spirit shadow-[0_0_15px_-3px_rgba(233,135,15,0.3)]';
                             if (events.length > 0) return 'bg-rift-900/60 border-rift-600/50 hover:border-rift-400';
-                            return 'bg-rift-900/40 border-rift-800/40 hover:border-rift-700';
+                            return 'bg-rift-900/40 border-rift-700/60 hover:border-rift-500';
                         };
 
                         return (
@@ -326,8 +326,10 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
                                 <button
                                     onClick={() => handleToggleFollow(selectedEvent.id)}
                                     disabled={isFollowLoading}
-                                    className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all mb-6
-                                        ${followedEventIds.has(selectedEvent.id) ? 'bg-domain-calm/20 text-domain-calm border border-domain-calm/30' : 'bg-accent-spirit/10 text-accent-spirit border border-accent-spirit/30'}
+                                    className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 mb-6 hover:scale-105
+                                        ${followedEventIds.has(selectedEvent.id)
+                                            ? 'bg-domain-calm/20 text-domain-calm border border-domain-calm/30'
+                                            : 'bg-accent-spirit/10 text-accent-spirit border border-accent-spirit/30'}
                                         ${isFollowLoading ? 'opacity-50 cursor-wait' : ''}
                                     `}
                                 >
