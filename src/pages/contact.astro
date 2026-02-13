@@ -2,13 +2,47 @@
 export const prerender = false;
 
 import MainLayout from '../layouts/MainLayout.astro';
+import { sendEmail } from '../lib/email';
 
 let successMsg = '';
 let errorMsg = '';
 
 if (Astro.request.method === 'POST') {
-  // Optionnel : Traitement du formulaire (ex: envoi d'email via API ou log Supabase)
-  successMsg = 'Merci ! Votre message a bien été envoyé.';
+  try {
+    const formData = await Astro.request.formData();
+    const name = formData.get('name') as string;
+    const email = formData.get('email') as string;
+    const subject = formData.get('subject') as string;
+    const message = formData.get('message') as string;
+
+    const { error } = await sendEmail({
+      to: 'contact@riftbound-media.fr',
+      subject: `[Contact Form] ${subject} - ${name}`,
+      html: `
+        <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
+          <h2 style="color: #E9870F;">Nouveau message de contact</h2>
+          <p><strong>Nom :</strong> ${name}</p>
+          <p><strong>Email :</strong> ${email}</p>
+          <p><strong>Sujet :</strong> ${subject}</p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p><strong>Message :</strong></p>
+          <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+            ${message.replace(/\n/g, '<br>')}
+          </div>
+        </div>
+      `,
+    });
+
+    if (error) {
+      console.error("Erreur d'envoi de formulaire:", error);
+      errorMsg = "Une erreur est survenue lors de l'envoi du message. Veuillez réessayer.";
+    } else {
+      successMsg = 'Merci ! Votre message a bien été envoyé.';
+    }
+  } catch (err) {
+    console.error("Exception lors de l'envoi du formulaire:", err);
+    errorMsg = "Une erreur inattendue est survenue.";
+  }
 }
 ---
 
@@ -46,8 +80,8 @@ if (Astro.request.method === 'POST') {
           <!-- Email Support -->
           <div class="relative pl-4 border-l-2 border-accent-spirit/30 hover:border-accent-spirit transition-colors duration-300">
             <h3 class="text-xs font-display font-bold text-accent-spirit uppercase tracking-widest mb-2">Email Support</h3>
-            <a href="mailto:support@riftbound-media.com" class="text-lg text-rift-100 hover:text-white transition-colors block font-medium">
-              support@riftbound-media.com
+            <a href="mailto:contact@riftbound-media.fr" class="text-lg text-rift-100 hover:text-white transition-colors block font-medium">
+              contact@riftbound-media.fr
             </a>
           </div>
 
@@ -86,6 +120,11 @@ if (Astro.request.method === 'POST') {
           </div>
         ) : (
           <form method="POST" class="space-y-6">
+            {errorMsg && (
+              <div class="p-4 rounded-xl bg-accent-spirit/10 border border-accent-spirit/25 text-accent-spirit text-sm animate-shake">
+                {errorMsg}
+              </div>
+            )}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="space-y-2">
                 <label for="name" class="block text-xs font-bold text-rift-400 uppercase tracking-widest pl-1">Nom *</label>
