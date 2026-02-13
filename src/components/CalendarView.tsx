@@ -154,28 +154,22 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2 bg-rift-800/50 p-1.5 rounded-xl border border-rift-700/50 backdrop-blur-sm self-start md:self-auto">
+                    <div className="flex items-center gap-1 bg-rift-800/50 p-1 rounded-xl border border-rift-700/50 backdrop-blur-sm self-start md:self-auto">
                         <button
                             onClick={prevMonth}
-                            className="p-2 rounded-lg hover:bg-rift-700 text-rift-300 transition-colors"
+                            className="p-2 rounded-lg hover:bg-rift-700 text-accent-spirit transition-colors"
                             aria-label="Mois précédent"
                         >
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                             </svg>
                         </button>
                         <button
-                            onClick={() => setCurrentDate(new Date())}
-                            className="px-4 py-2 text-xs font-bold uppercase tracking-wider text-rift-200 hover:text-accent-spirit transition-colors"
-                        >
-                            Aujourd'hui
-                        </button>
-                        <button
                             onClick={nextMonth}
-                            className="p-2 rounded-lg hover:bg-rift-700 text-rift-300 transition-colors"
+                            className="p-2 rounded-lg hover:bg-rift-700 text-accent-spirit transition-colors"
                             aria-label="Mois suivant"
                         >
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                             </svg>
                         </button>
