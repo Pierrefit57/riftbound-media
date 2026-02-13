@@ -12,6 +12,7 @@ const { data: events, error } = await supabase
   .order('start_date', { ascending: true });
 
 const calendarEvents = events || [];
+const user = Astro.locals.user;
 ---
 
 <MainLayout title="Calendrier">
@@ -47,7 +48,7 @@ const calendarEvents = events || [];
 
       <!-- Interactive Calendar Component -->
       <div class="animate-fade-in-up" style="animation-delay: 200ms;">
-        <CalendarView client:load initialEvents={calendarEvents} />
+        <CalendarView client:load initialEvents={calendarEvents} currentUser={user} />
       </div>
 
       <!-- Additional Info / CTA -->

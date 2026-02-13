@@ -20,11 +20,14 @@ interface CalendarEvent {
 
 interface Props {
     initialEvents: CalendarEvent[];
+    currentUser?: { id: string; email?: string };
 }
 
-const CalendarView: React.FC<Props> = ({ initialEvents }) => {
+const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+    const [followedEventIds, setFollowedEventIds] = useState<Set<string>>(new Set());
+    const [isFollowLoading, setIsFollowLoading] = useState(false);
 
     const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
     const firstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
@@ -108,6 +111,51 @@ const CalendarView: React.FC<Props> = ({ initialEvents }) => {
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, [selectedEvent]);
+
+    // Fetch follows on mount
+    React.useEffect(() => {
+        if (currentUser) {
+            fetch('/api/calendar/follow')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.followedIds) {
+                        setFollowedEventIds(new Set(data.followedIds));
+                    }
+                })
+                .catch(err => console.error('Error fetching follows:', err));
+        }
+    }, [currentUser]);
+
+    const handleToggleFollow = async (eventId: string) => {
+        if (!currentUser) {
+            window.location.href = '/login';
+            return;
+        }
+
+        setIsFollowLoading(true);
+        const isFollowing = followedEventIds.has(eventId);
+
+        try {
+            const res = await fetch('/api/calendar/follow', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ eventId, action: isFollowing ? 'unfollow' : 'follow' })
+            });
+
+            if (res.ok) {
+                setFollowedEventIds(prev => {
+                    const next = new Set(prev);
+                    if (isFollowing) next.delete(eventId);
+                    else next.add(eventId);
+                    return next;
+                });
+            }
+        } catch (err) {
+            console.error('Error toggling follow:', err);
+        } finally {
+            setIsFollowLoading(false);
+        }
+    };
 
     return (
         <div className="w-full">
@@ -303,6 +351,17 @@ const CalendarView: React.FC<Props> = ({ initialEvents }) => {
                         ></div>
 
                         <div className="relative w-full max-w-lg bg-rift-900 border border-rift-700 rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+                            {/* UX Fix: Close button moved to top-right of the whole modal */}
+                            <button
+                                onClick={() => setSelectedEvent(null)}
+                                className="absolute top-4 right-4 z-50 p-2 rounded-full text-white/70 hover:text-white bg-black/30 hover:bg-black/50 backdrop-blur-md transition-all border border-white/10"
+                                aria-label="Fermer"
+                            >
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+
                             <div className="p-0">
                                 {selectedEvent.image_url && (
                                     <div className="h-48 w-full relative">
@@ -315,76 +374,65 @@ const CalendarView: React.FC<Props> = ({ initialEvents }) => {
                                                 objectPosition: selectedEvent.image_position || '50% 50%'
                                             }}
                                         />
-                                        {selectedEvent.country && (
-                                            <div className="absolute top-4 right-4 z-30 pointer-events-none">
-                                                {(() => {
-                                                    const isWorld = selectedEvent.country?.toUpperCase() === 'WORLD';
-                                                    return isWorld ? (
-                                                        <div className="w-10 h-10 flex items-center justify-center bg-rift-950/80 rounded-full border border-rift-700 shadow-xl backdrop-blur-md overflow-hidden">
-                                                            <img
-                                                                src="/assets/icons/864e0e4584241547.svg"
-                                                                className="w-7 h-7 drop-shadow-lg"
-                                                                alt="World"
-                                                            />
-                                                        </div>
-                                                    ) : (
-                                                        <img
-                                                            src={`https://flagcdn.com/w80/${selectedEvent.country!.toLowerCase()}.png`}
-                                                            width="40"
-                                                            alt={selectedEvent.country}
-                                                            className="rounded-sm shadow-xl border border-white/20"
-                                                        />
-                                                    );
-                                                })()}
-                                            </div>
-                                        )}
                                         <div className="absolute bottom-0 left-0 w-full h-1 bg-accent-spirit/50 z-20"></div>
                                     </div>
                                 )}
                                 {!selectedEvent.image_url && (
-                                    <div className="relative">
-                                        <div className="h-2 w-full bg-rift-700/50"></div>
-                                        {selectedEvent.country && (
-                                            <div className="absolute top-4 right-4 z-30 pointer-events-none">
-                                                {(() => {
-                                                    const isWorld = selectedEvent.country?.toUpperCase() === 'WORLD';
-                                                    return isWorld ? (
-                                                        <div className="w-10 h-10 flex items-center justify-center bg-rift-950/80 rounded-full border border-rift-700 shadow-xl backdrop-blur-md overflow-hidden">
-                                                            <img
-                                                                src="/assets/icons/864e0e4584241547.svg"
-                                                                className="w-7 h-7 drop-shadow-lg"
-                                                                alt="World"
-                                                            />
-                                                        </div>
-                                                    ) : (
-                                                        <img
-                                                            src={`https://flagcdn.com/w80/${selectedEvent.country!.toLowerCase()}.png`}
-                                                            width="40"
-                                                            alt={selectedEvent.country}
-                                                            className="rounded-sm shadow-xl border border-white/20"
-                                                        />
-                                                    );
-                                                })()}
-                                            </div>
-                                        )}
-                                    </div>
+                                    <div className="h-4 bg-rift-800"></div>
                                 )}
 
-                                <div className="p-8">
-                                    <div className="flex justify-between items-start gap-4 mb-6">
-                                        <div>
-                                            <h3 className="text-2xl font-display font-bold text-rift-50 leading-tight">
-                                                {selectedEvent.title}
-                                            </h3>
+                                <div className="p-8 pt-6">
+                                    <div className="flex flex-col gap-4 mb-6">
+                                        <div className="flex items-start justify-between gap-4">
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <h3 className="text-2xl font-display font-bold text-rift-50 leading-tight">
+                                                        {selectedEvent.title}
+                                                    </h3>
+                                                    {selectedEvent.country && (
+                                                        <div className="flex-shrink-0">
+                                                            {(() => {
+                                                                const isWorld = selectedEvent.country?.toUpperCase() === 'WORLD';
+                                                                return isWorld ? (
+                                                                    <div className="w-7 h-7 flex items-center justify-center bg-rift-800 rounded-full border border-rift-700 overflow-hidden">
+                                                                        <img
+                                                                            src="/assets/icons/864e0e4584241547.svg"
+                                                                            className="w-4 h-4"
+                                                                            alt="World"
+                                                                        />
+                                                                    </div>
+                                                                ) : (
+                                                                    <img
+                                                                        src={`https://flagcdn.com/w40/${selectedEvent.country.toLowerCase()}.png`}
+                                                                        width="24"
+                                                                        alt={selectedEvent.country}
+                                                                        className="rounded-[2px] shadow-sm border border-white/10"
+                                                                    />
+                                                                );
+                                                            })()}
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Follow Button */}
+                                                <button
+                                                    onClick={() => handleToggleFollow(selectedEvent.id)}
+                                                    disabled={isFollowLoading}
+                                                    className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all
+                                                        ${followedEventIds.has(selectedEvent.id)
+                                                            ? 'bg-domain-calm/20 text-domain-calm border border-domain-calm/30 hover:bg-domain-calm/30'
+                                                            : 'bg-accent-spirit/10 text-accent-spirit border border-accent-spirit/30 hover:bg-accent-spirit/20'
+                                                        }
+                                                        ${isFollowLoading ? 'opacity-50 cursor-wait' : ''}
+                                                    `}
+                                                >
+                                                    <svg className="w-3.5 h-3.5" fill={followedEventIds.has(selectedEvent.id) ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+                                                    </svg>
+                                                    {followedEventIds.has(selectedEvent.id) ? 'Suivi' : 'Suivre'}
+                                                </button>
+                                            </div>
                                         </div>
-                                        <button
-                                            onClick={() => setSelectedEvent(null)}
-                                            className="p-2 rounded-xl text-rift-500 hover:text-rift-50 bg-rift-800/50 hover:bg-rift-700/50 transition-all"
-                                        >
-                                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
                                     </div>
 
                                     <div className="space-y-6">
