@@ -284,9 +284,14 @@ const ongoingEvent = activeEvents?.find(event => {
           ))}
           <hr class="border-rift-200 my-2" />
           {user ? (
-            <form action="/api/auth/logout" method="POST" class="px-4 py-2">
+            <>
+              <a href="/account" class="block px-4 py-2.5 rounded-lg text-sm font-medium text-rift-300 hover:text-accent-spirit hover:bg-rift-100 transition-all duration-200">
+                Mon Compte
+              </a>
+              <form action="/api/auth/logout" method="POST" class="px-4 py-2">
               <button type="submit" class="text-sm text-rift-500 hover:text-accent-spirit">Déconnexion</button>
             </form>
+            </>
           ) : (
             <a href="/login" class="block px-4 py-2.5 rounded-lg text-sm font-semibold text-accent-spirit">
               Connexion
