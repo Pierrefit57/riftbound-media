@@ -25,7 +25,8 @@ if (newsError && newsError.message.includes('published_at')) {
 }
 
 const featuredNews = allNews?.filter((n) => n.featured).slice(0, 2) || [];
-const regularNews = allNews?.filter((n) => !featuredNews.some(f => f.slug === n.slug)) || [];
+const regularNews = (allNews?.filter((n) => !featuredNews.some(f => f.slug === n.slug)) || [])
+  .sort((a, b) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime());
 ---
 
 <MainLayout title="Actualités">
@@ -128,7 +129,7 @@ const regularNews = allNews?.filter((n) => !featuredNews.some(f => f.slug === n.
     // Helper for tag styles (duplicated from NewsCard.astro for consistency)
     function getTagStyle(tag) {
       const t = tag.toLowerCase().trim();
-      if (t.includes('riot') || t.includes('officiel')) return 'bg-domain-order/15 text-domain-order border-domain-order/30';
+      if (t.includes('riot') || t.includes('officiel') || t.includes('store') || t.includes('boutique')) return 'bg-domain-order/15 text-domain-order border-domain-order/30';
       if (t.includes('tournoi') || t.includes('compétitif')) return 'bg-accent-spirit/15 text-accent-spirit border-accent-spirit/30';
       if (t.includes('mise à jour') || t.includes('patch')) return 'bg-domain-calm/15 text-domain-calm border-domain-calm/30';
       if (t.includes('lore')) return 'bg-domain-chaos/15 text-domain-chaos border-domain-chaos/30';
@@ -170,7 +171,10 @@ const regularNews = allNews?.filter((n) => !featuredNews.some(f => f.slug === n.
                 </div>
                 <div class="p-4 md:p-5 relative z-10 flex flex-col flex-1">
                   <div class="flex flex-wrap gap-1.5 mb-2 min-h-[24px]">
-                    ${(article.tags || []).map(tag => `<span class="inline-flex items-center justify-center px-2 py-0.5 text-[11px] font-medium rounded-full border leading-none ${getTagStyle(tag)}">${tag}</span>`).join('')}
+                    ${(article.tags || []).map(tag => {
+                      const displayTag = tag === 'Store Riot' ? 'Boutique Riot' : tag;
+                      return `<span class="inline-flex items-center justify-center px-2 py-0.5 text-[11px] font-medium rounded-full border leading-none ${getTagStyle(tag)}">${displayTag}</span>`;
+                    }).join('')}
                   </div>
                   <h3 class="text-base font-display font-bold text-rift-50 mb-1.5 group-hover:text-accent-spirit transition-colors duration-300 line-clamp-2 uppercase tracking-wide">
                     ${article.title}

@@ -343,15 +343,15 @@ try {
         const text = this.textarea.value;
         const selection = text.substring(start, end);
 
-        const checkToggle = (tag) => {
-          if (text.substring(start - tag.length, start) === tag && text.substring(end, end + tag.length) === tag) {
-             return { before: tag.length, after: tag.length };
+        const checkToggle = (tagStart, tagEnd = tagStart) => {
+          if (text.substring(start - tagStart.length, start) === tagStart && text.substring(end, end + tagEnd.length) === tagEnd) {
+             return { before: tagStart.length, after: tagEnd.length };
           }
           return null;
         };
 
-        const toggleWrap = (tag) => {
-          const info = checkToggle(tag);
+        const toggleWrap = (tagStart, tagEnd = tagStart) => {
+          const info = checkToggle(tagStart, tagEnd);
           if (info) {
              const sStart = start - info.before;
              const sEnd = end + info.after;
@@ -385,7 +385,7 @@ try {
             if (!content) content = 'barré';
             break;
           case 'underline':
-            if (toggleWrap('<u>')) return;
+            if (toggleWrap('<u>', '</u>')) return;
             prefix = '<u>'; suffix = '</u>';
             if (!content) content = 'souligné';
             break;

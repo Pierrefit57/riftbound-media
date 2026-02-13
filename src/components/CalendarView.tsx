@@ -22,7 +22,13 @@ interface Props {
 }
 
 const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
-    const [currentDate, setCurrentDate] = useState(new Date());
+    const getParisDate = () => {
+        const d = new Date();
+        const parisString = d.toLocaleString('en-US', { timeZone: 'Europe/Paris' });
+        return new Date(parisString);
+    };
+
+    const [currentDate, setCurrentDate] = useState(getParisDate());
     const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
     const [followedEventIds, setFollowedEventIds] = useState<Set<string>>(new Set());
     const [isFollowLoading, setIsFollowLoading] = useState(false);
@@ -194,7 +200,7 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
 
                 <div className="grid grid-cols-7 gap-3">
                     {calendarDays.map((date, i) => {
-                        const isToday = date && date.toDateString() === new Date().toDateString();
+                        const isToday = date && date.toDateString() === getParisDate().toDateString();
                         const events = date ? getEventsForDay(date) : [];
                         const showBigCard = events.length === 1 && !!events[0].image_url;
                         const bigEvent = showBigCard ? events[0] : null;

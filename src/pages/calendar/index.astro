@@ -47,7 +47,7 @@ const user = Astro.locals.user;
       )}
 
       <!-- Interactive Calendar Component -->
-      <CalendarView client:load initialEvents={calendarEvents} currentUser={user} />
+      <CalendarView client:only="react" initialEvents={calendarEvents} currentUser={user} />
 
       <!-- Additional Info / CTA -->
       <div class="mt-20 grid grid-cols-1 md:grid-cols-2 gap-8">

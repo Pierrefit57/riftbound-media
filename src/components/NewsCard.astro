@@ -24,7 +24,7 @@ const hasImage = image && image.length > 0 && !image.includes('cloudflare');
 function getTagStyle(tag: string): string {
   const t = tag.toLowerCase().trim();
   
-  if (t.includes('riot') || t.includes('officiel') || t.includes('store')) return 'bg-domain-order/15 text-domain-order border-domain-order/30';
+  if (t.includes('riot') || t.includes('officiel') || t.includes('store') || t.includes('boutique')) return 'bg-domain-order/15 text-domain-order border-domain-order/30';
   if (t.includes('tournoi') || t.includes('compétitif')) return 'bg-accent-spirit/15 text-accent-spirit border-accent-spirit/30';
   if (t.includes('mise à jour') || t.includes('actualité') || t.includes('news')) return 'bg-domain-calm/15 text-domain-calm border-domain-calm/30';
   if (t.includes('équilibrage') || t.includes('patch')) return 'bg-accent-forge/15 text-accent-forge border-accent-forge/30';
@@ -61,11 +61,14 @@ function getTagStyle(tag: string): string {
     </div>
     <div class="p-5 md:p-6 relative z-10 flex flex-col flex-1">
       <div class="flex flex-wrap gap-2 mb-3 min-h-[28px]">
-        {tags.map((tag) => (
+        {tags.map((tag) => {
+          const displayTag = tag === 'Store Riot' ? 'Boutique Riot' : tag;
+          return (
           <span class={`inline-flex items-center justify-center px-2.5 py-0.5 text-xs font-medium rounded-full border leading-none ${getTagStyle(tag)}`}>
-            {tag}
+            {displayTag}
           </span>
-        ))}
+          );
+        })}
       </div>
       <h3 class="text-xl md:text-2xl font-display font-bold text-rift-50 mb-2 group-hover:text-accent-spirit transition-colors duration-300 line-clamp-2 uppercase tracking-wide">
         {title}
@@ -102,11 +105,16 @@ function getTagStyle(tag: string): string {
     </div>
     <div class="p-4 md:p-5 relative z-10 flex flex-col flex-1">
       <div class="flex flex-wrap gap-1.5 mb-2 min-h-[24px]">
-        {tags.map((tag) => (
+      <div class="flex flex-wrap gap-1.5 mb-2 min-h-[24px]">
+        {tags.map((tag) => {
+          const displayTag = tag === 'Store Riot' ? 'Boutique Riot' : tag;
+          return (
           <span class={`inline-flex items-center justify-center px-2 py-0.5 text-[11px] font-medium rounded-full border leading-none ${getTagStyle(tag)}`}>
-            {tag}
+            {displayTag}
           </span>
-        ))}
+          );
+        })}
+      </div>
       </div>
       <h3 class="text-base font-display font-bold text-rift-50 mb-1.5 group-hover:text-accent-spirit transition-colors duration-300 line-clamp-2 uppercase tracking-wide">
         {title}
