@@ -291,13 +291,13 @@ const ongoingEvent = activeEvents?.find(event => {
     </header>
 
     <!-- Main -->
-    <main class="flex-1 relative z-10">
+    <main class="flex-1 relative">
       {ongoingEvent && (
         <div 
           id="event-notification" 
           data-event-id={ongoingEvent.id}
           style="display: none;"
-          class="fixed top-24 right-4 z-[60] w-72 event-toast pointer-events-none transition-opacity duration-300"
+          class="fixed top-24 right-4 z-[70] w-72 event-toast pointer-events-none transition-opacity duration-300"
         >
           <div class="group relative">
             <a 
@@ -425,6 +425,21 @@ const ongoingEvent = activeEvents?.find(event => {
           // Show it if not dismissed
           notification.style.display = 'block';
           notification.classList.remove('pointer-events-none');
+
+          // Dismiss on any click outside or on navigation
+          const dismissToast = (e: MouseEvent | TouchEvent) => {
+            const toast = document.getElementById('event-notification');
+            if (toast && !toast.contains(e.target as Node)) {
+              localStorage.setItem(`dismissed-event-${eventId}`, 'true');
+              toast.remove();
+              document.removeEventListener('click', dismissToast);
+            }
+          };
+
+          // Wait a bit to avoid catching the click that might have just loaded the page
+          setTimeout(() => {
+            document.addEventListener('click', dismissToast);
+          }, 500);
         }
       }
     </script>
