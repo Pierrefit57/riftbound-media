@@ -62,10 +62,20 @@ export default function DateTimePicker({
     // Sync input hidden value
     const hiddenDateValue = selectedDate ? selectedDate.toISOString() : '';
 
+    const notifyChange = (newDate: Date | undefined) => {
+        if (id) {
+            const event = new CustomEvent(`date-change-${id}`, {
+                detail: { date: newDate ? newDate.toISOString() : null }
+            });
+            window.dispatchEvent(event);
+        }
+        if (onChange) onChange(newDate);
+    };
+
     const handleDaySelect = (date: Date | undefined) => {
         if (!date) {
             setSelectedDate(undefined);
-            if (onChange) onChange(undefined);
+            notifyChange(undefined);
             return;
         }
 
@@ -76,7 +86,7 @@ export default function DateTimePicker({
         newDate.setMinutes(minutes || 0);
 
         setSelectedDate(newDate);
-        if (onChange) onChange(newDate);
+        notifyChange(newDate);
         // Do not close immediately, allow time change? Or close? User usually expects date pick to close.
         // But we have time. So maybe keep open or close only if clicked outside?
         // Let's keep open to allow time adjustment.
@@ -92,7 +102,7 @@ export default function DateTimePicker({
             newDate.setHours(hours || 0);
             newDate.setMinutes(minutes || 0);
             setSelectedDate(newDate);
-            if (onChange) onChange(newDate);
+            notifyChange(newDate);
         }
     };
 

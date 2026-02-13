@@ -274,5 +274,14 @@ if (Astro.request.method === 'POST') {
         // but for a fresh "New" page, let's be safe
       }
     });
+
+    // Auto-sync End Date with Start Date
+    window.addEventListener('date-change-start_date', (e: any) => {
+        const newDate = e.detail?.date;
+        if (newDate) {
+           // Dispatch update to end_date component
+           window.dispatchEvent(new CustomEvent('update-date-end_date', { detail: { date: newDate } }));
+        }
+    });
   </script>
 </AdminLayout>
