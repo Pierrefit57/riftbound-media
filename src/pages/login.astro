@@ -59,14 +59,16 @@ if (Astro.request.method === 'POST') {
 ---
 
 <MainLayout title="Connexion">
-  <div class="max-w-md mx-auto px-4 pt-16 pb-20">
+  <div class="max-w-md mx-auto px-4 pt-16 pb-20 relative z-10">
+    <!-- Spiritforged Shading Background -->
+    <div class="absolute inset-x-0 -top-20 h-[500px] bg-spirit-radial pointer-events-none -z-10"></div>
 
     <!-- Header -->
     <div class="text-center mb-8">
       <div class="flex items-center justify-center gap-3 mb-4">
-        <div class="h-px w-8 bg-gradient-to-r from-transparent to-accent-forge/50"></div>
-        <span class="text-accent-forge text-xs font-display tracking-[0.2em] uppercase">Accès</span>
-        <div class="h-px w-8 bg-gradient-to-l from-transparent to-accent-forge/50"></div>
+        <div class="h-px w-8 bg-gradient-to-r from-transparent to-accent-sakura/50"></div>
+        <span class="text-accent-sakura text-xs font-display tracking-[0.2em] uppercase">Accès</span>
+        <div class="h-px w-8 bg-gradient-to-l from-transparent to-accent-sakura/50"></div>
       </div>
       <h1 class="text-3xl font-display font-bold text-rift-100 mb-2">Connexion</h1>
       <p class="text-rift-400 text-sm">Connectez-vous à votre compte Riftbound Media</p>
