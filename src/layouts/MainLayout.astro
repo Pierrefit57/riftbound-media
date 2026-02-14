@@ -186,7 +186,7 @@ const ongoingEvent = activeEvents?.find(event => {
       }
     </style>
   </head>
-  <body class="bg-rift-900 text-rift-100 font-sans min-h-screen flex flex-col relative" data-auth-session={user ? 'true' : 'false'}>
+  <body class="bg-rift-900 text-rift-100 font-sans min-h-screen flex flex-col relative">
 
     <!-- Global Background Shading -->
     <div class="absolute inset-x-0 top-0 h-[800px] bg-spirit-radial pointer-events-none z-0"></div>
@@ -437,55 +437,13 @@ const ongoingEvent = activeEvents?.find(event => {
       const menu = document.getElementById('mobile-menu');
       btn?.addEventListener('click', () => menu?.classList.toggle('hidden'));
 
-      // Global Auth Listener
-      supabase.auth.onAuthStateChange(async (event, session) => {
+      // Global Auth Listener (ex: Password Recovery redirect)
+      supabase.auth.onAuthStateChange((event) => {
         if (event === 'PASSWORD_RECOVERY') {
+          console.log('Password recovery event detected, redirecting...');
           if (window.location.pathname !== '/reset-password') {
             window.location.href = '/reset-password';
           }
-          return;
-        }
-
-        const hasServerSession = document.body.getAttribute('data-auth-session') === 'true';
-        
-        // SYNC UNIQUEMENT SI : 
-        // 1. On vient d'avoir un SIGNED_IN (ex: retour d'OAuth)
-        // 2. Le serveur ne connaît pas encore la session
-        // 3. L'URL contient des traces d'authentification (jetons) pour éviter le "ghost login" de LocalStorage
-        const hasAuthTokens = window.location.hash.includes('access_token=') || window.location.search.includes('code=');
-
-        if (event === 'SIGNED_IN' && session && !hasServerSession && hasAuthTokens) {
-          console.log('[auth] Nouveau login détecté. Synchronisation...');
-          try {
-            const res = await fetch('/api/auth/sync', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                access_token: session.access_token,
-                refresh_token: session.refresh_token
-              })
-            });
-
-            if (res.ok) {
-              // Nettoyer l'URL pour éviter les boucles
-              const url = new URL(window.location.href);
-              url.hash = '';
-              url.searchParams.delete('code');
-              url.searchParams.delete('auth_token');
-              window.history.replaceState({}, '', url);
-              
-              window.location.reload();
-            }
-          } catch (e) {
-            console.error('[auth] Erreur sync:', e);
-          }
-        }
-
-        // Si on se déconnecte côté client, on s'assure que le serveur suit
-        if (event === 'SIGNED_OUT' && hasServerSession) {
-          console.log('[auth] Déconnexion client détectée. Nettoyage serveur...');
-          await fetch('/api/auth/logout', { method: 'POST' });
-          window.location.reload();
         }
       });
 
