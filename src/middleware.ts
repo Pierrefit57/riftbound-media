@@ -84,17 +84,18 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
     // Rafraîchir les cookies si les tokens ont changé
     if (data.session.access_token !== accessToken) {
+        const isProd = import.meta.env.PROD;
         context.cookies.set('sb-access-token', data.session.access_token, {
             path: '/',
             httpOnly: true,
-            secure: true,
+            secure: isProd,
             sameSite: 'lax',
             maxAge: 60 * 60 * 24 * 7, // 7 jours
         });
         context.cookies.set('sb-refresh-token', data.session.refresh_token, {
             path: '/',
             httpOnly: true,
-            secure: true,
+            secure: isProd,
             sameSite: 'lax',
             maxAge: 60 * 60 * 24 * 7,
         });
