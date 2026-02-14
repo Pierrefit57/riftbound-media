@@ -1,10 +1,10 @@
 import type { APIRoute } from 'astro';
-import { createAuthClient } from '../../../lib/supabase';
+import { createAstroServerClient } from '../../../lib/supabase';
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ request, cookies, redirect }) => {
-    // Exact extraction via new URL as requested
+export const GET: APIRoute = async (context) => {
+    const { request, cookies, redirect } = context;
     const url = new URL(request.url);
     const code = url.searchParams.get('code');
 
@@ -13,17 +13,18 @@ export const GET: APIRoute = async ({ request, cookies, redirect }) => {
         return redirect('/login?error=no_code');
     }
 
-    const authClient = createAuthClient();
-    const { data, error } = await authClient.auth.exchangeCodeForSession(code);
+    // On utilise le client SSR qui gère automatiquement les cookies (et le PKCE verifier)
+    const supabase = createAstroServerClient(context);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error || !data.session) {
-        // Log complet demandé
         console.error('Session établie: NON');
         if (error) {
-            console.error('[auth] Supabase Error:', {
+            console.error('[auth] Supabase Error Detail:', {
                 message: error.message,
                 status: error.status,
-                name: error.name
+                hint: error.hint,
+                details: error.details
             });
         }
         return redirect('/login?error=callback_failed');
@@ -32,6 +33,7 @@ export const GET: APIRoute = async ({ request, cookies, redirect }) => {
     // Session OK
     console.log('Session établie: OUI');
 
+    // On pose manuellement les cookies persistants sur le domaine global pour le partage entre www et apex
     const isProd = import.meta.env.PROD;
     const domain = isProd ? '.riftbound-media.fr' : undefined;
 

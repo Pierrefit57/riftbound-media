@@ -134,19 +134,38 @@ if (Astro.request.method === 'POST') {
   </div>
 
   <script>
+    import { createBrowserClient } from '@supabase/ssr';
+    
+    const supabase = createBrowserClient(
+      import.meta.env.PUBLIC_SUPABASE_URL,
+      import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+    );
+
     const discordBtn = document.getElementById('discord-register-btn');
     discordBtn?.addEventListener('click', async (e) => {
       e.preventDefault();
-      const { createClient } = await import('@supabase/supabase-js');
-      const supabase = createClient(
-        import.meta.env.PUBLIC_SUPABASE_URL,
-        import.meta.env.PUBLIC_SUPABASE_ANON_KEY
-      );
-      const { data } = await supabase.auth.signInWithOAuth({
+      
+      const isDev = import.meta.env.DEV;
+      const redirectTo = isDev 
+        ? `${window.location.origin}/api/auth/callback`
+        : 'https://www.riftbound-media.fr/api/auth/callback';
+
+      console.log('[auth] Initiation Discord Inscription (@supabase/ssr) vers:', redirectTo);
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'discord',
-        options: { redirectTo: `${window.location.origin}/api/auth/callback` },
+        options: { 
+          redirectTo,
+          skipBrowserRedirect: false,
+          // @ts-ignore
+          flowType: 'pkce'
+        },
       });
-      if (data?.url) window.location.href = data.url;
+
+      if (error) {
+        console.error('[auth] Erreur initiation PKCE:', error.message);
+        alert('Erreur : ' + error.message);
+      }
     });
   </script>
 </MainLayout>

@@ -1,10 +1,27 @@
 import { createClient } from '@supabase/supabase-js';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
 // Client public — utilisé côté client et pour les requêtes publiques
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+export function createAstroServerClient(context: { cookies: any }) {
+    return createServerClient(supabaseUrl, supabaseAnonKey, {
+        cookies: {
+            get(name: string) {
+                return context.cookies.get(name)?.value;
+            },
+            set(name: string, value: string, options: CookieOptions) {
+                context.cookies.set(name, value, options);
+            },
+            remove(name: string, options: CookieOptions) {
+                context.cookies.delete(name, options);
+            },
+        },
+    });
+}
 
 // Client serveur avec service role — utilisé uniquement côté serveur (admin, middleware)
 export function createServiceClient() {
@@ -14,7 +31,7 @@ export function createServiceClient() {
     });
 }
 
-// Créer un client frais pour vérifier une session (évite les conflits de state)
+// Client d'authentification SSR (Pattern recommandé)
 export function createAuthClient() {
     return createClient(supabaseUrl, supabaseAnonKey, {
         auth: { autoRefreshToken: false, persistSession: false },

@@ -146,9 +146,9 @@ if (Astro.request.method === 'POST') {
   </div>
 
   <script>
-    import { createClient } from '@supabase/supabase-js';
+    import { createBrowserClient } from '@supabase/ssr';
     
-    const supabase = createClient(
+    const supabase = createBrowserClient(
       import.meta.env.PUBLIC_SUPABASE_URL,
       import.meta.env.PUBLIC_SUPABASE_ANON_KEY
     );
@@ -162,17 +162,22 @@ if (Astro.request.method === 'POST') {
         ? `${window.location.origin}/api/auth/callback`
         : 'https://www.riftbound-media.fr/api/auth/callback';
 
-      console.log('[auth] Initiation Discord client-side vers:', redirectTo);
+      console.log('[auth] Initiation Discord via createBrowserClient (@supabase/ssr) vers:', redirectTo);
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'discord',
         options: { 
           redirectTo,
-          skipBrowserRedirect: false
+          skipBrowserRedirect: false,
+          // @ts-ignore - flowType peut ne pas être dans les types mais est supporté
+          flowType: 'pkce'
         },
       });
 
-      if (error) console.error('[auth] Erreur initiation:', error.message);
+      if (error) {
+        console.error('[auth] Erreur initiation PKCE:', error.message);
+        alert('Erreur de connexion : ' + error.message);
+      }
     });
   </script>
 </MainLayout>
