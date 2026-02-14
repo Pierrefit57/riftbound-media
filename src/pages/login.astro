@@ -141,5 +141,27 @@ if (Astro.request.method === 'POST') {
         <a href="/register" class="text-accent-spirit hover:text-accent-forge transition-colors duration-200 font-medium ml-1">Créer un compte</a>
       </p>
     </div>
-  </div>
+  <script>
+    import { createClient } from '@supabase/supabase-js';
+    
+    const supabase = createClient(
+      import.meta.env.PUBLIC_SUPABASE_URL,
+      import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+    );
+
+    const discordBtn = document.getElementById('discord-login-btn');
+    discordBtn?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      console.log('[auth] Initiation Discord client-side...');
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'discord',
+        options: { 
+          // On redirige vers une PAGE technique qui fera le lien
+          redirectTo: `${window.location.origin}/auth/callback` 
+        },
+      });
+      if (data?.url) window.location.href = data.url;
+      if (error) console.error('[auth] Erreur initiation:', error.message);
+    });
+  </script>
 </MainLayout>
