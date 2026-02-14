@@ -44,7 +44,10 @@ const allRules = await getCollection('rules');
 const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
 ---
 
-<MainLayout title="Accueil">
+<MainLayout 
+  title="Accueil"
+  description="Découvrez Riftbound Media, votre portail francophone dédié à l'univers Riftbound. Actualités, tournois exclusifs, guides détaillés et calendrier communautaire pour tous les passionnés."
+>
 
   <!-- Hero -->
   <section class="relative overflow-hidden">

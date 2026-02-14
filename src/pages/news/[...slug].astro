@@ -61,6 +61,26 @@ const formattedDate = new Date(article.published_at || article.created_at).toLoc
 
 const authorName = article.profiles?.username || 'Équipe Riftbound';
 
+// SEO Preparation
+const seoDescription = article.summary || rawContent.slice(0, 160).replace(/[#*`]/g, '').trim() + '...';
+const pageUrl = new URL(Astro.url.pathname, Astro.site);
+const publishDate = article.published_at || article.created_at;
+
+// JSON-LD Structured Data
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": article.title,
+  "image": [article.image_url].filter(Boolean),
+  "datePublished": publishDate,
+  "dateModified": article.updated_at || publishDate,
+  "author": [{
+    "@type": "Person",
+    "name": authorName,
+    "url": new URL('/about', Astro.site) // Or specific author page if exists
+  }]
+};
+
 function getTagStyle(tag: string): string {
   const t = tag.toLowerCase().trim();
   
@@ -77,7 +97,16 @@ function getTagStyle(tag: string): string {
 }
 ---
 
-<MainLayout title={article.title} petalMode="sides">
+<MainLayout 
+  title={article.title} 
+  description={seoDescription}
+  image={article.image_url}
+  type="article"
+  petalMode="sides"
+>
+  <!-- JSON-LD -->
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
 
   <article class="max-w-4xl mx-auto px-4 sm:px-6 pt-10 pb-16">
 
