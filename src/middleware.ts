@@ -43,73 +43,62 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const accessToken = context.cookies.get('sb-access-token')?.value;
     const refreshToken = context.cookies.get('sb-refresh-token')?.value;
 
-    // Pas de tokens → pas de session
-    if (!accessToken || !refreshToken) {
+    if (accessToken && refreshToken) {
+        // Vérifier/restaurer la session avec un client frais
+        const authClient = createAuthClient();
+        console.log('[auth] Tentative de restauration de session via cookies...');
+        const { data, error } = await authClient.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+        });
+
+        if (error || !data.session) {
+            console.log('[auth] Echec restauration session:', error?.message);
+            context.cookies.delete('sb-access-token', { path: '/' });
+            context.cookies.delete('sb-refresh-token', { path: '/' });
+            context.locals.user = null;
+            context.locals.profile = null;
+        } else {
+            // Session valide → attacher user + profil
+            context.locals.user = data.session.user;
+
+            // Rafraîchir les cookies si les tokens ont changé
+            if (data.session.access_token !== accessToken) {
+                const isProd = import.meta.env.PROD;
+                context.cookies.set('sb-access-token', data.session.access_token, {
+                    path: '/',
+                    httpOnly: true,
+                    secure: isProd,
+                    sameSite: 'lax',
+                    maxAge: 60 * 60 * 24 * 7,
+                });
+                context.cookies.set('sb-refresh-token', data.session.refresh_token, {
+                    path: '/',
+                    httpOnly: true,
+                    secure: isProd,
+                    sameSite: 'lax',
+                    maxAge: 60 * 60 * 24 * 7,
+                });
+            }
+
+            // Charger le profil (rôle) via le service client
+            const profile = await getUserProfile(data.session.user.id);
+            context.locals.profile = profile;
+            console.log('[auth] Session OK - User:', data.session.user.email, '| Rôle:', profile?.role);
+        }
+    } else {
         context.locals.user = null;
         context.locals.profile = null;
-
-        // Protéger les routes admin
-        if (context.url.pathname.startsWith('/admin')) {
-            console.log('[auth] Pas de tokens, redirect /login');
-            return context.redirect('/login');
-        }
-
-        return next();
     }
 
-    // Vérifier/restaurer la session avec un client frais
-    const authClient = createAuthClient();
-    const { data, error } = await authClient.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken,
-    });
-
-    if (error || !data.session) {
-        // Session invalide → nettoyer les cookies
-        console.log('[auth] Session invalide:', error?.message);
-        context.cookies.delete('sb-access-token', { path: '/' });
-        context.cookies.delete('sb-refresh-token', { path: '/' });
-        context.locals.user = null;
-        context.locals.profile = null;
-
-        if (context.url.pathname.startsWith('/admin')) {
-            return context.redirect('/login');
-        }
-
-        return next();
-    }
-
-    // Session valide → attacher user + profil
-    context.locals.user = data.session.user;
-
-    // Rafraîchir les cookies si les tokens ont changé
-    if (data.session.access_token !== accessToken) {
-        const isProd = import.meta.env.PROD;
-        context.cookies.set('sb-access-token', data.session.access_token, {
-            path: '/',
-            httpOnly: true,
-            secure: isProd,
-            sameSite: 'lax',
-            maxAge: 60 * 60 * 24 * 7, // 7 jours
-        });
-        context.cookies.set('sb-refresh-token', data.session.refresh_token, {
-            path: '/',
-            httpOnly: true,
-            secure: isProd,
-            sameSite: 'lax',
-            maxAge: 60 * 60 * 24 * 7,
-        });
-    }
-
-    // Charger le profil (rôle) via le service client
-    const profile = await getUserProfile(data.session.user.id);
-    context.locals.profile = profile;
-    console.log('[auth] User:', data.session.user.email, '| Rôle:', profile?.role);
-
-    // Protéger les routes admin — seuls admin et editor
+    // Protéger les routes admin
     if (context.url.pathname.startsWith('/admin')) {
-        if (!profile || !['admin', 'editor'].includes(profile.role)) {
-            console.log('[auth] Accès admin refusé, rôle:', profile?.role);
+        if (!context.locals.user) {
+            console.log('[auth] Accès admin refusé: pas de session');
+            return context.redirect('/login');
+        }
+        if (!context.locals.profile || !['admin', 'editor'].includes(context.locals.profile.role)) {
+            console.log('[auth] Accès admin refusé: rôle insuffisant');
             return context.redirect('/');
         }
     }

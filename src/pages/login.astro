@@ -10,6 +10,11 @@ if (Astro.locals.user) {
 }
 
 let errorMsg = '';
+const errorParam = Astro.url.searchParams.get('error');
+
+if (errorParam === 'auth_init_failed') errorMsg = "L'initiation de la connexion a échoué.";
+if (errorParam === 'callback_failed') errorMsg = "Le retour d'authentification a échoué.";
+if (errorParam === 'no_code') errorMsg = "Aucun code d'authentification n'a été reçu.";
 
 // Traiter le formulaire de login email/password
 if (Astro.request.method === 'POST') {
@@ -25,22 +30,22 @@ if (Astro.request.method === 'POST') {
   if (error) {
     errorMsg = 'Email ou mot de passe incorrect.';
   } else if (data.session) {
+    const isProd = import.meta.env.PROD;
     Astro.cookies.set('sb-access-token', data.session.access_token, {
       path: '/',
       httpOnly: true,
-      secure: import.meta.env.PROD,
+      secure: isProd,
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,
     });
     Astro.cookies.set('sb-refresh-token', data.session.refresh_token, {
       path: '/',
       httpOnly: true,
-      secure: import.meta.env.PROD,
+      secure: isProd,
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,
     });
 
-    
     // Track Login
     const { trackEvent } = await import('../lib/analytics');
     await trackEvent('login', {

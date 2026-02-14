@@ -7,16 +7,20 @@ export const GET: APIRoute = async ({ url, cookies, redirect }) => {
     const code = url.searchParams.get('code');
 
     if (!code) {
+        console.error('[auth] Callback: No code found in URL');
         return redirect('/login?error=no_code');
     }
 
+    console.log('[auth] Callback: Exchange code for session...');
     const authClient = createAuthClient();
     const { data, error } = await authClient.auth.exchangeCodeForSession(code);
 
     if (error || !data.session) {
-        console.error('Callback error:', error?.message);
+        console.error('[auth] Callback: Exchange failed:', error?.message);
         return redirect('/login?error=callback_failed');
     }
+
+    console.log('[auth] Callback: Session obtained for', data.session.user.email);
 
     const isProd = import.meta.env.PROD;
 
@@ -37,16 +41,6 @@ export const GET: APIRoute = async ({ url, cookies, redirect }) => {
         maxAge: 60 * 60 * 24 * 7,
     });
 
-    // Track Login (Optional, can be silent)
-    try {
-        const { trackEvent } = await import('../../../lib/analytics');
-        await trackEvent('login', {
-            user_id: data.session.user.id,
-            path: '/api/auth/callback'
-        });
-    } catch (e) {
-        console.error('Tracking error:', e);
-    }
-
+    console.log('[auth] Callback: Cookies set, redirecting to home.');
     return redirect('/');
 };
