@@ -59,88 +59,89 @@ if (Astro.request.method === 'POST') {
 ---
 
 <MainLayout title="Connexion">
-  <div class="max-w-md mx-auto px-4 pt-16 pb-20 relative z-10">
-    <!-- Spiritforged Shading Background -->
-    <div class="absolute inset-x-0 -top-20 h-[500px] bg-spirit-radial pointer-events-none -z-10"></div>
+  <div class="relative min-h-screen">
+    <!-- Spiritforged Shading Background - Exactly like index.astro -->
+    <div class="absolute inset-x-0 top-0 h-[800px] bg-spirit-radial pointer-events-none z-0"></div>
 
-    <!-- Header -->
-    <div class="text-center mb-8">
-      <div class="flex items-center justify-center gap-3 mb-4">
-        <div class="h-px w-8 bg-gradient-to-r from-transparent to-accent-sakura/50"></div>
-        <span class="text-accent-sakura text-xs font-display tracking-[0.2em] uppercase">Accès</span>
-        <div class="h-px w-8 bg-gradient-to-l from-transparent to-accent-sakura/50"></div>
-      </div>
-      <h1 class="text-3xl font-display font-bold text-rift-100 mb-2">Connexion</h1>
-      <p class="text-rift-400 text-sm">Connectez-vous à votre compte Riftbound Media</p>
-    </div>
-
-    <!-- Card -->
-    <div class="bg-rift-800/80 rounded-2xl border border-rift-700/50 p-6 space-y-6 shadow-card">
-
-      <a
-        id="discord-login-btn"
-        href="#"
-        class="flex items-center justify-center gap-3 w-full px-4 py-3 rounded-xl bg-[#5865F2] text-white font-semibold hover:bg-[#4752C4] transition-all duration-300 shadow-lg shadow-[#5865F2]/15 hover:-translate-y-0.5"
-      >
-        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-3.6751 1.5152.07.07 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.057 19.9 19.9 0 005.9936 3.03.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.3101-1.274-.6629-1.8703-.9132a.077.077 0 01-.009-.1363c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1376 12.2949 12.2949 0 01-1.873.9142.076.076 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286 19.839 19.839 0 006.0028-3.03.077.077 0 00.0321-.0544c.5-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9554 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
-        Continuer avec Discord
-      </a>
-
-      <!-- Séparateur -->
-      <div class="flex items-center gap-3">
-        <div class="flex-1 h-px bg-rift-700"></div>
-        <span class="text-xs text-rift-400 font-display tracking-wider uppercase">ou</span>
-        <div class="flex-1 h-px bg-rift-700"></div>
+    <div class="max-w-md mx-auto px-4 pt-32 pb-20 relative z-10">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <div class="flex items-center justify-center gap-3 mb-4">
+          <div class="h-px w-8 bg-gradient-to-r from-transparent to-accent-sakura/50"></div>
+          <span class="text-accent-sakura text-xs font-display tracking-[0.2em] uppercase">Accès</span>
+          <div class="h-px w-8 bg-gradient-to-l from-transparent to-accent-sakura/50"></div>
+        </div>
+        <h1 class="text-3xl font-display font-bold text-rift-100 mb-2">Connexion</h1>
+        <p class="text-rift-400 text-sm">Connectez-vous à votre compte Riftbound Media</p>
       </div>
 
-      <!-- Formulaire email/password -->
-      <form method="POST" class="space-y-4">
-        {errorMsg && (
-          <div class="p-3 rounded-xl bg-accent-spirit/10 border border-accent-spirit/25 text-accent-spirit text-sm">
-            {errorMsg}
-          </div>
-        )}
-
-        <div>
-          <label for="email" class="block text-sm font-medium text-rift-200 mb-1.5">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            required
-            class="w-full px-4 py-2.5 rounded-xl bg-rift-900/50 border border-rift-700 text-rift-100 placeholder-rift-500 focus:outline-none focus:border-accent-spirit/50 focus:ring-2 focus:ring-accent-spirit/15 transition-all duration-300"
-            placeholder="vous@exemple.com"
-          />
-        </div>
-
-        <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <label for="password" class="block text-sm font-medium text-rift-200">Mot de passe</label>
-            <a href="/forgot-password" class="text-xs text-accent-spirit hover:text-accent-forge transition-colors">Mot de passe oublié ?</a>
-          </div>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            required
-            minlength="6"
-            class="w-full px-4 py-2.5 rounded-xl bg-rift-900/50 border border-rift-700 text-rift-100 placeholder-rift-500 focus:outline-none focus:border-accent-spirit/50 focus:ring-2 focus:ring-accent-spirit/15 transition-all duration-300"
-            placeholder="••••••••"
-          />
-        </div>
-
-        <button
-          type="submit"
-          class="w-full px-4 py-3 rounded-xl bg-accent-spirit text-white font-semibold hover:bg-accent-spirit/90 shadow-spirit transition-all duration-300 hover:-translate-y-0.5"
+      <!-- Card -->
+      <div class="bg-rift-800/80 rounded-2xl border border-rift-700/50 p-6 space-y-6 shadow-card">
+        <a
+          id="discord-login-btn"
+          href="#"
+          class="flex items-center justify-center gap-3 w-full px-4 py-3 rounded-xl bg-[#5865F2] text-white font-semibold hover:bg-[#4752C4] transition-all duration-300 shadow-lg shadow-[#5865F2]/15 hover:-translate-y-0.5"
         >
-          Se connecter
-        </button>
-      </form>
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-3.6751 1.5152.07.07 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.057 19.9 19.9 0 005.9936 3.03.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076(0c-.6528-.3101-1.274-.6629-1.8703-.9132a.077.077 0 01-.009-.1363c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1376 12.2949 12.2949 0 01-1.873.9142.076.076 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286 19.839 19.839 0 006.0028-3.03.077.077 0 00.0321-.0544c.5-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9554 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
+          Continuer avec Discord
+        </a>
 
-      <p class="text-center text-sm text-rift-400">
-        Pas encore de compte ?
-        <a href="/register" class="text-accent-spirit hover:text-accent-forge transition-colors duration-200 font-medium ml-1">Créer un compte</a>
-      </p>
+        <!-- Séparateur -->
+        <div class="flex items-center gap-3">
+          <div class="flex-1 h-px bg-rift-700"></div>
+          <span class="text-xs text-rift-400 font-display tracking-wider uppercase">ou</span>
+          <div class="flex-1 h-px bg-rift-700"></div>
+        </div>
+
+        <!-- Formulaire email/password -->
+        <form method="POST" class="space-y-4">
+          {errorMsg && (
+            <div class="p-3 rounded-xl bg-accent-spirit/10 border border-accent-spirit/25 text-accent-spirit text-sm">
+              {errorMsg}
+            </div>
+          )}
+
+          <div>
+            <label for="email" class="block text-sm font-medium text-rift-200 mb-1.5">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              class="w-full px-4 py-2.5 rounded-xl bg-rift-900/50 border border-rift-700 text-rift-100 placeholder-rift-500 focus:outline-none focus:border-accent-spirit/50 focus:ring-2 focus:ring-accent-spirit/15 transition-all duration-300"
+              placeholder="vous@exemple.com"
+            />
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label for="password" class="block text-sm font-medium text-rift-200">Mot de passe</label>
+              <a href="/forgot-password" class="text-xs text-accent-spirit hover:text-accent-forge transition-colors">Mot de passe oublié ?</a>
+            </div>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              minlength="6"
+              class="w-full px-4 py-2.5 rounded-xl bg-rift-900/50 border border-rift-700 text-rift-100 placeholder-rift-500 focus:outline-none focus:border-accent-spirit/50 focus:ring-2 focus:ring-accent-spirit/15 transition-all duration-300"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="w-full px-4 py-3 rounded-xl bg-accent-spirit text-white font-semibold hover:bg-accent-spirit/90 shadow-spirit transition-all duration-300 hover:-translate-y-0.5"
+          >
+            Se connecter
+          </button>
+        </form>
+
+        <p class="text-center text-sm text-rift-400">
+          Pas encore de compte ?
+          <a href="/register" class="text-accent-spirit hover:text-accent-forge transition-colors duration-200 font-medium ml-1">Créer un compte</a>
+        </p>
+      </div>
     </div>
   </div>
 
@@ -156,7 +157,8 @@ if (Astro.request.method === 'POST') {
     discordBtn?.addEventListener('click', async (e) => {
       e.preventDefault();
       
-      const redirectTo = import.meta.env.DEV 
+      const isDev = import.meta.env.DEV;
+      const redirectTo = isDev 
         ? `${window.location.origin}/api/auth/callback`
         : 'https://www.riftbound-media.fr/api/auth/callback';
 
@@ -166,7 +168,7 @@ if (Astro.request.method === 'POST') {
         provider: 'discord',
         options: { 
           redirectTo,
-          skipBrowserRedirect: false // On laisse le SDK rediriger pour bien gérer le flow PKCE
+          skipBrowserRedirect: false
         },
       });
 

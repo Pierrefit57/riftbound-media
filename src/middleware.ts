@@ -20,6 +20,13 @@ const IGNORED_PATHS = [
 export const onRequest = defineMiddleware(async (context, next) => {
     // 1. Analytics Tracking
     const path = context.url.pathname;
+
+    // PROTECTION CRITIQUE : Ne jamais interférer ou rediriger les routes d'authentification
+    // Cela évite de perdre le code PKCE pendant une redirection www vers non-www
+    if (path.startsWith('/api/auth/')) {
+        return next();
+    }
+
     if (!IGNORED_PATHS.some((p) => path.startsWith(p) || path.endsWith(p))) {
         // Obtenir l'IP de manière sécurisée (compatible Vercel/Node)
         const ip = context.request.headers.get('x-forwarded-for') || context.clientAddress;

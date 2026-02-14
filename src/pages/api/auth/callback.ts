@@ -3,34 +3,42 @@ import { createAuthClient } from '../../../lib/supabase';
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ url, cookies, redirect }) => {
+export const GET: APIRoute = async ({ request, cookies, redirect }) => {
+    // Exact extraction via new URL as requested
+    const url = new URL(request.url);
     const code = url.searchParams.get('code');
 
     if (!code) {
+        console.error('[auth] Callback sans code');
         return redirect('/login?error=no_code');
     }
 
     const authClient = createAuthClient();
     const { data, error } = await authClient.auth.exchangeCodeForSession(code);
 
-    // LOG DEMANDÉ PAR L'UTILISATEUR
-    console.log('Session établie:', data.session ? 'OUI' : 'NON');
-
     if (error || !data.session) {
-        if (error) console.error('[auth] Exchange error:', error.message);
+        // Log complet demandé
+        console.error('Session établie: NON');
+        if (error) {
+            console.error('[auth] Supabase Error:', {
+                message: error.message,
+                status: error.status,
+                name: error.name
+            });
+        }
         return redirect('/login?error=callback_failed');
     }
 
-    const isProd = import.meta.env.PROD;
+    // Session OK
+    console.log('Session établie: OUI');
 
-    // Déterminer le domaine pour les cookies (partagé entre www et apex si possible)
-    // On utilise un point devant le domaine en prod pour inclure les sous-domaines
+    const isProd = import.meta.env.PROD;
     const domain = isProd ? '.riftbound-media.fr' : undefined;
 
     const cookieOptions = {
         path: '/',
         httpOnly: true,
-        secure: true, // Forcé à true comme demandé
+        secure: true,
         sameSite: 'lax' as const,
         domain: domain,
         maxAge: 60 * 60 * 24 * 7,
