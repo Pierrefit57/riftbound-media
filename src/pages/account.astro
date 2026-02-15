@@ -11,6 +11,9 @@ if (!user) {
   return Astro.redirect('/login');
 }
 
+let successMsg = '';
+let errorMsg = '';
+
 // Handle Actions (Logout, Profile updates)
 if (Astro.request.method === 'POST') {
   const formData = await Astro.request.formData();
