@@ -3,13 +3,19 @@ import type { APIRoute } from 'astro';
 export const prerender = false;
 
 export const POST: APIRoute = async ({ cookies, redirect }) => {
-    const isProd = import.meta.env.PROD;
-    const prefix = 'sb-otbccpoavhfvjpqpzemz-auth-token';
-    const domain = isProd ? '.riftbound-media.fr' : undefined;
+    const domain = '.riftbound-media.fr';
 
-    cookies.delete(prefix, { path: '/', domain });
-    cookies.delete(`${prefix}.0`, { path: '/', domain });
-    cookies.delete(`${prefix}.1`, { path: '/', domain });
+    // Delete segmented Supabase cookies (HttpOnly)
+    cookies.delete('sb-otbccpoavhfvjpqpzemz-auth-token.0', { path: '/', domain });
+    cookies.delete('sb-otbccpoavhfvjpqpzemz-auth-token.1', { path: '/', domain });
 
-    return redirect('/login');
+    // Also delete the base prefix just in case
+    cookies.delete('sb-otbccpoavhfvjpqpzemz-auth-token', { path: '/', domain });
+
+    return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
 };

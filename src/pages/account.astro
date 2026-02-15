@@ -24,10 +24,10 @@ if (Astro.request.method === 'POST') {
     const prefix = 'sb-otbccpoavhfvjpqpzemz-auth-token';
     const domain = '.riftbound-media.fr';
     
-    // Explicitly delete main and common segments
-    Astro.cookies.delete(prefix, { path: '/', domain });
+    // Explicitly delete main and common segments (HttpOnly)
     Astro.cookies.delete(`${prefix}.0`, { path: '/', domain });
     Astro.cookies.delete(`${prefix}.1`, { path: '/', domain });
+    Astro.cookies.delete(prefix, { path: '/', domain });
     
     return Astro.redirect('/login');
   }
@@ -270,29 +270,26 @@ const roleBadge = getRoleBadge(displayProfile?.role || 'user');
 
     const logoutBtn = document.getElementById('logout-btn');
     logoutBtn?.addEventListener('click', async (e) => {
-      console.log('[auth] Starting robust logout...');
+      e.preventDefault();
+      console.log('[auth] Starting robust logout (API-based)...');
       
-      // 1. Supabase signOut
-      await supabase.auth.signOut();
-      
-      // 2. Clear LocalStorage
-      const prefix = 'sb-otbccpoavhfvjpqpzemz-auth-token';
-      localStorage.removeItem(prefix);
-      
-      // 3. Clear all prefixed cookies via loop
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        const eqPos = cookie.indexOf('=');
-        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+      try {
+        // 1. Supabase signOut
+        await supabase.auth.signOut();
         
-        if (name.startsWith(prefix)) {
-          document.cookie = name + "=; Path=/; Domain=.riftbound-media.fr; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-          console.log('[auth] Cleared cookie:', name);
-        }
+        // 2. Clear LocalStorage
+        const prefix = 'sb-otbccpoavhfvjpqpzemz-auth-token';
+        localStorage.removeItem(prefix);
+        
+        // 3. API Logout (Server-side HttpOnly cookie deletion)
+        await fetch('/api/auth/logout', { method: 'POST' });
+        
+        console.log('[auth] Logout complete, redirecting...');
+      } catch (err) {
+        console.error('[auth] Logout error:', err);
+      } finally {
+        window.location.href = '/login';
       }
-      
-      console.log('[auth] Client cleanup complete.');
     });
   </script>
 </MainLayout>

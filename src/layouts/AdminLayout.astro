@@ -92,33 +92,27 @@ const sidebarItems = [
       import { supabase } from '../lib/supabase';
 
       const logoutBtn = document.getElementById('logout-btn');
-      logoutBtn?.addEventListener('click', async () => {
-        console.log('[auth] Starting robust admin logout...');
+      logoutBtn?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        console.log('[auth] Starting robust admin logout (API-based)...');
         
-        // 1. Déconnexion client
-        await supabase.auth.signOut();
-        
-        // 2. Clear LocalStorage
-        const prefix = 'sb-otbccpoavhfvjpqpzemz-auth-token';
-        localStorage.removeItem(prefix);
-        
-        // 3. Suppression manuelle forcée via loop
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          const eqPos = cookie.indexOf('=');
-          const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        try {
+          // 1. Déconnexion client
+          await supabase.auth.signOut();
           
-          if (name.startsWith(prefix)) {
-            document.cookie = name + "=; Path=/; Domain=.riftbound-media.fr; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-          }
+          // 2. Clear LocalStorage
+          const prefix = 'sb-otbccpoavhfvjpqpzemz-auth-token';
+          localStorage.removeItem(prefix);
+          
+          // 3. API Logout (Server-side HttpOnly cookie deletion)
+          await fetch('/api/auth/logout', { method: 'POST' });
+          
+          console.log('[auth] Logout complete.');
+        } catch (err) {
+          console.error('[auth] Logout error:', err);
+        } finally {
+          window.location.href = '/login';
         }
-
-        // 4. Déconnexion serveur
-        await fetch('/api/auth/logout', { method: 'POST' });
-        
-        // 5. Redirection vers login
-        window.location.href = '/login';
       });
     </script>
   </body>
