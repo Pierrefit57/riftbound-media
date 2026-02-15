@@ -1,5 +1,5 @@
 import { defineMiddleware } from 'astro:middleware';
-import { createAuthClient, getUserProfile } from './lib/supabase';
+import { createAuthClient, getUserProfile, createAstroServerClient } from './lib/supabase';
 import { trackEvent } from './lib/analytics';
 
 const IGNORED_PATHS = [
@@ -46,79 +46,41 @@ export const onRequest = defineMiddleware(async (context, next) => {
             // On déplace le tracking après la session.
         });
     }
-    // Récupérer les tokens depuis les cookies (Gestion des cookies segmentés)
-    const segmentedPrefix = 'sb-otbccpoavhfvjpqpzemz-auth-token';
-    const hasSegmented = context.cookies.has(`${segmentedPrefix}.0`) || context.cookies.has(segmentedPrefix);
+    // 2. Gestion de la Session via Supabase SSR
+    const supabaseServer = createAstroServerClient(context);
 
-    // Fallback anciens cookies génériques (pour compatibilité)
-    const accessToken = context.cookies.get('sb-access-token')?.value;
-    const refreshToken = context.cookies.get('sb-refresh-token')?.value;
+    // Tentative de récupération de la session (SSR gère les cookies segmentés .0, .1 automatiquement)
+    const { data: { session }, error: sessionError } = await supabaseServer.auth.getSession();
 
-    const shouldAttemptAuth = hasSegmented || (accessToken && refreshToken);
+    if (sessionError || !session) {
+        if (sessionError) console.warn('[auth-middleware] Session error:', sessionError.message);
 
-    if (shouldAttemptAuth) {
-        // Vérifier/restaurer la session avec un client frais
-        const authClient = createAuthClient();
-        console.log('[auth-middleware] Tentative de restauration de session via cookies...');
+        context.locals.user = null;
+        context.locals.profile = null;
 
-        // Supabase SSR se chargera de lire .0, .1 si présents via les cookies injectés
-        const { data, error } = await authClient.auth.setSession({
-            access_token: accessToken || '',
-            refresh_token: refreshToken || '',
-        });
-
-        if (error || !data.session) {
-            console.log('[auth-middleware] Echec restauration session, nettoyage agressif des cookies.');
+        // Nettoyage si on a des restes de cookies mais pas de session valide
+        const segmentedPrefix = 'sb-otbccpoavhfvjpqpzemz-auth-token';
+        if (context.cookies.has(`${segmentedPrefix}.0`) || context.cookies.has('sb-access-token')) {
+            console.log('[auth-middleware] Cleaning up invalid session cookies...');
             const isProd = import.meta.env.PROD;
             const domains = [isProd ? '.riftbound-media.fr' : undefined, undefined];
-
-            const cookiesToClear = [
-                'sb-access-token',
-                'sb-refresh-token',
-                `${segmentedPrefix}.0`,
-                `${segmentedPrefix}.1`,
-                segmentedPrefix
-            ];
+            const cookiesToClear = ['sb-access-token', 'sb-refresh-token', `${segmentedPrefix}.0`, `${segmentedPrefix}.1`, segmentedPrefix];
 
             domains.forEach(domain => {
                 cookiesToClear.forEach(name => context.cookies.delete(name, { path: '/', domain }));
             });
-
-            context.locals.user = null;
-            context.locals.profile = null;
-        } else {
-            // Session valide → attacher user + profil
-            context.locals.user = data.session.user;
-
-            // Toujours synchroniser les cookies génériques pour les helpers getSession
-            const isProd = import.meta.env.PROD;
-            const domain = isProd ? '.riftbound-media.fr' : undefined;
-
-            context.cookies.set('sb-access-token', data.session.access_token, {
-                path: '/',
-                httpOnly: true,
-                secure: isProd,
-                sameSite: 'lax',
-                domain,
-                maxAge: 60 * 60 * 24 * 7,
-            });
-            context.cookies.set('sb-refresh-token', data.session.refresh_token, {
-                path: '/',
-                httpOnly: true,
-                secure: isProd,
-                sameSite: 'lax',
-                domain,
-                maxAge: 60 * 60 * 24 * 7,
-            });
-
-            // Charger le profil (rôle) via le service client
-            const profile = await getUserProfile(data.session.user.id);
-            context.locals.profile = profile;
-            console.log('[auth-middleware] Session OK - User:', data.session.user.email, '| Rôle:', profile?.role);
         }
     } else {
-        context.locals.user = null;
-        context.locals.profile = null;
+        // Session valide → attacher user + profil
+        context.locals.user = session.user;
+
+        // Charger le profil (rôle) via le service client (on pourrait aussi utiliser le supabaseServer si RLS permettent)
+        const profile = await getUserProfile(session.user.id);
+        context.locals.profile = profile;
+
+        if (path === '/') {
+            console.log(`[auth-middleware] Session OK: ${session.user.email} (${profile?.role || 'user'})`);
+        }
     }
 
     // Protéger les routes admin
