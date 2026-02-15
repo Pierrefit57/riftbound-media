@@ -253,7 +253,7 @@ const roleBadge = getRoleBadge(displayProfile?.role || 'user');
           <form method="POST">
             <input type="hidden" name="action" value="logout" />
             <button
-              id="logout-btn"
+              id="account-logout-btn"
               type="submit"
               class="px-5 py-2.5 rounded-xl bg-red-500/10 text-red-400 text-sm font-semibold border border-red-500/20 hover:bg-red-500/20 hover:border-red-400/30 hover:text-red-300 transition-all shadow-lg shadow-red-900/5 hover:-translate-y-0.5"
             >
@@ -268,33 +268,31 @@ const roleBadge = getRoleBadge(displayProfile?.role || 'user');
   <script>
     import { supabase } from '../lib/supabase';
 
-    const logoutBtn = document.getElementById('logout-btn');
-    logoutBtn?.addEventListener('click', async (e) => {
-      // 1. Bloquer la redirection immédiate
+    const accountLogoutBtn = document.getElementById('account-logout-btn');
+    accountLogoutBtn?.addEventListener('click', async (e) => {
+      // 1. Bloquer impérativement la redirection par défaut
       e.preventDefault();
-      console.log('[auth] Starting bulletproof logout (order enforced)...');
+      console.log('[auth] Starting bulletproof account logout (order enforced)...');
       
       try {
-        // 1. Invalide la session Supabase locale (SDK)
+        // 2. Invalide la session via le SDK (local)
         await supabase.auth.signOut();
         
-        // 2. Nettoyage LocalStorage manuel
+        // 3. Nettoyage LocalStorage (précaution)
         localStorage.removeItem('sb-otbccpoavhfvjpqpzemz-auth-token');
         
-        // 3. Appel API (POST) et ATTENTE réelle de la réponse
+        // 4. Appel API et ATTENTE réelle du serveur
         const response = await fetch('/api/auth/logout', { method: 'POST' });
         
         if (response.ok) {
-          console.log('[auth] API confirmation received, replacing location...');
-          // 4. SEULEMENT si res.ok, on redirige manuellement
-          window.location.replace('/login');
+          console.log('[auth] Logout API success, replacing location...');
         } else {
-          console.error('[auth] API logout failed:', response.status);
-          // Rediriger quand même en cas d'erreur API pour rafraîchir l'interface
-          window.location.replace('/login');
+          console.warn('[auth] Logout API error status:', response.status);
         }
       } catch (err) {
-        console.error('[auth] Critical error during logout:', err);
+        console.error('[auth] Error in logout flow:', err);
+      } finally {
+        // 5. Redirection finale forcée seulement après toutes les étapes
         window.location.replace('/login');
       }
     });

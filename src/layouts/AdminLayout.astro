@@ -69,7 +69,7 @@ const sidebarItems = [
           </div>
         </div>
         <button 
-          id="logout-btn"
+          id="admin-logout-btn"
           class="w-full px-3 py-2 rounded-lg text-sm text-rift-400 hover:text-accent-spirit hover:bg-rift-800 transition-colors text-left"
         >
           Déconnexion
@@ -91,31 +91,31 @@ const sidebarItems = [
     <script>
       import { supabase } from '../lib/supabase';
 
-      const logoutBtn = document.getElementById('logout-btn');
-      logoutBtn?.addEventListener('click', async (e) => {
+      const adminLogoutBtn = document.getElementById('admin-logout-btn');
+      adminLogoutBtn?.addEventListener('click', async (e) => {
         // Bloquer la sortie immédiate
         e.preventDefault();
-        console.log('[auth] Starting strict admin logout (manual control)...');
+        console.log('[auth] Starting bulletproof admin logout...');
         
         try {
-          // 1. Déconnexion client
+          // 1. Déconnexion client SDK
           await supabase.auth.signOut();
           
           // 2. Nettoyage LocalStorage
           localStorage.removeItem('sb-otbccpoavhfvjpqpzemz-auth-token');
           
-          // 3. Appel API et ATTENTE de réponse
+          // 3. Appel API et ATTENTE réelle de réponse
           const res = await fetch('/api/auth/logout', { method: 'POST' });
           
           if (res.ok) {
-            console.log('[auth] API logout confirmed, replacing...');
-            window.location.replace('/login');
+            console.log('[auth] API logout confirmed, replacing location...');
           } else {
             console.error('[auth] API logout error status:', res.status);
-            window.location.replace('/login');
           }
         } catch (err) {
           console.error('[auth] Logout error:', err);
+        } finally {
+          // 4. Redirection manuelle contrôlée
           window.location.replace('/login');
         }
       });
