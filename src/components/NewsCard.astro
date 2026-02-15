@@ -62,9 +62,6 @@ function getTagStyle(tag: string): string {
     </div>
     <div class="p-5 md:p-6 relative z-10 flex flex-col flex-1">
       <div class="flex flex-wrap gap-2 mb-3 min-h-[28px]">
-        <span class={`inline-flex items-center justify-center px-2.5 py-0.5 text-xs font-bold rounded-full border leading-none ${getTagStyle('site web')}`}>
-          Site Web
-        </span>
         {tags.map((tag) => {
           const displayTag = tag === 'Store Riot' ? 'Boutique Riot' : tag;
           return (
@@ -109,9 +106,6 @@ function getTagStyle(tag: string): string {
     </div>
     <div class="p-4 md:p-5 relative z-10 flex flex-col flex-1">
       <div class="flex flex-wrap gap-1.5 mb-2 min-h-[24px]">
-        <span class={`inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold rounded-full border leading-none ${getTagStyle('site web')}`}>
-          Site Web
-        </span>
         {tags.map((tag) => {
           const displayTag = tag === 'Store Riot' ? 'Boutique Riot' : tag;
           return (
@@ -120,7 +114,6 @@ function getTagStyle(tag: string): string {
           </span>
           );
         })}
-      </div>
       </div>
       <h3 class="text-base font-display font-bold text-rift-50 mb-1.5 group-hover:text-accent-spirit transition-colors duration-300 line-clamp-2 uppercase tracking-wide">
         {title}
