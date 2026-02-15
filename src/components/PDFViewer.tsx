@@ -6,6 +6,17 @@ export default function PDFViewer({ url, initialScale }: { url: string; initialS
     const [currentScale, setCurrentScale] = useState<number | null>(null);
     const iframeRef = useRef<HTMLIFrameElement>(null);
 
+    const [responsiveScale, setResponsiveScale] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!initialScale) {
+            const isMobile = window.innerWidth < 768;
+            setResponsiveScale(isMobile ? '0.4' : '1.2');
+        } else {
+            setResponsiveScale(initialScale);
+        }
+    }, [initialScale]);
+
     // Communicate with iframe
     const sendMessage = (type: string, payload: any = {}) => {
         if (iframeRef.current && iframeRef.current.contentWindow) {
@@ -117,7 +128,7 @@ export default function PDFViewer({ url, initialScale }: { url: string; initialS
             <div className="pdf-container bg-rift-900/50 rounded-xl border border-rift-700/50 overflow-hidden h-[800px] relative">
                 <iframe
                     ref={iframeRef}
-                    src={`/lib/pdfjs/viewer.html?file=${encodeURIComponent(url)}${initialScale ? `&zoom=${initialScale}` : ''}`}
+                    src={`/lib/pdfjs/viewer.html?file=${encodeURIComponent(url)}${responsiveScale ? `&zoom=${responsiveScale}` : ''}`}
                     className="w-full h-full border-none"
                     title="PDF Viewer"
                 />
