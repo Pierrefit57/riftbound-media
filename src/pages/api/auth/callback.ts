@@ -20,11 +20,12 @@ export const GET: APIRoute = async (context) => {
     if (error || !data.session) {
         console.error('Session établie: NON');
         if (error) {
+            const authError = error as any;
             console.error('[auth] Supabase Error Detail:', {
-                message: error.message,
-                status: error.status,
-                hint: error.hint,
-                details: error.details
+                message: authError.message,
+                status: authError.status,
+                hint: authError.hint,
+                details: authError.details
             });
         }
         return redirect('/login?error=callback_failed');

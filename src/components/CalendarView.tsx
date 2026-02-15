@@ -352,8 +352,8 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
                                     disabled={isFollowLoading}
                                     className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 mb-6 hover:scale-105
                                         ${followedEventIds.has(selectedEvent.id)
-                                            ? 'bg-domain-calm/20 text-domain-calm border border-domain-calm/30'
-                                            : 'bg-accent-spirit/10 text-accent-spirit border border-accent-spirit/30'}
+                                            ? 'bg-domain-calm/10 text-domain-calm border border-domain-calm/30'
+                                            : 'bg-accent-spirit/5 text-accent-spirit border border-accent-spirit/30 hover:bg-accent-spirit/15'}
                                         ${isFollowLoading ? 'opacity-50 cursor-wait' : ''}
                                     `}
                                 >
@@ -383,7 +383,15 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
                                         <p className="text-rift-300 text-sm whitespace-pre-wrap leading-relaxed">{selectedEvent.description || "Aucune description fournie."}</p>
                                     </div>
                                     {selectedEvent.url && (
-                                        <a href={selectedEvent.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl font-bold uppercase tracking-widest text-xs bg-accent-spirit text-rift-950 transition-all hover:scale-[1.02]">
+                                        <a
+                                            href={selectedEvent.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={`flex items-center justify-center gap-2 w-full py-4 rounded-2xl font-bold uppercase tracking-widest text-xs transition-all hover:scale-[1.02] ${selectedEvent.url.includes('twitch.tv')
+                                                    ? 'bg-[#9146FF] text-white shadow-[0_0_20px_rgba(145,70,255,0.4)]'
+                                                    : 'bg-accent-spirit text-rift-950'
+                                                }`}
+                                        >
                                             Voir les détails
                                         </a>
                                     )}
