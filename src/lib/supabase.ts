@@ -41,18 +41,28 @@ export function createAuthClient() {
 // Helper : récupérer la session depuis les cookies d'une requête
 export async function getSession(request: Request) {
     const cookies = parseCookies(request.headers.get('cookie') || '');
-    const accessToken = cookies['sb-access-token'];
-    const refreshToken = cookies['sb-refresh-token'];
 
-    if (!accessToken || !refreshToken) return null;
+    // Tentative 1: Cookies génériques
+    let accessToken = cookies['sb-access-token'];
+    let refreshToken = cookies['sb-refresh-token'];
+
+    // Tentative 2: Cookies segmentés (Supabase default)
+    if (!accessToken) {
+        accessToken = cookies['sb-otbccpoavhfvjpqpzemz-auth-token.0'] || cookies['sb-otbccpoavhfvjpqpzemz-auth-token'];
+    }
+
+    if (!accessToken) return null;
 
     const authClient = createAuthClient();
     const { data, error } = await authClient.auth.setSession({
         access_token: accessToken,
-        refresh_token: refreshToken,
+        refresh_token: refreshToken || '', // Le refresh token peut être optionnel pour certaines validations si l'access est valide
     });
 
-    if (error) return null;
+    if (error) {
+        console.error('[supabase-lib] Erreur setSession dans getSession:', error.message);
+        return null;
+    }
     return data.session;
 }
 

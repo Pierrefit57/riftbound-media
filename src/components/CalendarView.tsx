@@ -357,7 +357,7 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
                                                 disabled={isFollowLoading}
                                                 className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 mb-6 hover:scale-105
                                                     ${isFollowed
-                                                        ? 'bg-domain-calm text-white shadow-[0_0_15px_rgba(74,158,109,0.3)] border-transparent'
+                                                        ? 'bg-[#4a9e6d] text-white shadow-[0_0_15px_rgba(74,158,109,0.4)] border-transparent'
                                                         : 'bg-accent-spirit/5 text-accent-spirit border border-accent-spirit/30 hover:bg-accent-spirit/15'}
                                                     ${isFollowLoading ? 'opacity-50 cursor-wait' : ''}
                                                 `}
