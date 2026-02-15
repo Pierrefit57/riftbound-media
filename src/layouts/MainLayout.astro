@@ -443,10 +443,31 @@ const ongoingEvent = activeEvents?.find(event => {
       // Logout mobile
       const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
       mobileLogoutBtn?.addEventListener('click', async () => {
+        console.log('[auth] Starting robust mobile logout...');
+        
+        // 1. Sign out
         await supabase.auth.signOut();
-        document.cookie = "sb-access-token=; Path=/; Domain=.riftbound-media.fr; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-        document.cookie = "sb-refresh-token=; Path=/; Domain=.riftbound-media.fr; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+        
+        // 2. Clear LocalStorage
+        const prefix = 'sb-otbccpoavhfvjpqpzemz-auth-token';
+        localStorage.removeItem(prefix);
+        
+        // 3. Clear cookies loop
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          const eqPos = cookie.indexOf('=');
+          const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+          
+          if (name.startsWith(prefix)) {
+            document.cookie = name + "=; Path=/; Domain=.riftbound-media.fr; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+          }
+        }
+
+        // 4. Server logout
         await fetch('/api/auth/logout', { method: 'POST' });
+        
+        // 5. Redirect
         window.location.href = '/login';
       });
 

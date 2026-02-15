@@ -20,8 +20,15 @@ if (Astro.request.method === 'POST') {
   const action = formData.get('action') as string;
   
   if (action === 'logout') {
-    Astro.cookies.delete('sb-access-token', { path: '/', domain: '.riftbound-media.fr' });
-    Astro.cookies.delete('sb-refresh-token', { path: '/', domain: '.riftbound-media.fr' });
+    // Supabase partitioned cookies for project otbccpoavhfvjpqpzemz
+    const prefix = 'sb-otbccpoavhfvjpqpzemz-auth-token';
+    const domain = '.riftbound-media.fr';
+    
+    // Explicitly delete main and common segments
+    Astro.cookies.delete(prefix, { path: '/', domain });
+    Astro.cookies.delete(`${prefix}.0`, { path: '/', domain });
+    Astro.cookies.delete(`${prefix}.1`, { path: '/', domain });
+    
     return Astro.redirect('/login');
   }
 
@@ -263,9 +270,29 @@ const roleBadge = getRoleBadge(displayProfile?.role || 'user');
 
     const logoutBtn = document.getElementById('logout-btn');
     logoutBtn?.addEventListener('click', async (e) => {
-      // On vide le LocalStorage client-side avant la soumission du formulaire
+      console.log('[auth] Starting robust logout...');
+      
+      // 1. Supabase signOut
       await supabase.auth.signOut();
-      console.log('[auth] Client session cleared.');
+      
+      // 2. Clear LocalStorage
+      const prefix = 'sb-otbccpoavhfvjpqpzemz-auth-token';
+      localStorage.removeItem(prefix);
+      
+      // 3. Clear all prefixed cookies via loop
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        const eqPos = cookie.indexOf('=');
+        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        
+        if (name.startsWith(prefix)) {
+          document.cookie = name + "=; Path=/; Domain=.riftbound-media.fr; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+          console.log('[auth] Cleared cookie:', name);
+        }
+      }
+      
+      console.log('[auth] Client cleanup complete.');
     });
   </script>
 </MainLayout>
