@@ -50,57 +50,71 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const segmentedPrefix = 'sb-otbccpoavhfvjpqpzemz-auth-token';
     const hasSegmented = context.cookies.has(`${segmentedPrefix}.0`) || context.cookies.has(segmentedPrefix);
 
-    // Fallback anciens cookies génériques
+    // Fallback anciens cookies génériques (pour compatibilité)
     const accessToken = context.cookies.get('sb-access-token')?.value;
     const refreshToken = context.cookies.get('sb-refresh-token')?.value;
 
-    if (hasSegmented || (accessToken && refreshToken)) {
+    const shouldAttemptAuth = hasSegmented || (accessToken && refreshToken);
+
+    if (shouldAttemptAuth) {
         // Vérifier/restaurer la session avec un client frais
         const authClient = createAuthClient();
-        console.log('[auth] Tentative de restauration de session via cookies...');
+        console.log('[auth-middleware] Tentative de restauration de session via cookies...');
+
+        // Supabase SSR se chargera de lire .0, .1 si présents via les cookies injectés
         const { data, error } = await authClient.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
+            access_token: accessToken || '',
+            refresh_token: refreshToken || '',
         });
 
         if (error || !data.session) {
-            console.log('[auth] Echec restauration session:', error?.message);
+            console.log('[auth-middleware] Echec restauration session, nettoyage agressif des cookies.');
             const isProd = import.meta.env.PROD;
-            const domain = isProd ? '.riftbound-media.fr' : undefined;
-            context.cookies.delete('sb-access-token', { path: '/', domain });
-            context.cookies.delete('sb-refresh-token', { path: '/', domain });
+            const domains = [isProd ? '.riftbound-media.fr' : undefined, undefined];
+
+            const cookiesToClear = [
+                'sb-access-token',
+                'sb-refresh-token',
+                `${segmentedPrefix}.0`,
+                `${segmentedPrefix}.1`,
+                segmentedPrefix
+            ];
+
+            domains.forEach(domain => {
+                cookiesToClear.forEach(name => context.cookies.delete(name, { path: '/', domain }));
+            });
+
             context.locals.user = null;
             context.locals.profile = null;
         } else {
             // Session valide → attacher user + profil
             context.locals.user = data.session.user;
 
-            // Rafraîchir les cookies si les tokens ont changé
-            if (data.session.access_token !== accessToken) {
-                const isProd = import.meta.env.PROD;
-                const domain = isProd ? '.riftbound-media.fr' : undefined;
-                context.cookies.set('sb-access-token', data.session.access_token, {
-                    path: '/',
-                    httpOnly: true,
-                    secure: isProd,
-                    sameSite: 'lax',
-                    domain,
-                    maxAge: 60 * 60 * 24 * 7,
-                });
-                context.cookies.set('sb-refresh-token', data.session.refresh_token, {
-                    path: '/',
-                    httpOnly: true,
-                    secure: isProd,
-                    sameSite: 'lax',
-                    domain,
-                    maxAge: 60 * 60 * 24 * 7,
-                });
-            }
+            // Toujours synchroniser les cookies génériques pour les helpers getSession
+            const isProd = import.meta.env.PROD;
+            const domain = isProd ? '.riftbound-media.fr' : undefined;
+
+            context.cookies.set('sb-access-token', data.session.access_token, {
+                path: '/',
+                httpOnly: true,
+                secure: isProd,
+                sameSite: 'lax',
+                domain,
+                maxAge: 60 * 60 * 24 * 7,
+            });
+            context.cookies.set('sb-refresh-token', data.session.refresh_token, {
+                path: '/',
+                httpOnly: true,
+                secure: isProd,
+                sameSite: 'lax',
+                domain,
+                maxAge: 60 * 60 * 24 * 7,
+            });
 
             // Charger le profil (rôle) via le service client
             const profile = await getUserProfile(data.session.user.id);
             context.locals.profile = profile;
-            console.log('[auth] Session OK - User:', data.session.user.email, '| Rôle:', profile?.role);
+            console.log('[auth-middleware] Session OK - User:', data.session.user.email, '| Rôle:', profile?.role);
         }
     } else {
         context.locals.user = null;

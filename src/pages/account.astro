@@ -250,16 +250,15 @@ const roleBadge = getRoleBadge(displayProfile?.role || 'user');
             </h3>
             <p class="text-xs text-rift-500 mt-1">Fermer votre session actuelle</p>
           </div>
-          <form method="POST">
-            <input type="hidden" name="action" value="logout" />
+          <div class="flex items-center gap-4">
             <button
               id="account-logout-btn"
-              type="submit"
+              type="button"
               class="px-5 py-2.5 rounded-xl bg-red-500/10 text-red-400 text-sm font-semibold border border-red-500/20 hover:bg-red-500/20 hover:border-red-400/30 hover:text-red-300 transition-all shadow-lg shadow-red-900/5 hover:-translate-y-0.5"
             >
               Se déconnecter
             </button>
-          </form>
+          </div>
         </div>
 
       </div>
