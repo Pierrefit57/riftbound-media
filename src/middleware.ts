@@ -61,8 +61,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
         if (error || !data.session) {
             console.log('[auth] Echec restauration session:', error?.message);
-            context.cookies.delete('sb-access-token', { path: '/' });
-            context.cookies.delete('sb-refresh-token', { path: '/' });
+            const isProd = import.meta.env.PROD;
+            const domain = isProd ? '.riftbound-media.fr' : undefined;
+            context.cookies.delete('sb-access-token', { path: '/', domain });
+            context.cookies.delete('sb-refresh-token', { path: '/', domain });
             context.locals.user = null;
             context.locals.profile = null;
         } else {
@@ -72,11 +74,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
             // Rafraîchir les cookies si les tokens ont changé
             if (data.session.access_token !== accessToken) {
                 const isProd = import.meta.env.PROD;
+                const domain = isProd ? '.riftbound-media.fr' : undefined;
                 context.cookies.set('sb-access-token', data.session.access_token, {
                     path: '/',
                     httpOnly: true,
                     secure: isProd,
                     sameSite: 'lax',
+                    domain,
                     maxAge: 60 * 60 * 24 * 7,
                 });
                 context.cookies.set('sb-refresh-token', data.session.refresh_token, {
@@ -84,6 +88,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
                     httpOnly: true,
                     secure: isProd,
                     sameSite: 'lax',
+                    domain,
                     maxAge: 60 * 60 * 24 * 7,
                 });
             }

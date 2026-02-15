@@ -93,9 +93,18 @@ const sidebarItems = [
 
       const logoutBtn = document.getElementById('logout-btn');
       logoutBtn?.addEventListener('click', async () => {
+        // 1. Déconnexion client
         await supabase.auth.signOut();
+        
+        // 2. Suppression manuelle forcée apex
+        document.cookie = "sb-access-token=; Path=/; Domain=.riftbound-media.fr; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+        document.cookie = "sb-refresh-token=; Path=/; Domain=.riftbound-media.fr; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+
+        // 3. Déconnexion serveur
         await fetch('/api/auth/logout', { method: 'POST' });
-        window.location.href = '/';
+        
+        // 4. Redirection vers login
+        window.location.href = '/login';
       });
     </script>
   </body>

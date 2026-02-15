@@ -30,12 +30,13 @@ if (Astro.request.method === 'POST') {
   if (error) {
     errorMsg = 'Email ou mot de passe incorrect.';
   } else if (data.session) {
-    const isProd = import.meta.env.PROD;
+    const domain = isProd ? '.riftbound-media.fr' : undefined;
     Astro.cookies.set('sb-access-token', data.session.access_token, {
       path: '/',
       httpOnly: true,
       secure: isProd,
       sameSite: 'lax',
+      domain,
       maxAge: 60 * 60 * 24 * 7,
     });
     Astro.cookies.set('sb-refresh-token', data.session.refresh_token, {
@@ -43,6 +44,7 @@ if (Astro.request.method === 'POST') {
       httpOnly: true,
       secure: isProd,
       sameSite: 'lax',
+      domain,
       maxAge: 60 * 60 * 24 * 7,
     });
 

@@ -11,6 +11,22 @@ if (!user) {
   return Astro.redirect('/login');
 }
 
+// Handle Logout Server-side
+if (Astro.request.method === 'POST') {
+  const formData = await Astro.request.formData();
+  const action = formData.get('action');
+  
+  if (action === 'logout') {
+    const isProd = import.meta.env.PROD;
+    const domain = isProd ? '.riftbound-media.fr' : undefined;
+    
+    Astro.cookies.delete('sb-access-token', { path: '/', domain });
+    Astro.cookies.delete('sb-refresh-token', { path: '/', domain });
+    
+    return Astro.redirect('/login');
+  }
+}
+
 let successMsg = '';
 let errorMsg = '';
 
@@ -236,12 +252,16 @@ const roleBadge = getRoleBadge(displayProfile?.role || 'user');
             </h3>
             <p class="text-xs text-rift-500 mt-1">Fermer votre session actuelle</p>
           </div>
-          <button 
-            id="logout-btn"
-            class="px-5 py-2.5 rounded-xl bg-red-500/10 text-red-400 text-sm font-semibold border border-red-500/20 hover:bg-red-500/20 hover:border-red-400/30 hover:text-red-300 transition-all shadow-lg shadow-red-900/5 hover:-translate-y-0.5"
-          >
-            Se déconnecter
-          </button>
+          <form method="POST">
+            <input type="hidden" name="action" value="logout" />
+            <button
+              id="logout-btn"
+              type="submit"
+              class="px-5 py-2.5 rounded-xl bg-red-500/10 text-red-400 text-sm font-semibold border border-red-500/20 hover:bg-red-500/20 hover:border-red-400/30 hover:text-red-300 transition-all shadow-lg shadow-red-900/5 hover:-translate-y-0.5"
+            >
+              Se déconnecter
+            </button>
+          </form>
         </div>
 
       </div>
@@ -251,20 +271,12 @@ const roleBadge = getRoleBadge(displayProfile?.role || 'user');
     import { supabase } from '../lib/supabase';
 
     const logoutBtn = document.getElementById('logout-btn');
-    logoutBtn?.addEventListener('click', async () => {
-      console.log('[auth] Déconnexion en cours...');
-      
-      // 1. Déconnexion côté client (vide le LocalStorage)
+    logoutBtn?.addEventListener('click', async (e) => {
+      // On laisse le formulaire se soumettre normalement pour le logout serveur,
+      // mais on peut aussi appeler signOut client-side pour vider le LocalStorage.
+      import { supabase } from '../lib/supabase';
       await supabase.auth.signOut();
-      
-      // 2. Déconnexion côté serveur (supprime les cookies)
-      // On utilise fetch car le onAuthStateChange dans MainLayout 
-      // va aussi réagir à SIGNED_OUT, mais faire un appel explicite 
-      // garantit que le serveur est bien au courant.
-      await fetch('/api/auth/logout', { method: 'POST' });
-      
-      // 3. Rediriger vers l'accueil
-      window.location.href = '/';
+      console.log('[auth] Déconnexion client OK, redirection vers logout serveur...');
     });
   </script>
 </MainLayout>

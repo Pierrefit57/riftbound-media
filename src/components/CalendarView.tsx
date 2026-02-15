@@ -330,39 +330,46 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
                             {!selectedEvent.image_url && <div className="h-4 bg-rift-800" />}
 
                             <div className="p-8 pt-6">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <h3 className="text-2xl font-display font-bold text-rift-50">{selectedEvent.title}</h3>
-                                    {selectedEvent.country && (
-                                        <div className="flex-shrink-0">
-                                            {(() => {
-                                                const isWorld = selectedEvent.country?.toUpperCase() === 'WORLD';
-                                                return isWorld ? (
-                                                    <div className="w-7 h-7 flex items-center justify-center bg-rift-800 rounded-full border border-rift-700">
-                                                        <img src="/assets/icons/864e0e4584241547.svg" className="w-4 h-4" alt="World" />
+                                {(() => {
+                                    const isFollowed = followedEventIds.has(selectedEvent.id);
+                                    return (
+                                        <>
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <h3 className="text-2xl font-display font-bold text-rift-50">{selectedEvent.title}</h3>
+                                                {selectedEvent.country && (
+                                                    <div className="flex-shrink-0">
+                                                        {(() => {
+                                                            const isWorld = selectedEvent.country?.toUpperCase() === 'WORLD';
+                                                            return isWorld ? (
+                                                                <div className="w-7 h-7 flex items-center justify-center bg-rift-800 rounded-full border border-rift-700">
+                                                                    <img src="/assets/icons/864e0e4584241547.svg" className="w-4 h-4" alt="World" />
+                                                                </div>
+                                                            ) : (
+                                                                <img src={`https://flagcdn.com/w40/${getCountryCode(selectedEvent.country)}.png`} width="24" alt={selectedEvent.country} className="rounded-sm border border-white/10" />
+                                                            );
+                                                        })()}
                                                     </div>
-                                                ) : (
-                                                    <img src={`https://flagcdn.com/w40/${getCountryCode(selectedEvent.country)}.png`} width="24" alt={selectedEvent.country} className="rounded-sm border border-white/10" />
-                                                );
-                                            })()}
-                                        </div>
-                                    )}
-                                </div>
+                                                )}
+                                            </div>
 
-                                <button
-                                    onClick={() => handleToggleFollow(selectedEvent.id)}
-                                    disabled={isFollowLoading}
-                                    className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 mb-6 hover:scale-105
-                                        ${followedEventIds.has(selectedEvent.id)
-                                            ? 'bg-domain-calm text-white shadow-[0_0_15px_rgba(74,158,109,0.3)] border-transparent'
-                                            : 'bg-accent-spirit/5 text-accent-spirit border border-accent-spirit/30 hover:bg-accent-spirit/15'}
-                                        ${isFollowLoading ? 'opacity-50 cursor-wait' : ''}
-                                    `}
-                                >
-                                    <svg className="w-3.5 h-3.5" fill={followedEventIds.has(selectedEvent.id) ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-                                    </svg>
-                                    {followedEventIds.has(selectedEvent.id) ? 'Alerte active' : 'Alerte e-mail'}
-                                </button>
+                                            <button
+                                                onClick={() => handleToggleFollow(selectedEvent.id)}
+                                                disabled={isFollowLoading}
+                                                className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 mb-6 hover:scale-105
+                                                    ${isFollowed
+                                                        ? 'bg-domain-calm text-white shadow-[0_0_15px_rgba(74,158,109,0.3)] border-transparent'
+                                                        : 'bg-accent-spirit/5 text-accent-spirit border border-accent-spirit/30 hover:bg-accent-spirit/15'}
+                                                    ${isFollowLoading ? 'opacity-50 cursor-wait' : ''}
+                                                `}
+                                            >
+                                                <svg className="w-3.5 h-3.5" fill={isFollowed ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+                                                </svg>
+                                                {isFollowed ? 'Alerte active' : 'Alerte e-mail'}
+                                            </button>
+                                        </>
+                                    );
+                                })()}
 
                                 <div className="space-y-6">
                                     <div className="flex flex-col gap-4">
