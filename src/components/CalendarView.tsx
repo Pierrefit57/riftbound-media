@@ -1,3 +1,4 @@
+// Final UI Sync - Vibrant Green Alerts & Twitch Logic
 import React, { useState, useMemo } from 'react';
 
 interface CalendarEvent {
