@@ -255,6 +255,9 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
                                                     <p className="font-bold text-white text-xs line-clamp-2 drop-shadow-md">
                                                         {bigEvent.title}
                                                     </p>
+                                                    {followedEventIds.has(bigEvent.id) && (
+                                                        <div className="absolute bottom-2 right-2 w-2 h-2 bg-[#22ff88] rounded-full shadow-[0_0_10px_rgba(34,255,136,0.8)] border border-white/40 z-20" title="Suivi activé" />
+                                                    )}
                                                 </div>
                                             )}
 
@@ -288,6 +291,9 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
                                                                 </div>
                                                             )}
                                                             <span className="relative z-10 truncate w-full drop-shadow-md">{event.title}</span>
+                                                            {followedEventIds.has(event.id) && (
+                                                                <div className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 bg-[#22ff88] rounded-full shadow-[0_0_8px_rgba(34,255,136,0.8)] border border-white/40 z-20" title="Suivi activé" />
+                                                            )}
                                                         </button>
                                                     ))}
                                                 </div>
@@ -381,7 +387,17 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
                                             </div>
                                             <div>
                                                 <p className="text-[10px] font-bold text-rift-500 uppercase tracking-widest leading-none mb-1">Date et Heure</p>
-                                                <p className="font-semibold">{new Date(selectedEvent.start_date.split('.')[0]).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+                                                <p className="font-semibold">
+                                                    {(() => {
+                                                        const date = new Date(selectedEvent.start_date.split('.')[0]);
+                                                        const dateStr = date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+                                                        const hasTime = date.getHours() !== 0 || date.getMinutes() !== 0;
+
+                                                        return hasTime
+                                                            ? `${dateStr} à ${date.getHours()}h${date.getMinutes() > 0 ? date.getMinutes().toString().padStart(2, '0') : ''}`
+                                                            : dateStr;
+                                                    })()}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
