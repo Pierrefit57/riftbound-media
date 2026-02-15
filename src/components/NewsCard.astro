@@ -33,6 +33,7 @@ function getTagStyle(tag: string): string {
   if (t.includes('interview')) return 'bg-accent-sakura/20 text-accent-sakura border-accent-sakura/30';
   if (t.includes('errata')) return 'bg-domain-body/15 text-domain-body border-domain-body/30';
   if (t.includes('faq')) return 'bg-domain-body/15 text-domain-body border-domain-body/30';
+  if (t.includes('site web')) return 'bg-accent-spirit/20 text-accent-spirit border-accent-spirit/40 font-bold shadow-[0_0_10px_rgba(233,135,15,0.1)]';
 
   return 'bg-rift-800/50 text-rift-200 border-rift-700/50';
 }
@@ -61,6 +62,9 @@ function getTagStyle(tag: string): string {
     </div>
     <div class="p-5 md:p-6 relative z-10 flex flex-col flex-1">
       <div class="flex flex-wrap gap-2 mb-3 min-h-[28px]">
+        <span class={`inline-flex items-center justify-center px-2.5 py-0.5 text-xs font-bold rounded-full border leading-none ${getTagStyle('site web')}`}>
+          Site Web
+        </span>
         {tags.map((tag) => {
           const displayTag = tag === 'Store Riot' ? 'Boutique Riot' : tag;
           return (
@@ -105,7 +109,9 @@ function getTagStyle(tag: string): string {
     </div>
     <div class="p-4 md:p-5 relative z-10 flex flex-col flex-1">
       <div class="flex flex-wrap gap-1.5 mb-2 min-h-[24px]">
-      <div class="flex flex-wrap gap-1.5 mb-2 min-h-[24px]">
+        <span class={`inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold rounded-full border leading-none ${getTagStyle('site web')}`}>
+          Site Web
+        </span>
         {tags.map((tag) => {
           const displayTag = tag === 'Store Riot' ? 'Boutique Riot' : tag;
           return (

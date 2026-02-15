@@ -9,102 +9,119 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const resendApiKey = process.env.RESEND_API_KEY;
 
 if (!supabaseUrl || !serviceRoleKey || !resendApiKey) {
-    console.error('Missing environment variables. Please check .env');
-    process.exit(1);
+  console.error('Missing environment variables. Please check .env');
+  process.exit(1);
 }
 
 const supabase = createClient(supabaseUrl, serviceRoleKey, {
-    auth: { autoRefreshToken: false, persistSession: false }
+  auth: { autoRefreshToken: false, persistSession: false }
 });
 const resend = new Resend(resendApiKey);
 
 async function sendNotifications() {
-    console.log('--- Start Notification Script ---');
+  console.log('--- Start Notification Script ---');
 
-    // 1. Get events starting today (Paris time ideally, but we'll use UTC/ISO for simplicity here)
-    const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).toISOString();
+  // 1. Get events starting today (Paris time ideally, but we'll use UTC/ISO for simplicity here)
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+  const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).toISOString();
 
-    console.log(`Checking events between ${startOfToday} and ${endOfToday}`);
+  console.log(`Checking events between ${startOfToday} and ${endOfToday}`);
 
-    const { data: events, error: eventError } = await supabase
-        .from('calendar_events')
-        .select('id, title, start_date, location, type')
-        .gte('start_date', startOfToday)
-        .lte('start_date', endOfToday);
+  const { data: events, error: eventError } = await supabase
+    .from('calendar_events')
+    .select('id, title, start_date, location, type')
+    .gte('start_date', startOfToday)
+    .lte('start_date', endOfToday);
 
-    if (eventError) {
-        console.error('Error fetching events:', eventError);
-        return;
+  if (eventError) {
+    console.error('Error fetching events:', eventError);
+    return;
+  }
+
+  if (!events || events.length === 0) {
+    console.log('No events starting today.');
+    return;
+  }
+
+  console.log(`Found ${events.length} event(s) starting today.`);
+
+  // 2. Fetch all profiles to get usernames
+  const { data: profiles, error: profileError } = await supabase
+    .from('profiles')
+    .select('id, username');
+
+  if (profileError) {
+    console.error('Error fetching profiles:', profileError);
+    return;
+  }
+
+  // 3. Fetch all users from Auth to map emails
+  const { data: { users }, error: userError } = await supabase.auth.admin.listUsers();
+  if (userError) {
+    console.error('Error fetching users:', userError);
+    return;
+  }
+
+  // 4. Process each event
+  for (const event of events) {
+    console.log(`Processing event: ${event.title}`);
+
+    // Get followers for this event
+    const { data: follows, error: followError } = await supabase
+      .from('event_follows')
+      .select('user_id')
+      .eq('event_id', event.id);
+
+    if (followError) {
+      console.error(`Error fetching follows for event ${event.id}:`, followError);
+      continue;
     }
 
-    if (!events || events.length === 0) {
-        console.log('No events starting today.');
-        return;
+    if (!follows || follows.length === 0) {
+      console.log(`No followers for event: ${event.title}`);
+      continue;
     }
 
-    console.log(`Found ${events.length} event(s) starting today.`);
+    console.log(`Found ${follows.length} follower(s) for event: ${event.title}`);
 
-    // 2. Fetch all users from Auth to map emails (needs service role)
-    // Note: For very large user bases, this should be paginated or optimized.
-    const { data: { users }, error: userError } = await supabase.auth.admin.listUsers();
-    if (userError) {
-        console.error('Error fetching users:', userError);
-        return;
+    // Map user_id to emails and usernames
+    const subscribers = follows
+      .map(f => {
+        const user = users.find(u => u.id === f.user_id);
+        const profile = profiles.find(p => p.id === f.user_id);
+        return {
+          email: user?.email,
+          username: profile?.username || user?.user_metadata?.username || 'Invocateur'
+        };
+      })
+      .filter(s => !!s.email);
+
+    if (subscribers.length === 0) {
+      console.log('No valid subscribers found for followers.');
+      continue;
     }
 
-    // 3. Process each event
-    for (const event of events) {
-        console.log(`Processing event: ${event.title}`);
-
-        // Get followers for this event
-        const { data: follows, error: followError } = await supabase
-            .from('event_follows')
-            .select('user_id')
-            .eq('event_id', event.id);
-
-        if (followError) {
-            console.error(`Error fetching follows for event ${event.id}:`, followError);
-            continue;
-        }
-
-        if (!follows || follows.length === 0) {
-            console.log(`No followers for event: ${event.title}`);
-            continue;
-        }
-
-        console.log(`Found ${follows.length} follower(s) for event: ${event.title}`);
-
-        // Map user_id to emails
-        const emails = follows
-            .map(f => users.find(u => u.id === f.user_id)?.email)
-            .filter(email => !!email);
-
-        if (emails.length === 0) {
-            console.log('No valid emails found for followers.');
-            continue;
-        }
-
-        // 4. Send Emails (Resend supports batching, but we'll send individually or in small batches for better control)
-        for (const toEmail of emails) {
-            await sendEventEmail(toEmail, event);
-        }
+    // 5. Send Emails
+    for (const sub of subscribers) {
+      await sendEventEmail(sub.email, sub.username, event);
     }
+  }
 
-    console.log('--- Notification Script Completed ---');
+  console.log('--- Notification Script Completed ---');
 }
 
-async function sendEventEmail(to, event) {
-    const formattedDate = new Date(event.start_date).toLocaleDateString('fr-FR', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+async function sendEventEmail(to, username, event) {
+  const formattedDate = new Date(event.start_date).toLocaleString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'Europe/Paris'
+  });
 
-    const html = `
+  const html = `
     <!DOCTYPE html>
     <html lang="fr">
     <head>
@@ -155,7 +172,7 @@ async function sendEventEmail(to, event) {
               <!-- Body Content -->
               <tr>
                 <td class="content">
-                  <h2 style="font-family: 'Outfit', sans-serif; font-size: 24px; margin-top: 0; color: #ffffff;">Bonjour,</h2>
+                  <h2 style="font-family: 'Outfit', sans-serif; font-size: 24px; margin-top: 0; color: #ffffff;">Bonjour ${username},</h2>
                   <p style="font-size: 16px; color: #bcccdc; line-height: 1.6;">L'aventure vous attend ! Un événement que vous suivez sur <strong>Riftbound Media</strong> commence aujourd'hui.</p>
                   
                   <div class="event-box">
@@ -191,22 +208,22 @@ async function sendEventEmail(to, event) {
     </html>
   `;
 
-    try {
-        const { data, error } = await resend.emails.send({
-            from: 'Riftbound Media <notifications@riftbound-media.fr>',
-            to,
-            subject: `🔔 Jour J : ${event.title}`,
-            html: html,
-        });
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'Riftbound Media <notifications@riftbound-media.fr>',
+      to,
+      subject: `🔔 Jour J : ${event.title}`,
+      html: html,
+    });
 
-        if (error) {
-            console.error(`Error sending to ${to}:`, error);
-        } else {
-            console.log(`Email sent to ${to}. ID: ${data?.id}`);
-        }
-    } catch (err) {
-        console.error(`Exception sending to ${to}:`, err);
+    if (error) {
+      console.error(`Error sending to ${to}:`, error);
+    } else {
+      console.log(`Email sent to ${to}. ID: ${data?.id}`);
     }
+  } catch (err) {
+    console.error(`Exception sending to ${to}:`, err);
+  }
 }
 
 sendNotifications();
