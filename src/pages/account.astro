@@ -271,23 +271,27 @@ const roleBadge = getRoleBadge(displayProfile?.role || 'user');
     const logoutBtn = document.getElementById('logout-btn');
     logoutBtn?.addEventListener('click', async (e) => {
       e.preventDefault();
-      console.log('[auth] Starting robust logout (API-based)...');
+      console.log('[auth] Starting strict logout (signout -> api -> redirect)...');
       
       try {
-        // 1. Supabase signOut
+        // 1. Déconnexion via le SDK Supabase (LocalStorage + Invalidation session)
         await supabase.auth.signOut();
         
-        // 2. Clear LocalStorage
-        const prefix = 'sb-otbccpoavhfvjpqpzemz-auth-token';
-        localStorage.removeItem(prefix);
+        // 2. Nettoyage LocalStorage manuel (précaution)
+        localStorage.removeItem('sb-otbccpoavhfvjpqpzemz-auth-token');
         
-        // 3. API Logout (Server-side HttpOnly cookie deletion)
-        await fetch('/api/auth/logout', { method: 'POST' });
+        // 3. Appel API pour supprimer les cookies HttpOnly et ATTENTE de la réponse
+        const response = await fetch('/api/auth/logout', { method: 'POST' });
         
-        console.log('[auth] Logout complete, redirecting...');
+        if (response.ok) {
+          console.log('[auth] API logout success, redirecting...');
+        } else {
+          console.warn('[auth] API logout returned error status:', response.status);
+        }
       } catch (err) {
-        console.error('[auth] Logout error:', err);
+        console.error('[auth] Error during logout flow:', err);
       } finally {
+        // 4. Redirection finale dans tous les cas pour "forcer" le refresh de l'état
         window.location.href = '/login';
       }
     });

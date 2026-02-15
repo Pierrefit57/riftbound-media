@@ -444,17 +444,16 @@ const ongoingEvent = activeEvents?.find(event => {
       const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
       mobileLogoutBtn?.addEventListener('click', async (e) => {
         e.preventDefault();
-        console.log('[auth] Starting robust mobile logout (API-based)...');
+        console.log('[auth] Starting strict mobile logout...');
         
         try {
           // 1. Sign out
           await supabase.auth.signOut();
           
           // 2. Clear LocalStorage
-          const prefix = 'sb-otbccpoavhfvjpqpzemz-auth-token';
-          localStorage.removeItem(prefix);
+          localStorage.removeItem('sb-otbccpoavhfvjpqpzemz-auth-token');
           
-          // 3. API Logout (Server-side HttpOnly cookie deletion)
+          // 3. API Logout et ATTENTE
           await fetch('/api/auth/logout', { method: 'POST' });
         } catch (err) {
           console.error('[auth] Logout error:', err);

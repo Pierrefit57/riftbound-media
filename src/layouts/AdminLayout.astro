@@ -94,20 +94,17 @@ const sidebarItems = [
       const logoutBtn = document.getElementById('logout-btn');
       logoutBtn?.addEventListener('click', async (e) => {
         e.preventDefault();
-        console.log('[auth] Starting robust admin logout (API-based)...');
+        console.log('[auth] Starting strict admin logout...');
         
         try {
           // 1. Déconnexion client
           await supabase.auth.signOut();
           
           // 2. Clear LocalStorage
-          const prefix = 'sb-otbccpoavhfvjpqpzemz-auth-token';
-          localStorage.removeItem(prefix);
+          localStorage.removeItem('sb-otbccpoavhfvjpqpzemz-auth-token');
           
-          // 3. API Logout (Server-side HttpOnly cookie deletion)
+          // 3. Appel API et ATTENTE de réponse
           await fetch('/api/auth/logout', { method: 'POST' });
-          
-          console.log('[auth] Logout complete.');
         } catch (err) {
           console.error('[auth] Logout error:', err);
         } finally {
