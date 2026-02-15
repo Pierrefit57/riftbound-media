@@ -46,11 +46,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
             // On déplace le tracking après la session.
         });
     }
-    // Récupérer les tokens depuis les cookies
+    // Récupérer les tokens depuis les cookies (Gestion des cookies segmentés)
+    const segmentedPrefix = 'sb-otbccpoavhfvjpqpzemz-auth-token';
+    const hasSegmented = context.cookies.has(`${segmentedPrefix}.0`) || context.cookies.has(segmentedPrefix);
+
+    // Fallback anciens cookies génériques
     const accessToken = context.cookies.get('sb-access-token')?.value;
     const refreshToken = context.cookies.get('sb-refresh-token')?.value;
 
-    if (accessToken && refreshToken) {
+    if (hasSegmented || (accessToken && refreshToken)) {
         // Vérifier/restaurer la session avec un client frais
         const authClient = createAuthClient();
         console.log('[auth] Tentative de restauration de session via cookies...');

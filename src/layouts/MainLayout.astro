@@ -443,22 +443,29 @@ const ongoingEvent = activeEvents?.find(event => {
       // Logout mobile
       const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
       mobileLogoutBtn?.addEventListener('click', async (e) => {
+        // Stop default
         e.preventDefault();
-        console.log('[auth] Starting strict mobile logout...');
+        console.log('[auth] Starting strict mobile logout (manual control)...');
         
         try {
-          // 1. Sign out
+          // 1. Sign out SDK
           await supabase.auth.signOut();
           
           // 2. Clear LocalStorage
           localStorage.removeItem('sb-otbccpoavhfvjpqpzemz-auth-token');
           
-          // 3. API Logout et ATTENTE
-          await fetch('/api/auth/logout', { method: 'POST' });
+          // 3. API Logout et ATTENTE réelle
+          const res = await fetch('/api/auth/logout', { method: 'POST' });
+          
+          if (res.ok) {
+            console.log('[auth] Mobile API Confirmation, replacing location...');
+            window.location.replace('/login');
+          } else {
+            window.location.replace('/login');
+          }
         } catch (err) {
           console.error('[auth] Logout error:', err);
-        } finally {
-          window.location.href = '/login';
+          window.location.replace('/login');
         }
       });
 

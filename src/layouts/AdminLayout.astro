@@ -93,22 +93,30 @@ const sidebarItems = [
 
       const logoutBtn = document.getElementById('logout-btn');
       logoutBtn?.addEventListener('click', async (e) => {
+        // Bloquer la sortie immédiate
         e.preventDefault();
-        console.log('[auth] Starting strict admin logout...');
+        console.log('[auth] Starting strict admin logout (manual control)...');
         
         try {
           // 1. Déconnexion client
           await supabase.auth.signOut();
           
-          // 2. Clear LocalStorage
+          // 2. Nettoyage LocalStorage
           localStorage.removeItem('sb-otbccpoavhfvjpqpzemz-auth-token');
           
           // 3. Appel API et ATTENTE de réponse
-          await fetch('/api/auth/logout', { method: 'POST' });
+          const res = await fetch('/api/auth/logout', { method: 'POST' });
+          
+          if (res.ok) {
+            console.log('[auth] API logout confirmed, replacing...');
+            window.location.replace('/login');
+          } else {
+            console.error('[auth] API logout error status:', res.status);
+            window.location.replace('/login');
+          }
         } catch (err) {
           console.error('[auth] Logout error:', err);
-        } finally {
-          window.location.href = '/login';
+          window.location.replace('/login');
         }
       });
     </script>

@@ -270,29 +270,32 @@ const roleBadge = getRoleBadge(displayProfile?.role || 'user');
 
     const logoutBtn = document.getElementById('logout-btn');
     logoutBtn?.addEventListener('click', async (e) => {
+      // 1. Bloquer la redirection immédiate
       e.preventDefault();
-      console.log('[auth] Starting strict logout (signout -> api -> redirect)...');
+      console.log('[auth] Starting bulletproof logout (order enforced)...');
       
       try {
-        // 1. Déconnexion via le SDK Supabase (LocalStorage + Invalidation session)
+        // 1. Invalide la session Supabase locale (SDK)
         await supabase.auth.signOut();
         
-        // 2. Nettoyage LocalStorage manuel (précaution)
+        // 2. Nettoyage LocalStorage manuel
         localStorage.removeItem('sb-otbccpoavhfvjpqpzemz-auth-token');
         
-        // 3. Appel API pour supprimer les cookies HttpOnly et ATTENTE de la réponse
+        // 3. Appel API (POST) et ATTENTE réelle de la réponse
         const response = await fetch('/api/auth/logout', { method: 'POST' });
         
         if (response.ok) {
-          console.log('[auth] API logout success, redirecting...');
+          console.log('[auth] API confirmation received, replacing location...');
+          // 4. SEULEMENT si res.ok, on redirige manuellement
+          window.location.replace('/login');
         } else {
-          console.warn('[auth] API logout returned error status:', response.status);
+          console.error('[auth] API logout failed:', response.status);
+          // Rediriger quand même en cas d'erreur API pour rafraîchir l'interface
+          window.location.replace('/login');
         }
       } catch (err) {
-        console.error('[auth] Error during logout flow:', err);
-      } finally {
-        // 4. Redirection finale dans tous les cas pour "forcer" le refresh de l'état
-        window.location.href = '/login';
+        console.error('[auth] Critical error during logout:', err);
+        window.location.replace('/login');
       }
     });
   </script>
