@@ -11,28 +11,16 @@ if (!user) {
   return Astro.redirect('/login');
 }
 
-// Handle Logout Server-side
-if (Astro.request.method === 'POST') {
-  const formData = await Astro.request.formData();
-  const action = formData.get('action');
-  
-  if (action === 'logout') {
-    const isProd = import.meta.env.PROD;
-    const domain = isProd ? '.riftbound-media.fr' : undefined;
-    
-    Astro.cookies.delete('sb-access-token', { path: '/', domain });
-    Astro.cookies.delete('sb-refresh-token', { path: '/', domain });
-    
-    return Astro.redirect('/login');
-  }
-}
-
-let successMsg = '';
-let errorMsg = '';
-
+// Handle Actions (Logout, Profile updates)
 if (Astro.request.method === 'POST') {
   const formData = await Astro.request.formData();
   const action = formData.get('action') as string;
+  
+  if (action === 'logout') {
+    Astro.cookies.delete('sb-access-token', { path: '/', domain: '.riftbound-media.fr' });
+    Astro.cookies.delete('sb-refresh-token', { path: '/', domain: '.riftbound-media.fr' });
+    return Astro.redirect('/login');
+  }
 
   if (action === 'update-avatar') {
     const file = formData.get('avatar') as File;
@@ -272,11 +260,9 @@ const roleBadge = getRoleBadge(displayProfile?.role || 'user');
 
     const logoutBtn = document.getElementById('logout-btn');
     logoutBtn?.addEventListener('click', async (e) => {
-      // On laisse le formulaire se soumettre normalement pour le logout serveur,
-      // mais on peut aussi appeler signOut client-side pour vider le LocalStorage.
-      import { supabase } from '../lib/supabase';
+      // On vide le LocalStorage client-side avant la soumission du formulaire
       await supabase.auth.signOut();
-      console.log('[auth] Déconnexion client OK, redirection vers logout serveur...');
+      console.log('[auth] Client session cleared.');
     });
   </script>
 </MainLayout>
