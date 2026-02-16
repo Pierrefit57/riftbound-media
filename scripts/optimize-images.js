@@ -10,6 +10,9 @@ dotenv.config();
 const supabaseUrl = process.env.PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+// Détection du mode Dry Run via l'argument --dry-run
+const DRY_RUN = process.argv.includes('--dry-run');
+
 if (!supabaseUrl || !supabaseKey) {
     console.error('Erreur: PUBLIC_SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY doivent être dans le .env');
     process.exit(1);
@@ -21,6 +24,9 @@ const MAX_SIZE_BYTES = 1 * 1024 * 1024; // 1 Mo
 
 async function optimizeImages() {
     console.log('--- Démarrage de l\'optimisation des images ---');
+    if (DRY_RUN) {
+        console.log('⚠️  MODE SIMULATION (DRY RUN) ACTIVÉ. Aucune modification ne sera effectuée.');
+    }
 
     // 1. Lister les fichiers
     const { data: files, error: listError } = await supabase.storage.from(BUCKET).list('articles', {
@@ -35,6 +41,8 @@ async function optimizeImages() {
     }
 
     console.log(`${files.length} fichiers trouvés.`);
+
+    let totalSaved = 0;
 
     for (const file of files) {
         const filePath = `articles/${file.name}`;
@@ -65,8 +73,22 @@ async function optimizeImages() {
                 .webp({ quality: 80 })
                 .toBuffer();
 
+            const newSize = optimizedBuffer.length;
+            const savedSize = file.metadata.size - newSize;
+            totalSaved += savedSize;
+
             const newFileName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
             const newPath = `articles/${newFileName}`;
+
+            console.log(`[OK] Résultat: ${newFileName} | Nouvelle taille: ${(newSize / 1024).toFixed(2)} Ko | Gain: ${(savedSize / 1024).toFixed(2)} Ko`);
+
+            if (DRY_RUN) {
+                console.log(`[DRY-RUN] Simuler l'upload de ${newFileName}`);
+                if (file.name !== newFileName) {
+                    console.log(`[DRY-RUN] Simuler la mise à jour BDD et suppression de ${file.name}`);
+                }
+                continue;
+            }
 
             // 4. Re-uploader
             const { error: uploadError } = await supabase.storage.from(BUCKET).upload(newPath, optimizedBuffer, {
@@ -122,6 +144,11 @@ async function optimizeImages() {
         }
     }
 
+    console.log('\n--- Résumé ---');
+    console.log(`Gain de stockage total estimé: ${(totalSaved / 1024 / 1024).toFixed(2)} Mo`);
+    if (DRY_RUN) {
+        console.log('Mode simulation : aucune modification réelle n\'a été faite.');
+    }
     console.log('--- Fin de l\'optimisation ---');
 }
 
