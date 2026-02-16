@@ -37,11 +37,16 @@ export const onRequest = defineMiddleware(async (context, next) => {
         // ATTENTION: Sur Vercel Edge, sans await, la promesse peut être annulée.
         // Pour l'instant, on fait un tracking simple qui attend (rapide avec Supabase) ou on accepte le risque.
         // On va attendre pour garantir l'écriture, ça ajoute quelques ms mais c'est plus sûr.
+        const referrer = context.request.headers.get('referer') || undefined;
+        const country = context.request.headers.get('x-vercel-ip-country') || undefined;
+
         await trackEvent('page_view', {
             path,
             ip: typeof ip === 'string' ? ip : undefined,
             agent: context.request.headers.get('user-agent') || undefined,
             user_id: undefined,
+            referrer,
+            country,
         });
     }
     // 2. Gestion de la Session via Supabase SSR

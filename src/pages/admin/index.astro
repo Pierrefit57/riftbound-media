@@ -52,16 +52,19 @@ const startDate = subDays(endDate, 30);
 
 const { data: logs } = await supabase
   .from('analytics_logs')
-  .select('event_type, created_at, path, ip_address')
+  .select('event_type, created_at, path, ip_address, referrer, country')
   .gte('created_at', thirtyDaysAgo)
   .order('created_at', { ascending: true });
 
 // Process Logs for Charts
 const pageStats = new Map();
+const referrerStats = new Map();
+const countryStats = new Map();
 let viewsToday = 0;
 let totalViews30d = 0;
 const uniqueIps30d = new Set();
 const uniqueIpsToday = new Set();
+// Utiliser UTC pour la comparaison avec created_at (stocké en UTC)
 const todayStr = new Date().toISOString().split('T')[0];
 
 // Initialize last 30 days specific map
@@ -71,7 +74,9 @@ eachDayOfInterval({ start: startDate, end: endDate }).forEach(day => {
 });
 
 logs?.forEach(log => {
-   const dateStr = log.created_at.split('T')[0];
+   // Parsing robuste
+   const dateObj = new Date(log.created_at);
+   const dateStr = dateObj.toISOString().split('T')[0];
    const ip = log.ip_address;
    
    if (log.event_type === 'page_view') {
@@ -91,6 +96,15 @@ logs?.forEach(log => {
            const p = log.path;
            pageStats.set(p, (pageStats.get(p) || 0) + 1);
        }
+
+       if (log.referrer && log.referrer !== 'direct') {
+           const ref = new URL(log.referrer).hostname.replace('www.', '');
+           referrerStats.set(ref, (referrerStats.get(ref) || 0) + 1);
+       }
+
+       if (log.country) {
+           countryStats.set(log.country, (countryStats.get(log.country) || 0) + 1);
+       }
    }
 });
 
@@ -99,14 +113,11 @@ const totalUnique30d = uniqueIps30d.size;
 
 // Convert Maps to Arrays and Sort
 const dailyVisits = Object.entries(dailyViewsMap).map(([date, views]) => ({
-    date: format(new Date(date), 'dd/MM'), // Short date format
+    date: format(new Date(date), 'dd/MM'),
     views
-})).sort((a, b) => { // Force sort by date logic if needed, but interval key is sorted
-     return 0;
-});
+}));
 
-const chartData = dailyVisits; // Compatible with DashboardCharts data prop
-
+const chartData = dailyVisits;
 ---
 
 <AdminLayout title="Tableau de bord" activeItem="dashboard">
@@ -160,58 +171,77 @@ const chartData = dailyVisits; // Compatible with DashboardCharts data prop
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         
-        <!-- Left Column: Quick Actions -->
+        <!-- Left Column: Quick Actions & Trends -->
         <div class="lg:col-span-1 space-y-6">
            <div class="bg-rift-800/50 rounded-2xl border border-rift-700/50 p-5 shadow-card sticky top-6">
               <h2 class="text-base font-display font-bold text-rift-100 mb-4">Actions rapides</h2>
-              <div class="flex flex-col gap-3">
+              <div class="flex flex-col gap-3 mb-6">
                 <a href="/admin/articles/new" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-accent-spirit text-white text-sm font-semibold hover:bg-accent-spirit/90 shadow-spirit transition-all duration-300 hover:-translate-y-0.5 w-full">
                   ✦ Nouvel article
                 </a>
-                <a href="/admin/articles" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-rift-300 text-sm font-medium border border-rift-700 bg-rift-800/60 hover:border-accent-spirit/30 hover:text-accent-spirit transition-all duration-300 w-full">
-                  Gérer les articles
-                </a>
-                <a href="/admin/calendar" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-rift-300 text-sm font-medium border border-rift-700 bg-rift-800/60 hover:border-accent-spirit/30 hover:text-accent-spirit transition-all duration-300 w-full">
-                  Gérer le calendrier
-                </a>
-                <a href="/" target="_blank" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-rift-300 text-sm font-medium border border-rift-700 bg-rift-800/60 hover:border-accent-spirit/30 hover:text-accent-spirit transition-all duration-300 w-full">
-                  Voir le site ↗
-                </a>
               </div>
+
+              {referrerStats.size > 0 && (
+                <div class="pt-4 border-t border-rift-700/50">
+                  <h3 class="text-xs font-bold text-rift-400 uppercase tracking-widest mb-3">Sources principales</h3>
+                  <div class="space-y-2">
+                    {Array.from(referrerStats.entries()).sort((a,b) => b[1] - a[1]).slice(0, 5).map(([ref, count]) => (
+                      <div class="flex items-center justify-between text-xs">
+                        <span class="text-rift-200 truncate pr-2">{ref}</span>
+                        <span class="text-rift-400 font-medium">{count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {countryStats.size > 0 && (
+                <div class="pt-4 mt-4 border-t border-rift-700/50">
+                  <h3 class="text-xs font-bold text-rift-400 uppercase tracking-widest mb-3">Géographie</h3>
+                  <div class="space-y-2">
+                    {Array.from(countryStats.entries()).sort((a,b) => b[1] - a[1]).slice(0, 5).map(([country, count]) => (
+                      <div class="flex items-center justify-between text-xs">
+                        <span class="text-rift-200">{country}</span>
+                        <span class="text-rift-400 font-medium">{count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
         </div>
     
-        <!-- Right Column: Charts -->
+        <!-- Right Column: Charts & Popular Content -->
         <div class="lg:col-span-3 space-y-8">
            <!-- Main Stats Chart -->
            <DashboardCharts client:load data={chartData} />
 
-           <!-- Top Articles -->
+           <!-- Popular Content -->
            <div class="bg-rift-900/40 border border-rift-800/50 rounded-xl p-6 h-fit">
             <h3 class="text-lg font-bold text-rift-100 mb-4 flex items-center gap-2">
               <svg class="w-5 h-5 text-accent-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>
-              Pages Populaires (30j)
+              Contenu Populaire (30j)
             </h3>
-            <div class="space-y-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                {pageStats.size > 0 ? Array.from(pageStats.entries())
                     .filter(([path]) => path.startsWith('/news/') || path === '/')
-                    .sort((a,b) => b[1] - a[1]) // Sort by count descending
-                    .slice(0, 5)
+                    .sort((a,b) => b[1] - a[1])
+                    .slice(0, 10)
                     .map(([path, count]) => (
                  <div class="flex items-center justify-between p-3 rounded-lg bg-rift-950/50 border border-rift-800/50 hover:border-accent-cyan/30 transition-colors">
-                   <div class="min-w-0 flex-1 mr-4">
+                   <div class="min-w-0 flex-1 mr-2">
                      <p class="text-sm font-medium text-rift-100 truncate" title={path}>
                        {articleTitleMap.get(path) || (path === '/' ? 'Accueil' : path.replace('/news/', ''))}
                      </p>
                    </div>
-                   <span class="px-2 py-1 text-xs font-bold text-accent-cyan bg-accent-cyan/10 rounded-md">
-                     {count} vues
+                   <span class="text-xs font-bold text-accent-cyan px-2 py-0.5 bg-accent-cyan/10 rounded">
+                     {count}
                    </span>
                  </div>
                )) : (
-                 <p class="text-sm text-rift-500 italic">Aucune donnée récente.</p>
+                 <p class="text-sm text-rift-500 italic md:col-span-2">Aucune donnée récente.</p>
                )}
             </div>
           </div>
