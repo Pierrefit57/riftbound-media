@@ -9,6 +9,11 @@ import { createServiceClient } from '../../lib/supabase';
 // Utiliser le service client pour contourner les RLS (lecture logs admin)
 const supabase = createServiceClient();
 
+// Désactiver le cache pour garantir des données fraîches
+Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+Astro.response.headers.set('Pragma', 'no-cache');
+Astro.response.headers.set('Expires', '0');
+
 // 1. Articles Stats
 const { data: articles } = await supabase
   .from('articles')

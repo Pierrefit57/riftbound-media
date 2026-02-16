@@ -37,13 +37,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
         // ATTENTION: Sur Vercel Edge, sans await, la promesse peut être annulée.
         // Pour l'instant, on fait un tracking simple qui attend (rapide avec Supabase) ou on accepte le risque.
         // On va attendre pour garantir l'écriture, ça ajoute quelques ms mais c'est plus sûr.
-        trackEvent('page_view', {
+        await trackEvent('page_view', {
             path,
             ip: typeof ip === 'string' ? ip : undefined,
             agent: context.request.headers.get('user-agent') || undefined,
-            user_id: undefined, // Sera enrichi si session trouvée ? Non, middleware s'exécute avant auth pour tout le monde. 
-            // Si on veut le user_id, il faut le faire APRES la résolution de session ci-dessous.
-            // On déplace le tracking après la session.
+            user_id: undefined,
         });
     }
     // 2. Gestion de la Session via Supabase SSR
