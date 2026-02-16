@@ -58,6 +58,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
             .upload(filePath, buffer, {
                 contentType: file.type,
                 upsert: false,
+                cacheControl: '31536000' // 1 an de cache navigateur
             });
 
         if (uploadError) {

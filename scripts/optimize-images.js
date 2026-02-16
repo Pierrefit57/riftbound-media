@@ -28,23 +28,37 @@ async function optimizeImages() {
         console.log('⚠️  MODE SIMULATION (DRY RUN) ACTIVÉ. Aucune modification ne sera effectuée.');
     }
 
-    // 1. Lister les fichiers
-    const { data: files, error: listError } = await supabase.storage.from(BUCKET).list('articles', {
-        limit: 100,
-        offset: 0,
-        sortBy: { column: 'name', order: 'asc' }
-    });
+    // 1. Lister tous les fichiers avec pagination
+    let allFiles = [];
+    let offset = 0;
+    const limit = 100;
+    let hasMore = true;
 
-    if (listError) {
-        console.error('Erreur lors du listing:', listError);
-        return;
+    while (hasMore) {
+        const { data: files, error: listError } = await supabase.storage.from(BUCKET).list('articles', {
+            limit,
+            offset,
+            sortBy: { column: 'name', order: 'asc' }
+        });
+
+        if (listError) {
+            console.error('Erreur lors du listing:', listError);
+            return;
+        }
+
+        allFiles = allFiles.concat(files);
+        if (files.length < limit) {
+            hasMore = false;
+        } else {
+            offset += limit;
+        }
     }
 
-    console.log(`${files.length} fichiers trouvés.`);
+    console.log(`${allFiles.length} fichiers trouvés au total.`);
 
     let totalSaved = 0;
 
-    for (const file of files) {
+    for (const file of allFiles) {
         const filePath = `articles/${file.name}`;
 
         // Ignorer si déjà petit ou déjà webp (sauf si forcé)
@@ -93,7 +107,8 @@ async function optimizeImages() {
             // 4. Re-uploader
             const { error: uploadError } = await supabase.storage.from(BUCKET).upload(newPath, optimizedBuffer, {
                 contentType: 'image/webp',
-                upsert: true
+                upsert: true,
+                cacheControl: '31536000' // 1 an de cache navigateur
             });
 
             if (uploadError) throw uploadError;
