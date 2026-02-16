@@ -12,7 +12,6 @@ export const GET: APIRoute = async ({ request, url }) => {
         .from('articles')
         .select('*', { count: 'exact' })
         .eq('published', true)
-        .order('sort_order', { ascending: false })
         .order('published_at', { ascending: false })
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1);

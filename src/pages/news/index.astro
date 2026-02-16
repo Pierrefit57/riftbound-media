@@ -9,7 +9,6 @@ let { data: allNews, error: newsError } = await supabase
   .from('articles')
   .select('*')
   .eq('published', true)
-  .order('sort_order', { ascending: false })
   .order('published_at', { ascending: false })
   .order('created_at', { ascending: false });
 
@@ -19,7 +18,7 @@ if (newsError && newsError.message.includes('published_at')) {
     .from('articles')
     .select('*')
     .eq('published', true)
-    .order('sort_order', { ascending: false })
+    .order('published_at', { ascending: false })
     .order('created_at', { ascending: false });
   allNews = fallback.data;
 }
@@ -119,107 +118,52 @@ const regularNews = (allNews?.filter((n) => !featuredNews.some(f => f.slug === n
   </div>
 
   <script>
-    // Infinite Scroll Logic
-    const grid = document.getElementById('news-grid');
+    // Reveal Scroll Logic (Robust version - no extra API calls needed)
     const sentinel = document.getElementById('load-more-container');
-    let page = 1;
     let loading = false;
-    let hasMore = true;
+    const itemsPerPage = 9;
 
-    // Helper for tag styles (duplicated from NewsCard.astro for consistency)
-    function getTagStyle(tag) {
-      const t = tag.toLowerCase().trim();
-      if (t.includes('riot') || t.includes('officiel') || t.includes('store') || t.includes('boutique')) return 'bg-domain-order/15 text-domain-order border-domain-order/30';
-      if (t.includes('tournoi') || t.includes('compétitif')) return 'bg-accent-spirit/15 text-accent-spirit border-accent-spirit/30';
-      if (t.includes('mise à jour') || t.includes('patch')) return 'bg-domain-calm/15 text-domain-calm border-domain-calm/30';
-      if (t.includes('lore')) return 'bg-domain-chaos/15 text-domain-chaos border-domain-chaos/30';
-      return 'bg-rift-800/50 text-rift-200 border-rift-700/50';
-    }
-
-    async function loadNextPage() {
-      if (loading || !hasMore) return;
+    function revealNextBatch() {
+      if (loading) return;
       loading = true;
 
-      // Show loader
-      if (sentinel) sentinel.innerHTML = '<div class="w-8 h-8 mx-auto border-4 border-rift-700 border-t-accent-spirit rounded-full animate-spin"></div>';
+      const hiddenItems = document.querySelectorAll('.news-item.hidden');
+      
+      if (hiddenItems.length > 0) {
+        // Show next batch
+        const nextBatch = Array.from(hiddenItems).slice(0, itemsPerPage);
+        
+        nextBatch.forEach((item, i) => {
+          setTimeout(() => {
+            item.classList.remove('hidden');
+            // Force reflow
+            item.clientHeight; 
+            item.classList.remove('opacity-0', 'translate-y-4');
+          }, i * 100);
+        });
 
-      try {
-        const res = await fetch(`/api/news?page=${page + 1}&limit=9`);
-        const { data, meta } = await res.json();
-
-        if (data && data.length > 0) {
-          data.forEach((article, index) => {
-             // Check if already exists (server rendered)
-             // Actually, we should probably start fetching from page 2 if page 1 is server rendered?
-             // Server renders "regularNews" which could be any number.
-             // Strategy: The API handles offset. If server rendered 9 items (limit 9), we ask for page 2.
-             
-             // Render Article HTML
-             const div = document.createElement('div');
-             div.className = 'news-item transition-all duration-500 opacity-0 translate-y-4';
-             
-             const hasImage = article.image_url && !article.image_url.includes('cloudflare');
-             const pubDate = new Date(article.published_at || article.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-
-             div.innerHTML = `
-              <a href="/news/${article.slug}" class="group block overflow-hidden rounded-2xl border border-rift-700/50 bg-rift-800 hover:border-accent-spirit/30 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 h-full flex flex-col">
-                <div class="relative h-36 overflow-hidden flex-shrink-0">
-                  ${hasImage ? 
-                    `<img src="${article.image_url}" alt="${article.title}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />` : 
-                    `<div class="absolute inset-0 bg-gradient-to-br from-accent-sakura/10 via-rift-900 to-accent-forge/8"></div>`
-                  }
-                </div>
-                <div class="p-4 md:p-5 relative z-10 flex flex-col flex-1">
-                  <div class="flex flex-wrap gap-1.5 mb-2 min-h-[24px]">
-                    ${(article.tags || []).map(tag => {
-                      const displayTag = tag === 'Store Riot' ? 'Boutique Riot' : tag;
-                      return `<span class="inline-flex items-center justify-center px-2 py-0.5 text-[11px] font-medium rounded-full border leading-none ${getTagStyle(tag)}">${displayTag}</span>`;
-                    }).join('')}
-                  </div>
-                  <h3 class="text-base font-display font-bold text-rift-50 mb-1.5 group-hover:text-accent-spirit transition-colors duration-300 line-clamp-2 uppercase tracking-wide">
-                    ${article.title}
-                  </h3>
-                  <p class="text-rift-200 text-sm mb-3 line-clamp-2 leading-relaxed">
-                    ${article.summary || ''}
-                  </p>
-                  <div class="flex items-center justify-between text-xs text-rift-400 mt-auto">
-                    <span>${formattedDate}</span>
-                  </div>
-                </div>
-              </a>
-             `;
-             
-             grid?.appendChild(div);
-             
-             // Animate in
-             requestAnimationFrame(() => {
-               div.classList.remove('opacity-0', 'translate-y-4');
-             });
-          });
-
-          page++;
-          hasMore = page < meta.totalPages;
-        } else {
-          hasMore = false;
+        // Hide sentinel if no more items
+        if (hiddenItems.length <= itemsPerPage && sentinel) {
+          sentinel.style.display = 'none';
         }
-      } catch (e) {
-        console.error('Error loading news:', e);
-      } finally {
-        loading = false;
-        if (!hasMore && sentinel) sentinel.remove();
-        if (hasMore && sentinel) sentinel.innerHTML = ''; // Clear loader but keep sentinel
       }
+      
+      loading = false;
     }
 
-    // Interaction Observer
+    // Interaction Observer (Infinite Scroll Effect)
     if (sentinel) {
         const observer = new IntersectionObserver((entries) => {
             if (entries[0].isIntersecting) {
-                loadNextPage();
+                revealNextBatch();
             }
-        }, { rootMargin: '200px' });
+        }, { rootMargin: '300px' });
         
         observer.observe(sentinel);
+
+        // Click fallback
+        const btn = document.getElementById('load-more-btn');
+        btn?.addEventListener('click', revealNextBatch);
     }
   </script>
 
