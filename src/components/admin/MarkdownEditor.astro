@@ -210,354 +210,354 @@ try {
   </div>
 </div>
 
-<!-- CDN Marked Library -->
-<script is:inline src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+  import imageCompression from 'browser-image-compression';
+  import { marked } from 'marked';
 
-<script is:inline>
-  (function() {
-    class MarkdownEditor {
-      constructor(container) {
-        this.container = container;
-        this.textarea = container.querySelector('textarea');
-        this.fileInput = container.querySelector('.image-upload-input');
-        this.uploadLoading = container.querySelector('.upload-loading');
-        this.fontSizeSelect = container.querySelector('.font-size-select');
-        this.statusDot = container.querySelector('.editor-status-dot');
-        // Look for the preview area on page
-        this.preview = document.querySelector('.article-live-preview');
+  class MarkdownEditor {
+    constructor(container) {
+      this.container = container;
+      this.textarea = container.querySelector('textarea');
+      this.fileInput = container.querySelector('.image-upload-input');
+      this.uploadLoading = container.querySelector('.upload-loading');
+      this.fontSizeSelect = container.querySelector('.font-size-select');
+      this.statusDot = container.querySelector('.editor-status-dot');
+      // Look for the preview area on page
+      this.preview = document.querySelector('.article-live-preview');
 
-        if (!this.textarea) return;
-        
-        // Ensure marked is available
-        if (!window.marked) {
-          console.warn('Marked library not yet loaded, waiting...');
-          const checkMarked = setInterval(() => {
-            if (window.marked) {
-              clearInterval(checkMarked);
-              this.init();
-            }
-          }, 100);
-        } else {
-          this.init();
-        }
-      }
+      if (!this.textarea) return;
+      this.init();
+    }
 
-      init() {
-        // Prevent duplicate init
-        if (this.textarea._mdEditorInit) return;
-        this.textarea._mdEditorInit = true;
+    init() {
+      // Prevent duplicate init
+      if (this.textarea._mdEditorInit) return;
+      this.textarea._mdEditorInit = true;
 
-        this.textarea.addEventListener('input', () => this.updatePreview());
-        
-        // Auto-continue blockquotes on Enter
-        this.textarea.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            const start = this.textarea.selectionStart;
-            const text = this.textarea.value;
-            const before = text.substring(0, start);
-            const currentLine = before.split('\n').pop();
-            
-            if (currentLine.trim().startsWith('>')) {
-              e.preventDefault();
-              const prefix = '\n> ';
-              this.insertText(prefix, start, start);
-              const newPos = start + prefix.length;
-              this.textarea.setSelectionRange(newPos, newPos);
-            }
-          }
-        });
-
-        // Configuration de marked pour les retours à la ligne intuitifs
-        if (window.marked) {
-          window.marked.setOptions({
-            breaks: true,
-            gfm: true,
-            headerIds: false,
-            mangle: false
-          });
-        }
-
-        this.initToolbar();
-        this.initImageUpload();
-        this.initPasteSupport();
-        this.updatePreview();
-        if (this.statusDot) this.statusDot.style.backgroundColor = '#22c55e';
-      }
-
-      updatePreview() {
-        if (!this.preview || !window.marked) return;
-        
-        // Normalisation des sauts de ligne (\r\n -> \n)
-        const rawValue = (this.textarea.value || '').replace(/\r\n/g, '\n');
-        
-        // Pre-traitement pour préserver les lignes vides multiples
-        // On remplace 3+ sauts de ligne par un nombre équivalent d'espacement HTML
-        let processedValue = rawValue.replace(/\n{3,}/g, (match) => {
-          const count = match.length - 2;
-          return '\n\n' + '<div class="spacer" style="height: ' + (count * 1.5) + 'rem" aria-hidden="true"></div>\n\n';
-        });
-
-        // Correction automatique : Assurer une ligne vide entre les balises <div> et le contenu Markdown
-        // pour que marked puisse les parser correctement à l'intérieur du HTML.
-        processedValue = processedValue
-          .replace(/(<div[^>]*>)\n(?!\n)/g, '$1\n\n')
-          .replace(/(?<!\n)\n(<\/div>)/g, '\n\n$1');
-
-        this.preview.innerHTML = window.marked.parse(processedValue, { breaks: true, gfm: true });
-        
-        // Final sanity check: if preview is still empty but text exists
-        if (this.preview.innerHTML.trim() === '' && rawValue.trim() !== '') {
-          this.preview.innerHTML = '<p>' + rawValue + '</p>';
-        }
-      }
-
-      // Helper to preserve UNDO stack (Ctrl+Z)
-      insertText(newText, sStart, sEnd) {
-        this.textarea.focus();
-        this.textarea.setSelectionRange(sStart, sEnd);
-        
-        try {
-          if (!document.execCommand('insertText', false, newText)) {
-            throw new Error('execCommand failed');
-          }
-        } catch (e) {
-          const val = this.textarea.value;
-          this.textarea.value = val.substring(0, sStart) + newText + val.substring(sEnd);
-          this.textarea.dispatchEvent(new Event('input'));
-        }
-      }
-
-      initToolbar() {
-        this.container.addEventListener('mousedown', (e) => {
-          const btn = e.target.closest('[data-action]');
-          if (!btn) return;
-
-          e.preventDefault();
-          this.handleAction(btn.dataset.action, btn);
-        });
-      }
-
-      handleAction(action, target = null) {
-        const start = this.textarea.selectionStart;
-        const end = this.textarea.selectionEnd;
-        const text = this.textarea.value;
-        const selection = text.substring(start, end);
-
-        const checkToggle = (tagStart, tagEnd = tagStart) => {
-          if (text.substring(start - tagStart.length, start) === tagStart && text.substring(end, end + tagEnd.length) === tagEnd) {
-             return { before: tagStart.length, after: tagEnd.length };
-          }
-          return null;
-        };
-
-        const toggleWrap = (tagStart, tagEnd = tagStart) => {
-          const info = checkToggle(tagStart, tagEnd);
-          if (info) {
-             const sStart = start - info.before;
-             const sEnd = end + info.after;
-             this.insertText(selection, sStart, sEnd);
-             
-             const newStart = start - info.before;
-             const newEnd = end - info.before;
-             this.textarea.setSelectionRange(newStart, newEnd);
-             return true;
-          }
-          return false;
-        };
-
-        let prefix = '', suffix = '';
-        let content = selection;
-
-        switch(action) {
-          case 'bold':
-            if (toggleWrap('**')) return;
-            prefix = '**'; suffix = '**';
-            if (!content) content = 'gras';
-            break;
-          case 'italic':
-            if (toggleWrap('*')) return;
-            prefix = '*'; suffix = '*';
-            if (!content) content = 'italique';
-            break;
-          case 'strike':
-            if (toggleWrap('~~')) return;
-            prefix = '~~'; suffix = '~~';
-            if (!content) content = 'barré';
-            break;
-          case 'underline':
-            if (toggleWrap('<u>', '</u>')) return;
-            prefix = '<u>'; suffix = '</u>';
-            if (!content) content = 'souligné';
-            break;
-          case 'quote':
-            if (selection.includes('\n')) {
-              const multiLine = selection.split('\n').map(line => `> ${line}`).join('\n');
-              this.insertText(multiLine, start, end);
-              this.textarea.setSelectionRange(start, start + multiLine.length);
-              return;
-            }
-            prefix = '> ';
-            if (!content) content = 'citation';
-            break;
-          case 'link':
-            prefix = '['; 
-            suffix = '](url)';
-            if (!content) content = 'lien';
-            break;
-          case 'list':
-            prefix = '- ';
-            if (!content) content = 'élément';
-            break;
-          case 'fontSize':
-            const size = this.fontSizeSelect.value;
-            if (!size) {
-              alert('Veuillez sélectionner une taille.');
-              return;
-            }
-            prefix = `<span style="font-size: ${size}px">`;
-            suffix = '</span>';
-            if (!content) content = 'Texte';
-            break;
-          case 'alignLeft':
-            prefix = '<div style="text-align: left">\n\n';
-            suffix = '\n\n</div>';
-            if (!content) content = 'Texte à gauche';
-            break;
-          case 'alignCenter':
-            prefix = '<div style="text-align: center">\n\n';
-            suffix = '\n\n</div>';
-            if (!content) content = 'Texte centré';
-            break;
-          case 'alignRight':
-            prefix = '<div style="text-align: right">\n\n';
-            suffix = '\n\n</div>';
-            if (!content) content = 'Texte à droite';
-            break;
-          case 'sectionLeft':
-            prefix = '<div style="display: flex; align-items: center; gap: 2rem; margin: 0.5rem 0; flex-wrap: wrap;">\n\n<div style="flex: 1; min-width: 300px;">\n\n';
-            suffix = '\n\n</div>\n\n<div style="flex: 1; min-width: 300px;">\n\nTexte ici\n\n</div>\n\n</div>';
-            if (!content) content = '![Image](url)';
-            break;
-          case 'sectionRight':
-            prefix = '<div style="display: flex; align-items: center; gap: 2rem; margin: 0.5rem 0; flex-wrap: wrap; flex-direction: row-reverse;">\n\n<div style="flex: 1; min-width: 300px;">\n\n';
-            suffix = '\n\n</div>\n\n<div style="flex: 1; min-width: 300px;">\n\nTexte ici\n\n</div>\n\n</div>';
-            if (!content) content = '![Image](url)';
-            break;
-          case 'clearFloat':
-            prefix = '\n<div style="clear: both; height: 1px;"></div><!-- Séparateur -->\n';
-            suffix = '';
-            content = '';
-            break;
-          case 'insertTCGIcon':
-            const iconFile = target.getAttribute('data-icon');
-            const iconName = iconFile.replace('.png', '');
-            prefix = `<img src="/assets/icons/${iconFile}" class="icon-tcg" alt="${iconName}" />`;
-            suffix = '';
-            content = '';
-            break;
-          case 'insertEnergy':
-            const manualCost = prompt('Coût en énergie ?', '1') || '1';
-            prefix = `<span class="icon-energy">${manualCost}</span>`;
-            suffix = '';
-            content = '';
-            break;
-          case 'insertEnergyValue':
-            const cost = target.getAttribute('data-value');
-            prefix = `<span class="icon-energy">${cost}</span>`;
-            suffix = '';
-            content = '';
-            break;
-          case 'image':
-            this.fileInput.click();
-            return;
-        }
-
-        if (prefix || suffix) {
-          const replacement = prefix + content + suffix;
-          this.insertText(replacement, start, end);
+      this.textarea.addEventListener('input', () => this.updatePreview());
+      
+      // Auto-continue blockquotes on Enter
+      this.textarea.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const start = this.textarea.selectionStart;
+          const text = this.textarea.value;
+          const before = text.substring(0, start);
+          const currentLine = before.split('\n').pop();
           
-          const newStart = start + prefix.length;
-          const newEnd = newStart + content.length;
-          this.textarea.setSelectionRange(newStart, newEnd);
-        }
-      }
-
-        initImageUpload() {
-          this.fileInput.addEventListener('change', async () => {
-             const file = this.fileInput.files[0];
-             if (file) {
-               await this.uploadImageFile(file);
-               this.fileInput.value = '';
-             }
-          });
-        }
-
-        initPasteSupport() {
-          this.textarea.addEventListener('paste', async (e) => {
-            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-            for (const item of items) {
-              if (item.type.indexOf('image') !== -1) {
-                const file = item.getAsFile();
-                if (file) {
-                  e.preventDefault();
-                  this.uploadImageFile(file);
-                }
-              }
-            }
-          });
-        }
-
-        async uploadImageFile(file) {
-          this.uploadLoading.classList.remove('hidden');
-          const fd = new FormData(); 
-          fd.append('image', file);
-          
-          try {
-            const res = await fetch('/api/upload-image', { method: 'POST', body: fd });
-            const data = await res.json();
-            if (data.url) {
-              const tag = `![Image](${data.url})`;
-              const start = this.textarea.selectionStart;
-              this.insertText(tag, start, this.textarea.selectionEnd);
-            } else {
-              alert('Upload échoué: ' + (data.error || 'Erreur inconnue'));
-            }
-          } catch (e) {
-            alert('Erreur réseau upload');
-          } finally {
-            this.uploadLoading.classList.add('hidden');
-          }
-        }
-      }
-
-      // Initialize
-      function run() {
-        document.querySelectorAll('.markdown-editor').forEach(el => {
-          if (!el._editor) el._editor = new MarkdownEditor(el);
-        });
-      }
-
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', run);
-      } else {
-        run();
-      }
-
-      // Diagnostic: click status dot to log preview HTML
-      document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('editor-status-dot')) {
-          const editor = e.target.closest('.markdown-editor');
-          const preview = document.querySelector('.article-live-preview');
-          if (preview) {
-             console.log('--- PREVIEW HTML ---');
-             console.log(preview.innerHTML);
-             console.log('--------------------');
-             alert('HTML de la preview loggé dans la console.');
+          if (currentLine.trim().startsWith('>')) {
+            e.preventDefault();
+            const prefix = '\n> ';
+            this.insertText(prefix, start, start);
+            const newPos = start + prefix.length;
+            this.textarea.setSelectionRange(newPos, newPos);
           }
         }
       });
-    })();
-  </script>
+
+      // Configuration de marked pour les retours à la ligne intuitifs
+      marked.setOptions({
+        breaks: true,
+        gfm: true
+      });
+
+      this.initToolbar();
+      this.initImageUpload();
+      this.initPasteSupport();
+      this.updatePreview();
+      if (this.statusDot) this.statusDot.style.backgroundColor = '#22c55e';
+    }
+
+    updatePreview() {
+      if (!this.preview) return;
+      
+      // Normalisation des sauts de ligne (\r\n -> \n)
+      const rawValue = (this.textarea.value || '').replace(/\r\n/g, '\n');
+      
+      // Pre-traitement pour préserver les lignes vides multiples
+      let processedValue = rawValue.replace(/\n{3,}/g, (match) => {
+        const count = match.length - 2;
+        return '\n\n' + '<div class="spacer" style="height: ' + (count * 1.5) + 'rem" aria-hidden="true"></div>\n\n';
+      });
+
+      // Correction automatique : Assurer une ligne vide entre les balises <div> et le contenu Markdown
+      processedValue = processedValue
+        .replace(/(<div[^>]*>)\n(?!\n)/g, '$1\n\n')
+        .replace(/(?<!\n)\n(<\/div>)/g, '\n\n$1');
+
+      this.preview.innerHTML = marked.parse(processedValue);
+      
+      if (this.preview.innerHTML.trim() === '' && rawValue.trim() !== '') {
+        this.preview.innerHTML = '<p>' + rawValue + '</p>';
+      }
+    }
+
+    insertText(newText, sStart, sEnd) {
+      this.textarea.focus();
+      this.textarea.setSelectionRange(sStart, sEnd);
+      
+      try {
+        if (!document.execCommand('insertText', false, newText)) {
+          throw new Error('execCommand failed');
+        }
+      } catch (e) {
+        const val = this.textarea.value;
+        this.textarea.value = val.substring(0, sStart) + newText + val.substring(sEnd);
+        this.textarea.dispatchEvent(new Event('input'));
+      }
+    }
+
+    initToolbar() {
+      this.container.addEventListener('mousedown', (e) => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+
+        e.preventDefault();
+        this.handleAction(btn.dataset.action, btn);
+      });
+    }
+
+    handleAction(action, target = null) {
+      const start = this.textarea.selectionStart;
+      const end = this.textarea.selectionEnd;
+      const text = this.textarea.value;
+      const selection = text.substring(start, end);
+
+      const checkToggle = (tagStart, tagEnd = tagStart) => {
+        if (text.substring(start - tagStart.length, start) === tagStart && text.substring(end, end + tagEnd.length) === tagEnd) {
+           return { before: tagStart.length, after: tagEnd.length };
+        }
+        return null;
+      };
+
+      const toggleWrap = (tagStart, tagEnd = tagStart) => {
+        const info = checkToggle(tagStart, tagEnd);
+        if (info) {
+           const sStart = start - info.before;
+           const sEnd = end + info.after;
+           this.insertText(selection, sStart, sEnd);
+           
+           const newStart = start - info.before;
+           const newEnd = end - info.before;
+           this.textarea.setSelectionRange(newStart, newEnd);
+           return true;
+        }
+        return false;
+      };
+
+      let prefix = '', suffix = '';
+      let content = selection;
+
+      switch(action) {
+        case 'bold':
+          if (toggleWrap('**')) return;
+          prefix = '**'; suffix = '**';
+          if (!content) content = 'gras';
+          break;
+        case 'italic':
+          if (toggleWrap('*')) return;
+          prefix = '*'; suffix = '*';
+          if (!content) content = 'italique';
+          break;
+        case 'strike':
+          if (toggleWrap('~~')) return;
+          prefix = '~~'; suffix = '~~';
+          if (!content) content = 'barré';
+          break;
+        case 'underline':
+          if (toggleWrap('<u>', '</u>')) return;
+          prefix = '<u>'; suffix = '</u>';
+          if (!content) content = 'souligné';
+          break;
+        case 'quote':
+          if (selection.includes('\n')) {
+            const multiLine = selection.split('\n').map(line => `> ${line}`).join('\n');
+            this.insertText(multiLine, start, end);
+            this.textarea.setSelectionRange(start, start + multiLine.length);
+            return;
+          }
+          prefix = '> ';
+          if (!content) content = 'citation';
+          break;
+        case 'link':
+          prefix = '['; 
+          suffix = '](url)';
+          if (!content) content = 'lien';
+          break;
+        case 'list':
+          prefix = '- ';
+          if (!content) content = 'élément';
+          break;
+        case 'fontSize':
+          const size = this.fontSizeSelect.value;
+          if (!size) {
+            alert('Veuillez sélectionner une taille.');
+            return;
+          }
+          prefix = `<span style="font-size: ${size}px">`;
+          suffix = '</span>';
+          if (!content) content = 'Texte';
+          break;
+        case 'alignLeft':
+          prefix = '<div style="text-align: left">\n\n';
+          suffix = '\n\n</div>';
+          if (!content) content = 'Texte à gauche';
+          break;
+        case 'alignCenter':
+          prefix = '<div style="text-align: center">\n\n';
+          suffix = '\n\n</div>';
+          if (!content) content = 'Texte centré';
+          break;
+        case 'alignRight':
+          prefix = '<div style="text-align: right">\n\n';
+          suffix = '\n\n</div>';
+          if (!content) content = 'Texte à droite';
+          break;
+        case 'sectionLeft':
+          prefix = '<div style="display: flex; align-items: center; gap: 2rem; margin: 0.5rem 0; flex-wrap: wrap;">\n\n<div style="flex: 1; min-width: 300px;">\n\n';
+          suffix = '\n\n</div>\n\n<div style="flex: 1; min-width: 300px;">\n\nTexte ici\n\n</div>\n\n</div>';
+          if (!content) content = '![Image](url)';
+          break;
+        case 'sectionRight':
+          prefix = '<div style="display: flex; align-items: center; gap: 2rem; margin: 0.5rem 0; flex-wrap: wrap; flex-direction: row-reverse;">\n\n<div style="flex: 1; min-width: 300px;">\n\n';
+          suffix = '\n\n</div>\n\n<div style="flex: 1; min-width: 300px;">\n\nTexte ici\n\n</div>\n\n</div>';
+          if (!content) content = '![Image](url)';
+          break;
+        case 'clearFloat':
+          prefix = '\n<div style="clear: both; height: 1px;"></div><!-- Séparateur -->\n';
+          suffix = '';
+          content = '';
+          break;
+        case 'insertTCGIcon':
+          const iconFile = target.getAttribute('data-icon');
+          const iconName = iconFile.replace('.png', '');
+          prefix = `<img src="/assets/icons/${iconFile}" class="icon-tcg" alt="${iconName}" />`;
+          suffix = '';
+          content = '';
+          break;
+        case 'insertEnergy':
+          const manualCost = prompt('Coût en énergie ?', '1') || '1';
+          prefix = `<span class="icon-energy">${manualCost}</span>`;
+          suffix = '';
+          content = '';
+          break;
+        case 'insertEnergyValue':
+          const cost = target.getAttribute('data-value');
+          prefix = `<span class="icon-energy">${cost}</span>`;
+          suffix = '';
+          content = '';
+          break;
+        case 'image':
+          this.fileInput.click();
+          return;
+      }
+
+      if (prefix || suffix) {
+        const replacement = prefix + content + suffix;
+        this.insertText(replacement, start, end);
+        
+        const newStart = start + prefix.length;
+        const newEnd = newStart + content.length;
+        this.textarea.setSelectionRange(newStart, newEnd);
+      }
+    }
+
+    initImageUpload() {
+      this.fileInput.addEventListener('change', async () => {
+         const file = this.fileInput.files[0];
+         if (file) {
+           await this.uploadImageFile(file);
+           this.fileInput.value = '';
+         }
+      });
+    }
+
+    initPasteSupport() {
+      this.textarea.addEventListener('paste', async (e) => {
+        const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+        for (const item of items) {
+          if (item.type.indexOf('image') !== -1) {
+            const file = item.getAsFile();
+            if (file) {
+              e.preventDefault();
+              this.uploadImageFile(file);
+            }
+          }
+        }
+      });
+    }
+
+    async uploadImageFile(file) {
+      this.uploadLoading.classList.remove('hidden');
+      
+      try {
+        // Options de compression
+        const options = {
+          maxSizeMB: 0.2, // < 200 Ko
+          maxWidthOrHeight: 1200,
+          useWebWorker: true,
+          fileType: 'image/webp',
+          initialQuality: 0.8
+        };
+
+        // Compression
+        const compressedFile = await imageCompression(file, options);
+        
+        // Renommage pour s'assurer de l'extension .webp
+        const finalFile = new File([compressedFile], file.name.replace(/\.[^/.]+$/, "") + ".webp", {
+          type: 'image/webp'
+        });
+
+        const fd = new FormData(); 
+        fd.append('image', finalFile);
+        
+        const res = await fetch('/api/upload-image', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.url) {
+          const tag = `![Image](${data.url})`;
+          const start = this.textarea.selectionStart;
+          this.insertText(tag, start, this.textarea.selectionEnd);
+        } else {
+          alert('Upload échoué: ' + (data.error || 'Erreur inconnue'));
+        }
+      } catch (e) {
+        console.error('Compression/Upload error:', e);
+        alert('Erreur lors de la compression ou de l\'envoi');
+      } finally {
+        this.uploadLoading.classList.add('hidden');
+      }
+    }
+  }
+
+  // Initialize
+  function run() {
+    document.querySelectorAll('.markdown-editor').forEach(el => {
+      // @ts-ignore
+      if (!el._editor) el._editor = new MarkdownEditor(el);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
+  }
+
+  // Diagnostic: click status dot to log preview HTML
+  document.addEventListener('click', (e) => {
+    // @ts-ignore
+    if (e.target.classList.contains('editor-status-dot')) {
+      // @ts-ignore
+      const editor = e.target.closest('.markdown-editor');
+      const preview = document.querySelector('.article-live-preview');
+      if (preview) {
+         console.log('--- PREVIEW HTML ---');
+         console.log(preview.innerHTML);
+         console.log('--------------------');
+         alert('HTML de la preview loggé dans la console.');
+      }
+    }
+  });
+</script>
 
   <style is:global>
     /* Better paragraph spacing */
