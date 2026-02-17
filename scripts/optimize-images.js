@@ -20,12 +20,12 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 const BUCKET = 'article-images';
-const MAX_SIZE_BYTES = 1 * 1024 * 1024; // 1 Mo
+const MAX_SIZE_BYTES = 1 * 1024 * 1024; // 1 Mo ou si ce n'est pas déjà du webp
 
 async function optimizeImages() {
     console.log('--- Démarrage de l\'optimisation des images ---');
     if (DRY_RUN) {
-        console.log('⚠️  MODE SIMULATION (DRY RUN) ACTIVÉ. Aucune modification ne sera effectuée.');
+        console.log('⚠️  MODE SIMULATION (DRY RUN) ACTIVÉ.');
     }
 
     // 1. Lister tous les fichiers avec pagination
@@ -54,24 +54,28 @@ async function optimizeImages() {
         }
     }
 
-    console.log(`${allFiles.length} fichiers trouvés au total.`);
+    console.log(`${allFiles.length} fichiers trouvés.`);
 
     let totalSaved = 0;
+    let processed = 0;
 
     for (const file of allFiles) {
         const filePath = `articles/${file.name}`;
+        const isWebp = file.name.toLowerCase().endsWith('.webp');
+        const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(file.name);
 
-        // Ignorer si déjà petit ou déjà webp (sauf si forcé)
-        if (file.metadata.size < MAX_SIZE_BYTES && file.name.endsWith('.webp')) {
-            console.log(`[PASS] ${file.name} est déjà optimisé.`);
+        if (!isImage) {
+            console.log(`[SKIP] ${file.name} n'est pas une image supportée.`);
             continue;
         }
 
-        if (file.metadata.size < MAX_SIZE_BYTES && !file.name.endsWith('.webp')) {
-            console.log(`[INFO] ${file.name} est petit mais pas en webp. Compression...`);
-        } else {
-            console.log(`[OPTIMIZE] ${file.name} (${(file.metadata.size / 1024 / 1024).toFixed(2)} Mo)`);
+        // On optimise si > 1Mo OU si ce n'est pas du Webp
+        if (file.metadata.size < MAX_SIZE_BYTES && isWebp) {
+            // console.log(`[PASS] ${file.name} est déjà optimisé.`);
+            continue;
         }
+
+        console.log(`[TRAITEMENT] ${file.name} (${(file.metadata.size / 1024).toFixed(2)} Ko)...`);
 
         try {
             // 2. Télécharger
@@ -89,18 +93,14 @@ async function optimizeImages() {
 
             const newSize = optimizedBuffer.length;
             const savedSize = file.metadata.size - newSize;
-            totalSaved += savedSize;
+            totalSaved += Math.max(0, savedSize);
 
             const newFileName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
             const newPath = `articles/${newFileName}`;
 
-            console.log(`[OK] Résultat: ${newFileName} | Nouvelle taille: ${(newSize / 1024).toFixed(2)} Ko | Gain: ${(savedSize / 1024).toFixed(2)} Ko`);
-
             if (DRY_RUN) {
-                console.log(`[DRY-RUN] Simuler l'upload de ${newFileName}`);
-                if (file.name !== newFileName) {
-                    console.log(`[DRY-RUN] Simuler la mise à jour BDD et suppression de ${file.name}`);
-                }
+                console.log(`[SIMULATION] Gain estimé: ${(savedSize / 1024).toFixed(2)} Ko | Nouveau fichier: ${newFileName}`);
+                processed++;
                 continue;
             }
 
@@ -108,63 +108,69 @@ async function optimizeImages() {
             const { error: uploadError } = await supabase.storage.from(BUCKET).upload(newPath, optimizedBuffer, {
                 contentType: 'image/webp',
                 upsert: true,
-                cacheControl: '31536000' // 1 an de cache navigateur
+                cacheControl: '31536000'
             });
 
-            if (uploadError) throw uploadError;
-            console.log(`[SUCCESS] Uploadé: ${newFileName}`);
+            if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`);
 
-            // 5. Mise à jour de la BDD si le nom a changé
-            if (file.name !== newFileName) {
-                console.log(`[DB] Mise à jour des références pour ${file.name} -> ${newFileName}`);
+            // 5. Mise à jour de la BDD
+            // On le fait même si le nom ne change pas (ex: .webp -> .webp plus petit) pour être sûr du cacheControl
 
-                // Obtenir l'ancienne et la nouvelle URL publique
-                const { data: { publicUrl: oldUrl } } = supabase.storage.from(BUCKET).getPublicUrl(filePath);
-                const { data: { publicUrl: newUrl } } = supabase.storage.from(BUCKET).getPublicUrl(newPath);
+            // Obtenir les URLs
+            const { data: { publicUrl: oldUrl } } = supabase.storage.from(BUCKET).getPublicUrl(filePath);
+            const { data: { publicUrl: newUrl } = { publicUrl: null } } = supabase.storage.from(BUCKET).getPublicUrl(newPath); // Handle case where newUrl might be null
 
-                // Mise à jour de la colonne image_url
-                const { error: dbError1 } = await supabase
-                    .from('articles')
-                    .update({ image_url: newUrl })
-                    .eq('image_url', oldUrl);
+            // Mise à jour image_url
+            const { error: dbError1 } = await supabase
+                .from('articles')
+                .update({ image_url: newUrl })
+                .eq('image_url', oldUrl);
 
-                if (dbError1) console.error('Erreur MAJ image_url:', dbError1);
+            if (dbError1) console.error(`[DB ERROR] Mise à jour image_url pour ${file.name}:`, dbError1.message);
 
-                // Mise à jour du contenu (Markdown)
-                // On récupère tous les articles qui pourraient contenir l'ancienne URL
-                const { data: articles } = await supabase
-                    .from('articles')
-                    .select('id, content')
-                    .ilike('content', `%${file.name}%`);
+            // Mise à jour content
+            const { data: articles, error: selectError } = await supabase
+                .from('articles')
+                .select('id, content')
+                .ilike('content', `%${file.name}%`);
 
-                if (articles) {
-                    for (const article of articles) {
-                        const updatedContent = article.content.split(oldUrl).join(newUrl).split(file.name).join(newFileName);
-                        const { error: dbError2 } = await supabase
-                            .from('articles')
-                            .update({ content: updatedContent })
-                            .eq('id', article.id);
-                        if (dbError2) console.error(`Erreur MAJ content pour article ${article.id}:`, dbError2);
-                    }
+            if (selectError) console.error(`[DB ERROR] Sélection articles pour ${file.name}:`, selectError.message);
+
+            if (articles && articles.length > 0) {
+                for (const article of articles) {
+                    const updatedContent = article.content
+                        .split(oldUrl).join(newUrl)
+                        .split(file.name).join(newFileName);
+
+                    const { error: updateContentError } = await supabase
+                        .from('articles')
+                        .update({ content: updatedContent })
+                        .eq('id', article.id);
+
+                    if (updateContentError) console.error(`[DB ERROR] Mise à jour content pour article ${article.id}:`, updateContentError.message);
                 }
-
-                // 6. Supprimer l'original
-                const { error: deleteError } = await supabase.storage.from(BUCKET).remove([filePath]);
-                if (deleteError) console.error(`Erreur suppression ${file.name}:`, deleteError);
-                else console.log(`[DELETE] Supprimé original: ${file.name}`);
+                console.log(`[DB] Références mises à jour dans ${articles.length} articles.`);
             }
 
+            // 6. Supprimer l'original SI le nom a changé
+            if (file.name !== newFileName) {
+                const { error: deleteError } = await supabase.storage.from(BUCKET).remove([filePath]);
+                if (deleteError) console.error(`[CLEANUP ERROR] Suppression de ${file.name}:`, deleteError.message);
+                else console.log(`[CLEANUP] Supprimé: ${file.name}`);
+            }
+
+            console.log(`[DONE] ${newFileName} (Gain: ${(savedSize / 1024).toFixed(2)} Ko)`);
+            processed++;
+
         } catch (err) {
-            console.error(`[ERROR] Erreur sur ${file.name}:`, err.message);
+            console.error(`[ERROR] ${file.name}:`, err.message);
         }
     }
 
-    console.log('\n--- Résumé ---');
-    console.log(`Gain de stockage total estimé: ${(totalSaved / 1024 / 1024).toFixed(2)} Mo`);
-    if (DRY_RUN) {
-        console.log('Mode simulation : aucune modification réelle n\'a été faite.');
-    }
-    console.log('--- Fin de l\'optimisation ---');
+    console.log('\n--- TERMINÉ ---');
+    console.log(`Fichiers traités: ${processed}`);
+    console.log(`Gain de stockage total: ${(totalSaved / 1024 / 1024).toFixed(2)} Mo`);
+    if (DRY_RUN) console.log('⚠️ Aucune modification réelle n\'a été faite.');
 }
 
 optimizeImages();
