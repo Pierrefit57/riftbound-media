@@ -201,6 +201,7 @@ if (successParam === 'updated') successMsg = 'Événement mis à jour !';
             <div class="flex gap-2">
               <input type="url" id="image_url_visible" placeholder="https://exemple.com/image.webp"
                 class="flex-1 px-4 py-2 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 text-sm focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors"
+                value={event.image_url || ''}
               />
               <button type="button" id="apply-url-btn" class="px-4 py-2 rounded-lg bg-accent-cyan/10 text-accent-cyan text-xs font-bold hover:bg-accent-cyan/20 border border-accent-cyan/20 transition-colors uppercase tracking-wider">
                 Appliquer
