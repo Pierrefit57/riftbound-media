@@ -37,6 +37,21 @@ const now = new Date();
 const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000).toISOString();
 const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
+// Datacenter IP prefixes to exclude (bots, crawlers, automated traffic)
+const DATACENTER_PREFIXES = [
+    '143.198.', '137.184.', '143.244.',  // DigitalOcean
+    '18.144.', '13.56.', '13.57.',       // AWS US
+    '54.', '52.',                         // AWS global
+    '35.', '34.',                         // Google Cloud
+    '20.', '40.', '104.',                // Azure
+    '127.0.0.1',                          // localhost/test
+];
+
+function isRealVisitor(ip: string | null): boolean {
+    if (!ip) return false;
+    return !DATACENTER_PREFIXES.some(prefix => ip.startsWith(prefix));
+}
+
 // Online Now (Unique IPs in last 5 min)
 const { data: onlineLogs } = await supabase
   .from('analytics_logs')
@@ -44,7 +59,7 @@ const { data: onlineLogs } = await supabase
   .eq('event_type', 'page_view')
   .gte('created_at', fiveMinutesAgo);
 
-const onlineCount = new Set(onlineLogs?.map(l => l.ip_address)).size;
+const onlineCount = new Set(onlineLogs?.filter(l => isRealVisitor(l.ip_address)).map(l => l.ip_address)).size;
 
 // Fetch Logs (Last 30 days)
 import { format, subDays, startOfDay, endOfDay, eachDayOfInterval } from 'date-fns';
@@ -52,11 +67,16 @@ import { format, subDays, startOfDay, endOfDay, eachDayOfInterval } from 'date-f
 const endDate = new Date();
 const startDate = subDays(endDate, 30);
 
-const { data: logs } = await supabase
+const { data: rawLogs } = await supabase
   .from('analytics_logs')
   .select('event_type, created_at, path, ip_address, referrer, country')
   .gte('created_at', thirtyDaysAgo)
+  .eq('event_type', 'page_view')
   .order('created_at', { ascending: true });
+
+// Filter out bots and datacenter traffic
+const logs = rawLogs?.filter(l => isRealVisitor(l.ip_address) && l.event_type !== 'diagnostic_test');
+
 
 // Process Logs for Charts
 const pageStats = new Map();
