@@ -4,6 +4,7 @@ export const prerender = false;
 import MainLayout from '../../layouts/MainLayout.astro';
 import NewsCard from '../../components/NewsCard.astro';
 import { supabase } from '../../lib/supabase';
+import { proxyUrl } from '../../lib/proxy';
 
 let { data: allNews, error: newsError } = await supabase
   .from('articles')
@@ -57,7 +58,7 @@ const regularNews = (allNews?.filter((n) => !featuredNews.some(f => f.slug === n
             <NewsCard
               title={article.title}
               summary={article.summary || ''}
-              image={article.image_url || ''}
+              image={proxyUrl(article.image_url)}
               tags={article.tags || []}
               author=""
               pubDate={new Date(article.published_at || article.created_at)}
@@ -82,7 +83,7 @@ const regularNews = (allNews?.filter((n) => !featuredNews.some(f => f.slug === n
                 <NewsCard
                   title={article.title}
                   summary={article.summary || ''}
-                  image={article.image_url || ''}
+                  image={proxyUrl(article.image_url)}
                   tags={article.tags || []}
                   author=""
                   pubDate={new Date(article.published_at || article.created_at)}

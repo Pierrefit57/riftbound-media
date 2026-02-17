@@ -3,6 +3,7 @@ export const prerender = false;
 
 import MainLayout from '../../layouts/MainLayout.astro';
 import { supabase } from '../../lib/supabase';
+import { proxyUrl } from '../../lib/proxy';
 import { marked } from 'marked';
 
 // Configurer marked pour les retours à la ligne
@@ -100,7 +101,7 @@ function getTagStyle(tag: string): string {
 <MainLayout 
   title={article.title} 
   description={seoDescription}
-  image={article.image_url}
+  image={proxyUrl(article.image_url)}
   type="article"
   petalMode="sides"
 >
@@ -153,7 +154,7 @@ function getTagStyle(tag: string): string {
     <!-- Hero image -->
     <div class="relative w-full overflow-hidden mb-12 rounded-lg border border-rift-700/30">
       {article.image_url ? (
-        <img src={article.image_url} alt={article.title} class="w-full h-auto block" />
+        <img src={proxyUrl(article.image_url)} alt={article.title} class="w-full h-auto block" />
       ) : (
         <>
           <div class="absolute inset-0 bg-gradient-to-br from-accent-sakura/15 via-rift-100 to-accent-forge/10"></div>

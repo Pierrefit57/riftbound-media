@@ -4,6 +4,7 @@ export const prerender = false;
 import MainLayout from '../../layouts/MainLayout.astro';
 import CalendarView from '../../components/CalendarView.tsx';
 import { supabase } from '../../lib/supabase';
+import { proxyUrl } from '../../lib/proxy';
 
 // Récupérer tous les événements (on pourrait filtrer, mais le composant gère le tri par mois)
 const { data: events, error } = await supabase
@@ -11,7 +12,10 @@ const { data: events, error } = await supabase
   .select('*, image_url')
   .order('start_date', { ascending: true });
 
-const calendarEvents = events || [];
+const calendarEvents = (events || []).map(e => ({
+  ...e,
+  image_url: proxyUrl(e.image_url)
+}));
 const user = Astro.locals.user;
 ---
 

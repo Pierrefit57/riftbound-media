@@ -30,6 +30,7 @@ const navLinks = [
 ];
 
 import { supabase } from '../lib/supabase';
+import { proxyUrl } from '../lib/proxy';
 import '../styles/tables.css';
 
 // Détection d'événement en cours pour l'effet "foil"
@@ -350,7 +351,7 @@ const ongoingEvent = activeEvents?.find(event => {
             >
               {ongoingEvent.image_url && (
                 <div class="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0">
-                  <img src={ongoingEvent.image_url} alt="" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                  <img src={proxyUrl(ongoingEvent.image_url)} alt="" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                 </div>
               )}
               <div class="flex-1 min-w-0" id="notification-content">

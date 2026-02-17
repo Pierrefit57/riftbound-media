@@ -3,6 +3,7 @@ export const prerender = false;
 
 import MainLayout from '../layouts/MainLayout.astro';
 import NewsCard from '../components/NewsCard.astro';
+import { proxyUrl } from '../lib/proxy';
 import { supabase } from '../lib/supabase';
 import { getCollection } from 'astro:content';
 
@@ -103,7 +104,7 @@ const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
           <NewsCard
             title={article.title}
             summary={article.summary || ''}
-            image={article.image_url || ''}
+            image={proxyUrl(article.image_url)}
             tags={article.tags || []}
             author=""
             pubDate={new Date(article.published_at || article.created_at)}
@@ -129,7 +130,7 @@ const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
         <NewsCard
           title={article.title}
           summary={article.summary || ''}
-          image={article.image_url || ''}
+          image={proxyUrl(article.image_url)}
           tags={article.tags || []}
           author=""
           pubDate={new Date(article.published_at || article.created_at)}
