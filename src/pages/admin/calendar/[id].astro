@@ -196,6 +196,18 @@ if (successParam === 'updated') successMsg = 'Événement mis à jour !';
              <input type="file" id="file-input" accept="image/*" class="hidden" />
              <span id="upload-status" class="text-xs text-rift-500"></span>
           </div>
+          <div>
+            <label for="image_url_visible" class="block text-xs font-medium text-rift-500 mb-1">Ou coller une URL d'image externe</label>
+            <div class="flex gap-2">
+              <input type="url" id="image_url_visible" placeholder="https://exemple.com/image.webp"
+                class="flex-1 px-4 py-2 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 text-sm focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors"
+                value={event.image_url || ''}
+              />
+              <button type="button" id="apply-url-btn" class="px-4 py-2 rounded-lg bg-accent-cyan/10 text-accent-cyan text-xs font-bold hover:bg-accent-cyan/20 border border-accent-cyan/20 transition-colors uppercase tracking-wider">
+                Appliquer
+              </button>
+            </div>
+          </div>
 
         </div>
 
@@ -225,8 +237,23 @@ if (successParam === 'updated') successMsg = 'Événement mis à jour !';
     const imagePositionInput = document.getElementById('image_position') as HTMLInputElement;
     const imagePreview = document.getElementById('image-preview');
     const uploadStatus = document.getElementById('upload-status');
+    const applyUrlBtn = document.getElementById('apply-url-btn');
+    const imageUrlVisible = document.getElementById('image_url_visible') as HTMLInputElement;
 
-
+    // Apply external URL
+    applyUrlBtn?.addEventListener('click', () => {
+      const url = imageUrlVisible?.value?.trim();
+      if (!url) return;
+      imageUrlInput.value = url;
+      const pos = imagePositionInput?.value || 'center 50%';
+      if (imagePreview) {
+        imagePreview.innerHTML = `<img src="${url}" class="w-full h-full object-cover" style="object-position: ${pos}" />`;
+      }
+      if (uploadStatus) {
+        uploadStatus.textContent = 'URL appliquée !';
+        uploadStatus.className = 'text-xs text-emerald-400';
+      }
+    });
 
     uploadBtn?.addEventListener('click', () => fileInput?.click());
 
