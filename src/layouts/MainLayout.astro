@@ -33,28 +33,33 @@ import { supabase } from '../lib/supabase';
 import { proxyUrl } from '../lib/proxy';
 import '../styles/tables.css';
 
-// Détection d'événement en cours pour l'effet "foil"
+// Détection d'événement en cours pour la notification toast
+// On utilise le fuseau Europe/Paris pour éviter le décalage UTC
 const now = new Date();
-const todayISO = now.toISOString().split('T')[0]; // YYYY-MM-DD
-const tomorrow = new Date(now);
-tomorrow.setDate(now.getDate() + 1);
-const tomorrowISO = tomorrow.toISOString().split('T')[0];
+
+// Obtenir la date "locale" Paris en YYYY-MM-DD
+const parisDateStr = now.toLocaleDateString('en-CA', { timeZone: 'Europe/Paris' }); // en-CA → YYYY-MM-DD
+const parisTomorrow = new Date(now.getTime() + 86400000);
+const parisTomorrowStr = parisTomorrow.toLocaleDateString('en-CA', { timeZone: 'Europe/Paris' });
 
 const { data: activeEvents } = await supabase
   .from('calendar_events')
   .select('id, title, start_date, end_date, image_url')
-  .lte('start_date', tomorrowISO + 'T23:59:59');
+  .lte('start_date', parisTomorrowStr + 'T23:59:59');
 
-const ongoingEvent = activeEvents?.find(event => {
-    const start = new Date(event.start_date);
-    const end = event.end_date ? new Date(event.end_date) : start;
-    
-    const startD = new Date(start).setHours(0,0,0,0);
-    const endD = new Date(end).setHours(23,59,59,999);
-    const currentT = now.getTime();
-    
-    return currentT >= startD && currentT <= endD;
-});
+// Trouver l'événement en cours basé sur la date Paris
+const ongoingEvent = activeEvents
+  ?.filter(event => {
+    const startDate = event.start_date.split('T')[0]; // YYYY-MM-DD
+    const endDate = event.end_date ? event.end_date.split('T')[0] : startDate;
+    return parisDateStr >= startDate && parisDateStr <= endDate;
+  })
+  // Prioriser les événements qui commencent aujourd'hui (vs multi-jours en cours)
+  .sort((a, b) => {
+    const aStartsToday = a.start_date.split('T')[0] === parisDateStr ? 0 : 1;
+    const bStartsToday = b.start_date.split('T')[0] === parisDateStr ? 0 : 1;
+    return aStartsToday - bStartsToday;
+  })[0] ?? null;
 
 
 ---
