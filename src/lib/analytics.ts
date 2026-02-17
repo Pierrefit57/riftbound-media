@@ -11,7 +11,7 @@ export async function trackEvent(eventType: string, data: {
 }) {
     try {
         const supabase = createServiceClient();
-        await supabase.from('analytics_logs').insert({
+        const { error } = await supabase.from('analytics_logs').insert({
             event_type: eventType,
             path: data.path,
             user_id: data.user_id,
@@ -21,8 +21,12 @@ export async function trackEvent(eventType: string, data: {
             referrer: data.referrer,
             country: data.country,
         });
-    } catch (e) {
+        if (error) {
+            console.error('[analytics] Supabase insert error:', error.message, error.details, error.hint);
+        }
+    } catch (e: any) {
         // Fail silently to not block the app
-        console.error('Analytics Error:', e);
+        console.error('[analytics] Unexpected error:', e?.message);
     }
 }
+
