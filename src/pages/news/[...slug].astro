@@ -205,6 +205,67 @@ function getTagStyle(tag: string): string {
     </div>
   </article>
 
+  <!-- Image Lightbox Overlay -->
+  <div id="lightbox-overlay" class="fixed inset-0 z-[100] bg-rift-950/95 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col items-center justify-center p-4 sm:p-8 cursor-zoom-out">
+    <div class="absolute top-4 right-4 sm:top-8 sm:right-8">
+      <button id="lightbox-close" class="w-10 h-10 rounded-full bg-rift-800/80 text-rift-100 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <img id="lightbox-img" src="" alt="Zoom" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl scale-95 transition-transform duration-300" />
+  </div>
+
+  <script>
+    // Lightbox Logic
+    const overlay = document.getElementById('lightbox-overlay');
+    const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
+    const closeBtn = document.getElementById('lightbox-close');
+    
+    // Find all images in the article content that are not icons
+    const articleImages = document.querySelectorAll('.prose img:not(.icon-tcg):not(.icon-energy)');
+    
+    function openLightbox(src: string) {
+      if (!overlay || !lightboxImg) return;
+      lightboxImg.src = src;
+      overlay.classList.remove('opacity-0', 'pointer-events-none');
+      // Set a tiny delay for the scale transition to take effect
+      setTimeout(() => lightboxImg.classList.remove('scale-95'), 10);
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+    
+    function closeLightbox() {
+      if (!overlay || !lightboxImg) return;
+      lightboxImg.classList.add('scale-95');
+      overlay.classList.add('opacity-0', 'pointer-events-none');
+      document.body.style.overflow = ''; // Restore background scrolling
+    }
+
+    articleImages.forEach(img => {
+      // Add visual cue for interactivity
+      img.classList.add('cursor-zoom-in', 'hover:opacity-90', 'transition-opacity');
+      
+      img.addEventListener('click', () => {
+        openLightbox((img as HTMLImageElement).src);
+      });
+    });
+
+    closeBtn?.addEventListener('click', closeLightbox);
+    
+    overlay?.addEventListener('click', (e) => {
+      // Close only if clicking the background, not the image itself
+      if (e.target === overlay) {
+        closeLightbox();
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+  </script>
+
 </MainLayout>
 
 <style is:global>
