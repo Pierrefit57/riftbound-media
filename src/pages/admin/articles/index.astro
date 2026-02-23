@@ -134,14 +134,15 @@ if (fetchError && (fetchError.code === 'PGRST204' || fetchError.message.includes
     <div id="sortable-articles" class="space-y-2">
       {articles && articles.length > 0 ? (
         articles.map((article) => (
-          <div data-id={article.id} class="sortable-item flex items-center justify-between gap-4 p-4 bg-rift-800/40 rounded-xl border border-rift-700/50 hover:border-accent-cyan/30 transition-all group">
-            <div class="flex items-center gap-4 min-w-0 flex-1">
+          <div data-id={article.id} class="sortable-item flex flex-col xl:flex-row xl:items-center justify-between gap-4 p-4 bg-rift-800/40 rounded-xl border border-rift-700/50 hover:border-accent-cyan/30 transition-all group">
+            <!-- Content and Drag Handle row -->
+            <div class="flex items-center gap-4 min-w-0 w-full xl:w-auto flex-1">
               <!-- Drag Handle -->
-              <div class="drag-handle cursor-grab active:cursor-grabbing p-1.5 rounded-lg text-rift-600 hover:text-accent-cyan hover:bg-accent-cyan/5 transition-colors group-hover:opacity-100 opacity-40">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16" />
-                </svg>
-              </div>
+                <div class="drag-handle cursor-grab active:cursor-grabbing p-1.5 rounded-lg text-rift-600 hover:text-accent-cyan hover:bg-accent-cyan/5 transition-colors xl:opacity-40 group-hover:opacity-100 flex-shrink-0">
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16" />
+                  </svg>
+                </div>
 
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2 mb-1">
@@ -167,7 +168,8 @@ if (fetchError && (fetchError.code === 'PGRST204' || fetchError.message.includes
               </div>
             </div>
 
-            <div class="flex items-center gap-2 flex-shrink-0 opacity-80 group-hover:opacity-100 transition-opacity">
+            <!-- Action buttons -->
+            <div class="flex items-center gap-2 flex-wrap flex-shrink-0 xl:opacity-80 group-hover:opacity-100 transition-opacity ml-[44px] xl:ml-0">
               <form method="POST">
                 <input type="hidden" name="id" value={article.id} />
                 <input type="hidden" name="action" value="toggle-featured" />

@@ -215,22 +215,26 @@ if (Astro.request.method === 'POST') {
             }
           </script>
 
-          <div class="flex items-center gap-6 pt-4 border-t border-rift-800/50">
-            <button type="button" id="reset-btn" class="text-xs text-rift-500 hover:text-red-400 underline transition-colors">
-              Vider le formulaire
-            </button>
-            <label class="flex items-center gap-2 cursor-pointer group">
-              <input type="checkbox" name="featured" checked={featured}
-                class="w-4 h-4 rounded border-rift-700 bg-rift-950 text-accent-cyan focus:ring-accent-cyan/30 checked:bg-accent-cyan checked:border-accent-cyan transition-colors" />
-              <span class="text-xs text-rift-300 group-hover:text-rift-100 transition-colors uppercase tracking-wider">Épinglé</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer group">
-              <input type="checkbox" name="published" checked={published}
-                class="w-4 h-4 rounded border-rift-700 bg-rift-950 text-accent-cyan focus:ring-accent-cyan/30 checked:bg-accent-cyan checked:border-accent-cyan transition-colors" />
-              <span class="text-xs text-rift-300 group-hover:text-rift-100 transition-colors uppercase tracking-wider">Publier</span>
-            </label>
-            <div class="flex-1"></div>
-            <button type="submit" class="px-8 py-2.5 rounded-lg bg-accent-spirit text-rift-950 font-bold text-sm hover:bg-accent-spirit/90 transition-all shadow-lg shadow-accent-spirit/20 uppercase tracking-widest">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 pt-4 border-t border-rift-800/50">
+            <div class="flex items-center justify-between sm:justify-start gap-4 sm:gap-6 w-full sm:w-auto">
+              <button type="button" id="reset-btn" class="text-xs text-rift-500 hover:text-red-400 underline transition-colors">
+                Vider le formulaire
+              </button>
+              <div class="flex items-center gap-4">
+                <label class="flex items-center gap-2 cursor-pointer group">
+                  <input type="checkbox" name="featured" checked={featured}
+                    class="w-4 h-4 rounded border-rift-700 bg-rift-950 text-accent-cyan focus:ring-accent-cyan/30 checked:bg-accent-cyan checked:border-accent-cyan transition-colors" />
+                  <span class="text-xs text-rift-300 group-hover:text-rift-100 transition-colors uppercase tracking-wider">Épinglé</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer group">
+                  <input type="checkbox" name="published" checked={published}
+                    class="w-4 h-4 rounded border-rift-700 bg-rift-950 text-accent-cyan focus:ring-accent-cyan/30 checked:bg-accent-cyan checked:border-accent-cyan transition-colors" />
+                  <span class="text-xs text-rift-300 group-hover:text-rift-100 transition-colors uppercase tracking-wider">Publier</span>
+                </label>
+              </div>
+            </div>
+            <div class="hidden sm:block flex-1"></div>
+            <button type="submit" class="w-full sm:w-auto px-8 py-2.5 rounded-lg bg-accent-spirit text-rift-950 font-bold text-sm hover:bg-accent-spirit/90 transition-all shadow-lg shadow-accent-spirit/20 uppercase tracking-widest text-center mt-2 sm:mt-0">
               Créer l'article
             </button>
           </div>
