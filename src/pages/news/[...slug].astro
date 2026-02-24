@@ -54,11 +54,27 @@ processedContent = processedContent
 
 let htmlContent = await marked.parse(processedContent);
 
-// Post-processing: convert any remaining markdown links [text](url) that marked
-// didn't process (e.g. inside HTML block-level elements like <div>)
+// Post-processing: convert any remaining markdown syntax that marked
+// didn't process (e.g. inside HTML block-level elements like <div> or <blockquote>)
+// Links: [text](url) -> <a>
 htmlContent = htmlContent.replace(
   /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
   '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+);
+// Images: ![alt](url) -> <img>
+htmlContent = htmlContent.replace(
+  /!\[([^\]]*)\]\(([^)]+)\)/g,
+  '<img src="$2" alt="$1">'
+);
+// Bold: **text** -> <strong>
+htmlContent = htmlContent.replace(
+  /\*\*([^*]+)\*\*/g,
+  '<strong>$1</strong>'
+);
+// Italic: *text* -> <em> (single asterisks, not inside **)
+htmlContent = htmlContent.replace(
+  /(?<!\*)\*(?!\*)([^*]+)(?<!\*)\*(?!\*)/g,
+  '<em>$1</em>'
 );
 
 const formattedDate = new Date(article.published_at || article.created_at).toLocaleDateString('fr-FR', {
