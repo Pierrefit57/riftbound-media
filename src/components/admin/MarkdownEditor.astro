@@ -290,7 +290,15 @@ try {
         .replace(/(<div[^>]*>)\n(?!\n)/g, '$1\n\n')
         .replace(/(?<!\n)\n(<\/div>)/g, '\n\n$1');
 
-      this.preview.innerHTML = marked.parse(processedValue);
+      let html = marked.parse(processedValue);
+      // Post-processing: convert remaining markdown syntax that marked
+      // skips inside HTML block-level elements (<div>, <blockquote>)
+      html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
+        '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+      html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
+      html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/(?<!\*)\*(?!\*)([^*]+)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+      this.preview.innerHTML = html;
       
       if (this.preview.innerHTML.trim() === '' && rawValue.trim() !== '') {
         this.preview.innerHTML = '<p>' + rawValue + '</p>';
