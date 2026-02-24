@@ -52,7 +52,14 @@ processedContent = processedContent
   .replace(/(<div[^>]*>)\n(?!\n)/g, '$1\n\n')
   .replace(/(?<!\n)\n(<\/div>)/g, '\n\n$1');
 
-const htmlContent = await marked.parse(processedContent);
+let htmlContent = await marked.parse(processedContent);
+
+// Post-processing: convert any remaining markdown links [text](url) that marked
+// didn't process (e.g. inside HTML block-level elements like <div>)
+htmlContent = htmlContent.replace(
+  /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
+  '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+);
 
 const formattedDate = new Date(article.published_at || article.created_at).toLocaleDateString('fr-FR', {
   day: 'numeric',
