@@ -229,7 +229,7 @@ function getTagStyle(tag: string): string {
   </article>
 
   <!-- Image Lightbox Overlay -->
-  <div id="lightbox-overlay" class="fixed inset-0 z-[100] bg-rift-950/95 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col items-center justify-center p-4 sm:p-8 cursor-zoom-out">
+  <div id="lightbox-overlay" class="fixed inset-0 z-[100] bg-rift-950/97 opacity-0 pointer-events-none flex flex-col items-center justify-center p-4 sm:p-8 cursor-zoom-out" style="transition: opacity 0.25s ease; will-change: opacity;">
     <div class="absolute top-4 right-4 sm:top-8 sm:right-8">
       <button id="lightbox-close" class="w-10 h-10 rounded-full bg-rift-800/80 text-rift-100 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors">
         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -237,7 +237,7 @@ function getTagStyle(tag: string): string {
         </svg>
       </button>
     </div>
-    <img id="lightbox-img" src="" alt="Zoom" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl scale-95 transition-transform duration-300" />
+    <img id="lightbox-img" src="" alt="Zoom" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl" style="transform: scale(0.92); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform;" />
   </div>
 
   <script>
@@ -253,16 +253,20 @@ function getTagStyle(tag: string): string {
       if (!overlay || !lightboxImg) return;
       lightboxImg.src = src;
       overlay.classList.remove('opacity-0', 'pointer-events-none');
-      // Set a tiny delay for the scale transition to take effect
-      setTimeout(() => lightboxImg.classList.remove('scale-95'), 10);
-      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      // Use rAF to ensure the browser has painted the overlay before animating scale
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          lightboxImg.style.transform = 'scale(1)';
+        });
+      });
+      document.body.style.overflow = 'hidden';
     }
     
     function closeLightbox() {
       if (!overlay || !lightboxImg) return;
-      lightboxImg.classList.add('scale-95');
+      lightboxImg.style.transform = 'scale(0.92)';
       overlay.classList.add('opacity-0', 'pointer-events-none');
-      document.body.style.overflow = ''; // Restore background scrolling
+      document.body.style.overflow = '';
     }
 
     articleImages.forEach(img => {
