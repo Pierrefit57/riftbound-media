@@ -12,8 +12,6 @@ const { data: latestArticles, error: latestError } = await supabase
   .from('articles')
   .select('*')
   .eq('published', true)
-  .not('tags', 'cs', '{"tournoi"}')
-  .not('tags', 'cs', '{"Tournoi"}')
   .order('published_at', { ascending: false })
   .order('created_at', { ascending: false })
   .limit(6);
