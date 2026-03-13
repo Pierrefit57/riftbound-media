@@ -71,15 +71,46 @@ const regularNews = (allNews?.filter((n) => !featuredNews.some(f => f.slug === n
     )}
 
     <section>
-      <div class="flex items-center gap-3 mb-6">
-        <div class="w-1 h-6 rounded-full bg-gradient-to-b from-accent-forge to-accent-sakura"></div>
-        <h2 class="text-lg font-display font-bold text-rift-100">Toutes les Actualités</h2>
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-1 h-6 rounded-full bg-gradient-to-b from-accent-forge to-accent-sakura"></div>
+          <h2 class="text-lg font-display font-bold text-rift-100">Toutes les Actualités</h2>
+          <span id="search-count" class="hidden text-xs text-rift-400 font-mono ml-1"></span>
+        </div>
+        <div class="relative w-full sm:w-72">
+          <input
+            type="text"
+            id="news-search"
+            placeholder="Rechercher un article ou tag..."
+            class="w-full pl-9 pr-10 py-2 rounded-xl bg-rift-800 border border-rift-700 text-rift-100 placeholder-rift-500 focus:border-accent-spirit focus:ring-1 focus:ring-accent-spirit outline-none transition-all text-sm font-sans"
+          />
+          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-rift-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <button id="search-clear" class="absolute right-3 top-1/2 -translate-y-1/2 text-rift-500 hover:text-rift-200 transition-colors hidden" aria-label="Effacer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
       </div>
+
+      <!-- No results message -->
+      <div id="no-results" class="hidden text-center py-12">
+        <svg class="w-12 h-12 mx-auto text-rift-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        <p class="text-rift-400 font-display">Aucun article trouvé pour "<span id="no-results-query" class="text-rift-200"></span>"</p>
+      </div>
+
       {regularNews.length > 0 ? (
         <div id="news-grid-container">
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="news-grid">
             {regularNews.map((article, index) => (
-              <div class:list={['news-item transition-all duration-500', index >= 9 ? 'hidden opacity-0 translate-y-4' : '']} data-index={index}>
+              <div
+                class:list={['news-item transition-[opacity,transform] duration-500 ease-out', index >= 9 ? 'opacity-0 translate-y-4' : '']}
+                data-index={index}
+                data-title={article.title.toLowerCase()}
+                data-summary={(article.summary || '').toLowerCase()}
+                data-tags={(article.tags || []).map((t: string) => t.toLowerCase()).join(',')}
+                data-revealed={index < 9 ? 'true' : 'false'}
+              >
                 <NewsCard
                   title={article.title}
                   summary={article.summary || ''}
@@ -92,22 +123,6 @@ const regularNews = (allNews?.filter((n) => !featuredNews.some(f => f.slug === n
               </div>
             ))}
           </div>
-
-          {regularNews.length > 9 && (
-            <div class="mt-12 text-center" id="load-more-container">
-              <button 
-                id="load-more-btn"
-                class="px-8 py-3 rounded-xl bg-rift-800 border border-rift-700 hover:border-accent-spirit/50 text-rift-100 font-display font-bold tracking-widest uppercase text-sm transition-all hover:shadow-lg hover:shadow-accent-spirit/10 group"
-              >
-                <span class="flex items-center gap-2">
-                  Afficher plus
-                  <svg class="w-4 h-4 group-hover:translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </span>
-              </button>
-            </div>
-          )}
         </div>
       ) : (
         <div class="text-center py-16">
@@ -119,53 +134,112 @@ const regularNews = (allNews?.filter((n) => !featuredNews.some(f => f.slug === n
   </div>
 
   <script>
-    // Reveal Scroll Logic (Robust version - no extra API calls needed)
-    const sentinel = document.getElementById('load-more-container');
-    let loading = false;
-    const itemsPerPage = 9;
+    // === Search Logic ===
+    const searchInput = document.getElementById('news-search') as HTMLInputElement;
+    const searchClear = document.getElementById('search-clear');
+    const searchCount = document.getElementById('search-count');
+    const noResults = document.getElementById('no-results');
+    const noResultsQuery = document.getElementById('no-results-query');
+    const allItems = document.querySelectorAll('.news-item');
+    let isSearchActive = false;
 
-    function revealNextBatch() {
-      if (loading) return;
-      loading = true;
+    function performSearch(query: string) {
+      const q = query.toLowerCase().trim();
+      isSearchActive = q.length > 0;
 
-      const hiddenItems = document.querySelectorAll('.news-item.hidden');
-      
-      if (hiddenItems.length > 0) {
-        // Show next batch
-        const nextBatch = Array.from(hiddenItems).slice(0, itemsPerPage);
-        
-        nextBatch.forEach((item, i) => {
-          setTimeout(() => {
-            item.classList.remove('hidden');
-            // Force reflow
-            item.clientHeight; 
-            item.classList.remove('opacity-0', 'translate-y-4');
-          }, i * 100);
+      if (searchClear) searchClear.classList.toggle('hidden', !isSearchActive);
+
+      if (!isSearchActive) {
+        // Reset: show all items, restore unrevealed state for those not yet scrolled to
+        allItems.forEach((item) => {
+          const el = item as HTMLElement;
+          el.classList.remove('search-hidden');
+          el.style.display = '';
+          // If it was already revealed by scroll observer, keep it visible
+          if (el.dataset.revealed !== 'true') {
+            el.classList.add('opacity-0', 'translate-y-4');
+          }
         });
+        if (searchCount) searchCount.classList.add('hidden');
+        if (noResults) noResults.classList.add('hidden');
+        return;
+      }
 
-        // Hide sentinel if no more items
-        if (hiddenItems.length <= itemsPerPage && sentinel) {
-          sentinel.style.display = 'none';
+      let matchCount = 0;
+      allItems.forEach((item) => {
+        const el = item as HTMLElement;
+        const title = el.dataset.title || '';
+        const summary = el.dataset.summary || '';
+        const tags = el.dataset.tags || '';
+
+        const matches = title.includes(q) || summary.includes(q) || tags.includes(q);
+
+        if (matches) {
+          el.classList.remove('search-hidden', 'opacity-0', 'translate-y-4');
+          el.style.display = '';
+          matchCount++;
+        } else {
+          el.classList.add('search-hidden');
+          el.style.display = 'none';
+        }
+      });
+
+      if (searchCount) {
+        searchCount.textContent = `(${matchCount} résultat${matchCount !== 1 ? 's' : ''})`;
+        searchCount.classList.remove('hidden');
+      }
+
+      if (noResults && noResultsQuery) {
+        if (matchCount === 0) {
+          noResultsQuery.textContent = query;
+          noResults.classList.remove('hidden');
+        } else {
+          noResults.classList.add('hidden');
         }
       }
-      
-      loading = false;
     }
 
-    // Interaction Observer (Infinite Scroll Effect)
-    if (sentinel) {
-        const observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting) {
-                revealNextBatch();
-            }
-        }, { rootMargin: '300px' });
-        
-        observer.observe(sentinel);
+    let searchTimer: ReturnType<typeof setTimeout>;
+    searchInput?.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => performSearch(searchInput.value), 200);
+    });
 
-        // Click fallback
-        const btn = document.getElementById('load-more-btn');
-        btn?.addEventListener('click', revealNextBatch);
-    }
+    searchClear?.addEventListener('click', () => {
+      if (searchInput) searchInput.value = '';
+      performSearch('');
+      searchInput?.focus();
+    });
+
+    searchInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        searchInput.value = '';
+        performSearch('');
+        searchInput.blur();
+      }
+    });
+
+    // === Scroll Reveal via IntersectionObserver ===
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && !isSearchActive) {
+          const el = entry.target as HTMLElement;
+          if (el.dataset.revealed !== 'true') {
+            el.dataset.revealed = 'true';
+            el.classList.remove('opacity-0', 'translate-y-4');
+          }
+          revealObserver.unobserve(el);
+        }
+      });
+    }, { rootMargin: '50px' });
+
+    // Observe only items that haven't been revealed yet
+    allItems.forEach((item) => {
+      const el = item as HTMLElement;
+      if (el.dataset.revealed !== 'true') {
+        revealObserver.observe(el);
+      }
+    });
   </script>
 
 </MainLayout>

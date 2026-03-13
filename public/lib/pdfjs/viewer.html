@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF Viewer</title>
     <!-- Use CDN for functionality -->
-    <link rel="stylesheet" href="https://unpkg.com/pdfjs-dist@4.4.168/web/pdf_viewer.css">
+    <link rel="stylesheet" href="/lib/pdfjs/pdf_viewer.css">
     <style>
         body,
         html {
@@ -87,10 +87,10 @@
     </div>
 
     <script type="module">
-        import * as pdfjsLib from 'https://unpkg.com/pdfjs-dist@4.4.168/build/pdf.min.mjs';
-        import * as pdfjsViewer from 'https://unpkg.com/pdfjs-dist@4.4.168/web/pdf_viewer.mjs';
+        import * as pdfjsLib from '/lib/pdfjs/pdf.min.mjs';
+        import * as pdfjsViewer from '/lib/pdfjs/pdf_viewer.mjs';
 
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '/lib/pdfjs/pdf.worker.min.mjs';
 
         const container = document.getElementById('viewerContainer');
         const eventBus = new pdfjsViewer.EventBus();

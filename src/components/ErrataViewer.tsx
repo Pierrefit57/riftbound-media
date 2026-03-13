@@ -53,9 +53,9 @@ export default function ErrataViewer({ articles }: { articles: Article[] }) {
                         {selectedArticle?.visualLink && (
                             <button
                                 onClick={() => setIsPopupOpen(true)}
-                                className="group flex items-center gap-2 px-2 py-1 rounded-xl bg-rift-900/80 border border-accent-spirit/30 text-accent-spirit hover:bg-accent-spirit hover:text-white transition-all duration-300 shadow-lg shadow-accent-spirit/5"
+                                className="group flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-accent-spirit/10 border border-accent-spirit/60 text-accent-spirit hover:bg-accent-spirit hover:text-white transition-all duration-300 shadow-[0_0_15px_rgba(255,102,51,0.3)] hover:shadow-[0_0_25px_rgba(255,102,51,0.5)] animate-[glow-pulse_2s_ease-in-out_infinite]"
                             >
-                                <div className="w-6 h-6 rounded-lg overflow-hidden border border-accent-spirit/20 group-hover:border-white/50 transition-colors bg-rift-800 flex items-center justify-center relative">
+                                <div className="w-7 h-7 rounded-lg overflow-hidden border border-accent-spirit/40 group-hover:border-white/50 transition-colors bg-rift-800 flex items-center justify-center relative">
                                     {selectedArticle.visualImage ? (
                                         <img
                                             src={selectedArticle.visualImage}
@@ -71,7 +71,7 @@ export default function ErrataViewer({ articles }: { articles: Article[] }) {
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                     </svg>
                                 </div>
-                                <span className="text-[10px] font-display font-bold uppercase tracking-wider pr-1">Visuels Errata</span>
+                                <span className="text-xs font-display font-bold uppercase tracking-wider pr-1">Visuels Errata</span>
                             </button>
                         )}
                     </div>

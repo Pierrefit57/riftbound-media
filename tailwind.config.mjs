@@ -97,6 +97,10 @@ export default {
                     '0%': { backgroundPosition: '-200% center' },
                     '100%': { backgroundPosition: '200% center' },
                 },
+                'glow-pulse': {
+                    '0%, 100%': { boxShadow: '0 0 15px rgba(233,135,15,0.3)' },
+                    '50%': { boxShadow: '0 0 25px rgba(233,135,15,0.5), 0 0 40px rgba(233,135,15,0.15)' },
+                },
             },
             animation: {
                 'petal-fall': 'petal-fall linear infinite',
