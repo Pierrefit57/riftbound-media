@@ -46,6 +46,9 @@ export async function trackEvent(eventType: string, data: {
     // Skip bots and automated traffic
     if (isBot(data.agent, data.ip)) return;
 
+    // UMAMI TRANSITION: Deactivate legacy tracking to save Supabase resources
+    return;
+
     try {
         const supabase = createServiceClient();
         if (!supabase) {

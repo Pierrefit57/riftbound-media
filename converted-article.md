@@ -23,9 +23,11 @@ Peur de ne pas réussir à suivre toutes les personnes que nous avons sollicité
 
 **[size:20]Le 11/03 :[/size]**
 
-> - [League of Legends](https://x.com/LeagueOfLegends)
-> 
-> ![Image](https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1773421815907-vpxx61.webp)
+[quote]
+- [League of Legends](https://x.com/LeagueOfLegends)
+
+![Image](https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1773421815907-vpxx61.webp)
+[/quote]
 
 
 **[size:20]Le 16/03 :[/size]**
@@ -128,13 +130,15 @@ Vous serez libre de placer un dé ou autre compteur sur la carte pour représent
 
 [/quote]
 
-> [size:24]**Rareté Ultimate :**[/size]
-> 
-> Le Set 3 Unleashed introduit la rareté "**Ultimate**" dans Riftbound, une rareté pour des cartes incroyables et très... très difficiles à trouver. La première carte Ultimate de Riftbound est une **édition unique overnumbered** du nouveau **Baron Nashor** ! Gardez l'œil ouvert pour sa révélation dans les jours à venir.
-> 
-> ![Image](https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1773680197947-cs0efx.webp)Il s'agit de la seule carte Ultimate de ce set, et elles n'apparaîtront pas systématiquement dans chaque futur set ! Nous réservons cela pour des cartes **véritablement exceptionnelles**.
-> 
-> *Les boosters ne peuvent contenir qu'une seule carte Ultimate au maximum (dans moins de **0,1 %** des boosters).*
+[quote]
+[size:24]**Rareté Ultimate :**[/size]
+
+Le Set 3 Unleashed introduit la rareté "**Ultimate**" dans Riftbound, une rareté pour des cartes incroyables et très... très difficiles à trouver. La première carte Ultimate de Riftbound est une **édition unique overnumbered** du nouveau **Baron Nashor** ! Gardez l'œil ouvert pour sa révélation dans les jours à venir.
+
+![Image](https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1773680197947-cs0efx.webp)Il s'agit de la seule carte Ultimate de ce set, et elles n'apparaîtront pas systématiquement dans chaque futur set ! Nous réservons cela pour des cartes **véritablement exceptionnelles**.
+
+*Les boosters ne peuvent contenir qu'une seule carte Ultimate au maximum (dans moins de **0,1 %** des boosters).*
+[/quote]
 
 
 [quote] 
@@ -178,20 +182,30 @@ Vous serez libre de placer un dé ou autre compteur sur la carte pour représent
 
 [/quote]
 
-> - [Marc Merrill / Tryndamere](https://x.com/MarcMerrill/status/2033576163982073917)
-> ![Image](https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1773677839251-cl6683.webp)
+[quote]
+- [Marc Merrill / Tryndamere](https://x.com/MarcMerrill/status/2033576163982073917)
+![Image](https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1773677839251-cl6683.webp)
+[/quote]
 
-> - [Scarra](https://x.com/scarra)
-> ![Image](https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1773673538606-hp59wg.webp)
+[quote]
+- [Scarra](https://x.com/scarra)
+![Image](https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1773673538606-hp59wg.webp)
+[/quote]
 
-> - [Sydeon](https://x.com/Sydeon)
-> ![Image](https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1773673483034-2lfjj5.webp)
+[quote]
+- [Sydeon](https://x.com/Sydeon)
+![Image](https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1773673483034-2lfjj5.webp)
+[/quote]
 
-> - [Toast](https://x.com/DisguisedToast)
-> ![Image](https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1773673515202-q91kso.webp)
+[quote]
+- [Toast](https://x.com/DisguisedToast)
+![Image](https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1773673515202-q91kso.webp)
+[/quote]
 
-> - [Yvonne](https://x.com/yvonnie)
-> ![Image](https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1773673556075-3a9b0v.webp)
+[quote]
+- [Yvonne](https://x.com/yvonnie)
+![Image](https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1773673556075-3a9b0v.webp)
+[/quote]
 
 [quote]
 
@@ -354,129 +368,145 @@ When I attack, you may choose to spend 3 Experience to deal damage equal to my P
 [/quote]
 
 **[size:20]Le 17/03 :[/size]** 
-> 
-> - [Dave Guskin](https://x.com/davetron)
-> - [But Why Tho?](https://butwhytho.net/)
-> - [First Comics News](https://www.firstcomicsnews.com/author/jaesa-evermore/)
-> - [Frodan](https://x.com/Frodan)
-> - [Grenton](https://x.com/grentontv)
-> - [Mogwai](https://www.twitch.tv/megam0gwai)
-> - [MrsChimChim](https://twitch.tv/mrschimchim)
-> - [NickyBoi](https://www.twitch.tv/nickyboi)
-> - [Rob Stanley](https://x.com/SehnbonTCG)
-> - [Robinsongz](https://x.com/robinsongz)
-> - [Snnuy](https://discord.com/channels/@me/1448379544141697105/1481781301995376752)
-> - [Solary](https://www.youtube.com/@SolaryRiftbound)
-> - [Turn 'Em Sideways](https://youtube.com/@turnemsideways?si=jsYViXQEzDDv7WkT)
+[quote]
+- [Dave Guskin](https://x.com/davetron)
+- [But Why Tho?](https://butwhytho.net/)
+- [First Comics News](https://www.firstcomicsnews.com/author/jaesa-evermore/)
+- [Frodan](https://x.com/Frodan)
+- [Grenton](https://x.com/grentontv)
+- [Mogwai](https://www.twitch.tv/megam0gwai)
+- [MrsChimChim](https://twitch.tv/mrschimchim)
+- [NickyBoi](https://www.twitch.tv/nickyboi)
+- [Rob Stanley](https://x.com/SehnbonTCG)
+- [Robinsongz](https://x.com/robinsongz)
+- [Snnuy](https://discord.com/channels/@me/1448379544141697105/1481781301995376752)
+- [Solary](https://www.youtube.com/@SolaryRiftbound)
+- [Turn 'Em Sideways](https://youtube.com/@turnemsideways?si=jsYViXQEzDDv7WkT)
+[/quote]
 
 **[size:20]LE 18/03 :[/size]** 
 
-> - [Diana DiMicco](https://x.com/DimiccoDiana)
-> - [Frank Skarren](https://x.com/Vriss_)
-> - [CoolLife](https://www.youtube.com/@CooLifeGame)
-> - [Future](https://x.com/FTREFORMED)
-> - [GameSpot](https://www.gamespot.com/)
-> - [HypocriticGG](https://youtube.com/@hypocriticgg)
-> - [Lothar](https://www.youtube.com/@LotharHSRiftbound)
-> - [Nova](https://www.youtube.com/@NovaRiftbound)
-> - [The Outerhaven](https://www.theouterhaven.net/)
-> - [Peter Park](https://x.com/peterparkTV)
-> - [Peter Park](https://x.com/peterparkTV)
-> - [Wargamer](https://www.wargamer.com/)
+[quote]
+- [Diana DiMicco](https://x.com/DimiccoDiana)
+- [Frank Skarren](https://x.com/Vriss_)
+- [CoolLife](https://www.youtube.com/@CooLifeGame)
+- [Future](https://x.com/FTREFORMED)
+- [GameSpot](https://www.gamespot.com/)
+- [HypocriticGG](https://youtube.com/@hypocriticgg)
+- [Lothar](https://www.youtube.com/@LotharHSRiftbound)
+- [Nova](https://www.youtube.com/@NovaRiftbound)
+- [The Outerhaven](https://www.theouterhaven.net/)
+- [Peter Park](https://x.com/peterparkTV)
+- [Wargamer](https://www.wargamer.com/)
+[/quote]
 
 **[size:20]Le 19/03 :[/size]**
 
-> - [5up](https://x.com/5uppps)
-> - [50k Comics](https://www.youtube.com/@50kComics)
-> - [Amandine Bamaca](https://www.youtube.com/@AmandineBamaca)
-> - [Blevins](https://x.com/The_Blevins)
-> - [CallMeNike](https://www.youtube.com/@callmenike_tcg)
-> - [Card Gamer](https://www.cardgamer.com/)
-> - [Drew Fawcett](http://drewfawcett.com/)
-> - [Majority](https://x.com/MajoritySC)
-> - [Pochipoom](https://www.youtube.com/@PochiPoomRiftbound)
-> - [Riftbound Polska](https://www.youtube.com/@RiftboundPolska)
-> - [Rapsolo](https://x.com/RapsoloM)
-> - [Sebbie](https://m.twitch.tv/sebbie/home)
-> - [TechRaptor](https://techraptor.net/tabletop)
-> - [Travis Gafford](https://www.youtube.com/@RiftboundTGI)
-> - [Turn'em sideways](https://www.youtube.com/@TurnemSideways)
-> - [Wild Rift](https://x.com/wildrift)
+[quote]
+- [5up](https://x.com/5uppps)
+- [50k Comics](https://www.youtube.com/@50kComics)
+- [Amandine Bamaca](https://www.youtube.com/@AmandineBamaca)
+- [Blevins](https://x.com/The_Blevins)
+- [CallMeNike](https://www.youtube.com/@callmenike_tcg)
+- [Card Gamer](https://www.cardgamer.com/)
+- [Drew Fawcett](http://drewfawcett.com/)
+- [Majority](https://x.com/MajoritySC)
+- [Pochipoom](https://www.youtube.com/@PochiPoomRiftbound)
+- [Riftbound Polska](https://www.youtube.com/@RiftboundPolska)
+- [Rapsolo](https://x.com/RapsoloM)
+- [Sebbie](https://m.twitch.tv/sebbie/home)
+- [TechRaptor](https://techraptor.net/tabletop)
+- [Travis Gafford](https://www.youtube.com/@RiftboundTGI)
+- [Turn'em sideways](https://www.youtube.com/@TurnemSideways)
+- [Wild Rift](https://x.com/wildrift)
+[/quote]
 
 **[size:20]Le 20/03 :[/size]**
 
-> - [Demacia TCG](https://www.youtube.com/@DemaciaTCG)
-> - [DigitalChumps](https://www.digitalchumps.com/)
-> - [eXyu](https://x.com/lol_eXyu)
-> - [GameRant](https://gamerant.com/)
-> - [Katchouze](https://youtube.com/@katchouzeriftbound?si=-bA91T8RB73ZXJpW)
-> - [MiChiamoPob](https://www.youtube.com/@MiChiamoPob)
-> - [MMORPG](https://www.mmorpg.com/)
-> - [Temple of Geek](https://templeofgeek.com/)
+[quote]
+- [Demacia TCG](https://www.youtube.com/@DemaciaTCG)
+- [DigitalChumps](https://www.digitalchumps.com/)
+- [eXyu](https://x.com/lol_eXyu)
+- [GameRant](https://gamerant.com/)
+- [Katchouze](https://youtube.com/@katchouzeriftbound?si=-bA91T8RB73ZXJpW)
+- [MiChiamoPob](https://www.youtube.com/@MiChiamoPob)
+- [MMORPG](https://www.mmorpg.com/)
+- [Temple of Geek](https://templeofgeek.com/)
+[/quote]
 
 **[size:20]Le 23/03 :[/size]**
 
-> - [Bleeding Cool](https://bleedingcool.com/)
-> - [CGMagazine](https://www.cgmagonline.com/)
-> - [TheEgman](https://www.youtube.com/c/TheEgman)
-> - [Game Informer](https://gameinformer.com/)
-> - [GamesBeat](https://gamesbeat.com/)
-> - [GameTyrant](https://gametyrant.com/)
-> - [Ianna](https://www.twitch.tv/iannatv)
-> - [IGN](http://ign.com/)
-> - [Insider Gaming](https://insider-gaming.com/)
-> - [IreneRAWR](http://youtube.com/@irenerawrtcg?si=_RT841PVNnSUV2OO)
-> - [PCGamesN](https://www.pcgamesn.com/)
-> - [Polygon](https://www.polygon.com/)
-> - [Rhobalas](https://x.com/Rhobalasv2)
-> - [SaiyaJazz](https://www.instagram.com/saiyajazz)
-> - [Screen Rant](https://screenrant.com/gaming/)
-> - [Shacknews](https://www.shacknews.com/)
-> - [Sheep Esports](https://www.sheepesports.com/en/all)
-> - [Soul](https://youtube.com/@soulriftbound)
-> - [TronisBad](https://instagram.com/tronisbad)
+[quote]
+- [Bleeding Cool](https://bleedingcool.com/)
+- [CGMagazine](https://www.cgmagonline.com/)
+- [TheEgman](https://www.youtube.com/c/TheEgman)
+- [Game Informer](https://gameinformer.com/)
+- [GamesBeat](https://gamesbeat.com/)
+- [GameTyrant](https://gametyrant.com/)
+- [Ianna](https://www.twitch.tv/iannatv)
+- [IGN](http://ign.com/)
+- [Insider Gaming](https://insider-gaming.com/)
+- [IreneRAWR](http://youtube.com/@irenerawrtcg?si=_RT841PVNnSUV2OO)
+- [PCGamesN](https://www.pcgamesn.com/)
+- [Polygon](https://www.polygon.com/)
+- [Rhobalas](https://x.com/Rhobalasv2)
+- [SaiyaJazz](https://www.instagram.com/saiyajazz)
+- [Screen Rant](https://screenrant.com/gaming/)
+- [Shacknews](https://www.shacknews.com/)
+- [Sheep Esports](https://www.sheepesports.com/en/all)
+- [Soul](https://youtube.com/@soulriftbound)
+- [TronisBad](https://instagram.com/tronisbad)
+[/quote]
 
 **[size:20]Le 24/03 :[/size]**
 
-> - [ADCourtney](https://www.instagram.com/adcourtneyy/)
-> - [AnzidMTG](https://www.youtube.com/anzidmtg)
-> - [Bloody](https://twitch.tv/bloody)
-> - [Bullfrog](https://youtube.com/@bullfrogtcg?si=ALIjls82IS65Iroo)
-> - [ComicBook](https://comicbook.com/)
-> - [Leo & Brian](https://youtube.com/@leobrian-riftboundfr)
-> - [Riftbound Report](https://twitter.com/RiftboundReport)
-> - [TechRadar](https://www.techradar.com/)
+[quote]
+- [ADCourtney](https://www.instagram.com/adcourtneyy/)
+- [AnzidMTG](https://www.youtube.com/anzidmtg)
+- [Bloody](https://twitch.tv/bloody)
+- [Bullfrog](https://youtube.com/@bullfrogtcg?si=ALIjls82IS65Iroo)
+- [ComicBook](https://comicbook.com/)
+- [Leo & Brian](https://youtube.com/@leobrian-riftboundfr)
+- [Riftbound Report](https://twitter.com/RiftboundReport)
+- [TechRadar](https://www.techradar.com/)
+[/quote]
 
 **[size:20]Le 25/03 :[/size]**
 
-> - [TheGamer](https://www.thegamer.com/)
-> - [Grapplr](https://www.twitch.tv/grapplr)
-> - [MaryMaybe](http://twitch.tv/MaryMaybe)
-> - [Medic](https://x.com/MedicCasts?lang=fr)
-> - [Narutak](https://www.youtube.com/@Narutak21)
-> - [Nips](https://x.com/artbynips)
-> - [Pastrytime](https://x.com/Pastrytime)
-> - [Riftlab](https://www.youtube.com/@RiftlabTCG)
-> - [Skuffey](https://www.youtube.com/@Skuffey_Games)
+[quote]
+- [TheGamer](https://www.thegamer.com/)
+- [Grapplr](https://www.twitch.tv/grapplr)
+- [MaryMaybe](http://twitch.tv/MaryMaybe)
+- [Medic](https://x.com/MedicCasts?lang=fr)
+- [Narutak](https://www.youtube.com/@Narutak21)
+- [Nips](https://x.com/artbynips)
+- [Pastrytime](https://x.com/Pastrytime)
+- [Riftlab](https://www.youtube.com/@RiftlabTCG)
+- [Skuffey](https://www.youtube.com/@Skuffey_Games)
+[/quote]
 
 **[size:20]Le 26/03 :[/size]**
 
-> - [Capitao Serket](https://www.youtube.com/c/capitaoserket)
-> - [TheGamer](https://www.thegamer.com/)
-> - [Infobae](https://www.infobae.com/america/)
-> - [Maldhound](https://youtube.com/@maldhound?si=tsHFSjIk2rxBN6fs)
+[quote]
+- [Capitao Serket](https://www.youtube.com/c/capitaoserket)
+- [TheGamer](https://www.thegamer.com/)
+- [Infobae](https://www.infobae.com/america/)
+- [Maldhound](https://youtube.com/@maldhound?si=tsHFSjIk2rxBN6fs)
+[/quote]
 
 **[size:20]Le 27/03 :[/size]**
 
-> - [BasilLeaf](https://www.instagram.com/basiilleaf.png/)
-> - [CardsRealm](https://cardsrealm.com/pt-br/)
-> - [Crim](http://www.twitter.com/theasianavenger)
-> - [Ludopedia](https://ludopedia.com.br/)
-> - [Recycle2](https://youtube.com/@recycle2tcg?si=uyzi0IO3ne3zcyoT)
-> - [SuperGeek](https://www.supergeek.cl/)
-> - [TierraGamer](https://tierragamer.com/)
-> - [Z](https://www.instagram.com/zmaincharacter/)
-> - [TFT](https://x.com/TFT)
+[quote]
+- [BasilLeaf](https://www.instagram.com/basiilleaf.png/)
+- [CardsRealm](https://cardsrealm.com/pt-br/)
+- [Crim](http://www.twitter.com/theasianavenger)
+- [Ludopedia](https://ludopedia.com.br/)
+- [Recycle2](https://youtube.com/@recycle2tcg?si=uyzi0IO3ne3zcyoT)
+- [SuperGeek](https://www.supergeek.cl/)
+- [TierraGamer](https://tierragamer.com/)
+- [Z](https://www.instagram.com/zmaincharacter/)
+- [TFT](https://x.com/TFT)
+[/quote]
 
 
 **Cet article sera donc édité et mis à jour à chaque révélation de carte ! N'hésitez surtout pas à le consulter régulièrement aux dates indiquées ! **
