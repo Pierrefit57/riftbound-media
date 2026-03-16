@@ -8,35 +8,33 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const supabaseUrl = process.env.PUBLIC_SUPABASE_URL;
-const anonKey = process.env.PUBLIC_SUPABASE_ANON_KEY;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-console.log('--- Permissions Check ---');
-console.log(`URL: ${supabaseUrl}`);
-console.log(`Anon Key Present: ${!!anonKey}`);
-console.log(`Service Role Key Present: ${!!serviceRoleKey}`);
-
-async function testPermissions() {
-    const anonClient = createClient(supabaseUrl, anonKey);
-    const serviceClient = createClient(supabaseUrl, serviceRoleKey);
-
-    // 1. Try reading with Anon
-    const { count: anonCount, error: anonError } = await anonClient
-        .from('analytics_logs')
-        .select('*', { count: 'exact', head: true });
+async function checkLimit() {
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     
-    console.log(`\nAnon Client Count: ${anonCount} (Error: ${anonError?.message || 'None'})`);
-
-    // 2. Try reading with Service Role
-    const { count: serviceCount, error: serviceError } = await serviceRoleKey ? await serviceClient
+    // 1. Total count in last 30 days
+    const { count, error } = await supabase
         .from('analytics_logs')
-        .select('*', { count: 'exact', head: true }) : { count: 'N/A', error: { message: 'Key missing' } };
-    
-    console.log(`Service Role Count: ${serviceCount} (Error: ${serviceError?.message || 'None'})`);
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', thirtyDaysAgo);
 
-    // 3. Try reading articles (sanity check)
-    const { count: artCount } = await serviceClient.from('articles').select('*', { count: 'exact', head: true });
-    console.log(`Articles Count: ${artCount}`);
+    if (error) {
+        console.error(error);
+        return;
+    }
+    console.log(`Total logs in last 30 days: ${count}`);
+    
+    // 2. See if latest logs are page_views
+    const { data: latest } = await supabase
+        .from('analytics_logs')
+        .select('created_at, event_type, ip_address')
+        .order('created_at', { ascending: false })
+        .limit(5);
+    
+    console.log('\nLatest 5 logs:');
+    latest.forEach(l => console.log(`- ${l.created_at} | ${l.event_type} | ${l.ip_address}`));
 }
 
-testPermissions();
+checkLimit();

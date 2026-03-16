@@ -69,7 +69,8 @@ const { data: rawLogs } = await supabase
   .select('event_type, created_at, path, ip_address, referrer, country')
   .gte('created_at', thirtyDaysAgo)
   .eq('event_type', 'page_view')
-  .order('created_at', { ascending: true });
+  .order('created_at', { ascending: true })
+  .limit(10000); // Augmenter la limite pour ne pas couper les données récentes
 
 // Filter out bots and datacenter traffic
 const logs = rawLogs?.filter(l => isRealVisitor(l.ip_address) && l.event_type !== 'diagnostic_test');
