@@ -16,12 +16,10 @@ const BOT_PATTERNS = [
     'vercelbot', 'prerender', 'rendertron',
 ];
 
-// Known cloud/datacenter IP ranges (first octets)
+// Known cloud/datacenter IP ranges (uniquement ceux très spécifiques aux bots)
 const DATACENTER_PREFIXES = [
     '143.198.', '137.184.', '143.244.',  // DigitalOcean
-    '18.144.', '13.56.', '13.57.', '54.', '52.',  // AWS
-    '35.', '34.',  // Google Cloud
-    '20.', '40.', '104.',  // Azure
+    '18.144.', '3.125.',                 // AWS spécifiques
 ];
 
 function isBot(userAgent?: string, ip?: string): boolean {

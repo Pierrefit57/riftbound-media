@@ -1,13 +1,14 @@
----
-export const prerender = false;
-
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import DashboardCharts from '../../components/admin/DashboardCharts';
 import StatCard from '../../components/admin/StatCard';
 import { createServiceClient } from '../../lib/supabase';
+import { format, subDays, eachDayOfInterval } from 'date-fns';
 
 // Utiliser le service client pour contourner les RLS (lecture logs admin)
 const supabase = createServiceClient();
+
+// Vérifier si la clé de service est présente (utile pour le debug admin)
+const hasServiceKey = !!import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // Désactiver le cache pour garantir des données fraîches
 Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -37,18 +38,16 @@ const now = new Date();
 const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000).toISOString();
 const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-// Datacenter IP prefixes to exclude (bots, crawlers, automated traffic)
+// Datacenter IP prefixes to exclude (uniquement les plus évidents/problématiques)
 const DATACENTER_PREFIXES = [
     '143.198.', '137.184.', '143.244.',  // DigitalOcean
-    '18.144.', '13.56.', '13.57.',       // AWS US
-    '54.', '52.',                         // AWS global
-    '35.', '34.',                         // Google Cloud
-    '20.', '40.', '104.',                // Azure
-    '127.0.0.1',                          // localhost/test
+    '18.144.', '3.125.',                 // AWS spécifiques (évitons de bloquer tout 54. / 52.)
+    '127.0.0.1', '::1',                  // Local
 ];
 
 function isRealVisitor(ip: string | null): boolean {
     if (!ip) return false;
+    // On garde un filtrage léger pour ne pas masquer de vrais utilisateurs
     return !DATACENTER_PREFIXES.some(prefix => ip.startsWith(prefix));
 }
 
@@ -62,8 +61,6 @@ const { data: onlineLogs } = await supabase
 const onlineCount = new Set(onlineLogs?.filter(l => isRealVisitor(l.ip_address)).map(l => l.ip_address)).size;
 
 // Fetch Logs (Last 30 days)
-import { format, subDays, startOfDay, endOfDay, eachDayOfInterval } from 'date-fns';
-
 const endDate = new Date();
 const startDate = subDays(endDate, 30);
 
@@ -147,7 +144,10 @@ const chartData = dailyVisits;
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
       <div>
         <h1 class="text-2xl font-bold text-rift-100 font-display uppercase tracking-wider">Tableau de bord</h1>
-        <p class="text-rift-400 text-sm mt-1">Bienvenue, {Astro.props.user?.email || 'Admin'} !</p>
+        <p class="text-rift-400 text-sm mt-1">
+          Bienvenue, {Astro.props.user?.email || 'Admin'} !
+          {!hasServiceKey && <span class="text-red-500 font-bold ml-2">⚠️ Clé Service Role manquante !</span>}
+        </p>
       </div>
       <div class="flex gap-3 w-full sm:w-auto">
         <a href="/" target="_blank" class="w-full sm:w-auto text-center px-4 py-2 rounded-lg bg-rift-800 text-rift-300 text-sm font-medium hover:bg-rift-700 hover:text-accent-spirit transition-colors border border-rift-700">
