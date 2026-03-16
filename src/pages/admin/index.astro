@@ -63,6 +63,10 @@ const { data: onlineLogs } = await supabase
 
 const onlineCount = new Set(onlineLogs?.filter(l => isRealVisitor(l.ip_address)).map(l => l.ip_address)).size;
 
+// Date range for charts
+const endDate = new Date();
+const startDate = subDays(endDate, 30);
+
 // 3. Stats Globales (Last 30 days)
 // On utilise .select('*', { count: 'exact', head: true }) pour avoir le vrai total sans charger les lignes
 const { count: totalViews30d } = await supabase

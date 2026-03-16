@@ -48,6 +48,11 @@ export async function trackEvent(eventType: string, data: {
 
     try {
         const supabase = createServiceClient();
+        if (!supabase) {
+            console.error('[analytics] Failed to create Supabase client (check service role key)');
+            return;
+        }
+
         const { error } = await supabase.from('analytics_logs').insert({
             event_type: eventType,
             path: data.path,
@@ -58,11 +63,12 @@ export async function trackEvent(eventType: string, data: {
             referrer: data.referrer,
             country: data.country,
         });
+        
         if (error) {
-            console.error('[analytics] Supabase insert error:', error.message, error.details, error.hint);
+            console.error('[analytics] Supabase insert error:', error.message);
         }
     } catch (e: any) {
-        // Fail silently to not block the app
-        console.error('[analytics] Unexpected error:', e?.message);
+        // FAIL SILENTLY - CRITICAL: never block the app for analytics
+        console.error('[analytics] Fatal error in tracking:', e?.message || e);
     }
 }
