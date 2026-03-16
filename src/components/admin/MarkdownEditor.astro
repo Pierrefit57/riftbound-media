@@ -231,11 +231,14 @@ try {
     <div class="h-4 w-px bg-rift-800 mx-1"></div>
 
     <div class="flex items-center gap-1.5 px-2">
-      <button type="button" class="px-2 py-1 rounded bg-[#006B5F] text-white text-[10px] font-bold hover:scale-105 transition-transform shadow-lg" title="Badge Vert" data-action="badgeGreen">
-        VERT
+      <button type="button" class="px-2 py-1 rounded bg-[#A3CF31] text-black text-[10px] font-bold hover:scale-105 transition-transform shadow-lg" title="Badge Lime (Vert Clair / Police Noire)" data-action="badgeLime">
+        LIME
       </button>
-      <button type="button" class="px-2 py-1 rounded bg-[#C42761] text-white text-[10px] font-bold hover:scale-105 transition-transform shadow-lg" title="Badge Rouge" data-action="badgeRed">
-        ROUGE
+      <button type="button" class="px-2 py-1 rounded bg-[#006B5F] text-white text-[10px] font-bold hover:scale-105 transition-transform shadow-lg" title="Badge Teal (Vert Foncé / Police Blanche)" data-action="badgeTeal">
+        TEAL
+      </button>
+      <button type="button" class="px-2 py-1 rounded bg-[#C42761] text-white text-[10px] font-bold hover:scale-105 transition-transform shadow-lg" title="Badge Magenta (Rouge / Police Blanche)" data-action="badgeRed">
+        MAGENTA
       </button>
     </div>
 
@@ -530,7 +533,18 @@ try {
           content = '';
           break;
         case 'badgeGreen':
-          prefix = '[badge:green]';
+          // Legacy support (defaults to lime)
+          prefix = '[badge:lime]';
+          suffix = '[/badge]';
+          if (!content) content = 'MOT-CLÉ';
+          break;
+        case 'badgeLime':
+          prefix = '[badge:lime]';
+          suffix = '[/badge]';
+          if (!content) content = 'MOT-CLÉ';
+          break;
+        case 'badgeTeal':
+          prefix = '[badge:teal]';
           suffix = '[/badge]';
           if (!content) content = 'MOT-CLÉ';
           break;
