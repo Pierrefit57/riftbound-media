@@ -37,7 +37,10 @@ export function parseShortcodes(text: string): string {
   processed = processed.replace(/\[quote\]([\s\S]*?)\[\/quote\]/g, '<blockquote>\n\n$1\n\n</blockquote>');
   
   // 7b. Keyword Badges: [badge:green]text[/badge]
-  processed = processed.replace(/\[badge:([^\]]+)\]([\s\S]*?)\[\/badge\]/g, '<span class="badge-keyword badge-keyword-$1">$2</span>');
+  processed = processed.replace(/\[badge:([^\]]+)\]([\s\S]*?)\[\/badge\]/g, (match, color, content) => {
+    const cleanColor = color.toLowerCase().trim();
+    return `<span class="badge-keyword badge-keyword-${cleanColor}">${content}</span>`;
+  });
 
   // 8. Video/GIF: [video:url] -> <video autoplay loop muted playsinline class="article-video cursor-zoom-in"><source src="url" type="video/mp4"></video>
   processed = processed.replace(/\[video:([^\]]+)\]/g, (match, url) => {

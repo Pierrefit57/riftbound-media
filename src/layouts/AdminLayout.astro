@@ -26,6 +26,36 @@ const sidebarItems = [
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <title>{title} — Admin | Riftbound Media</title>
+    <style is:global>
+      /* TCG Keyword Badges - Global for Live Preview */
+      .badge-keyword {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.05em 0.5em;
+        font-weight: 900;
+        font-style: italic;
+        color: #000 !important;
+        position: relative;
+        z-index: 1;
+        margin: 0 0.4em;
+        line-height: normal;
+        font-family: 'Outfit', sans-serif;
+        text-transform: uppercase;
+        font-size: 0.9em;
+        vertical-align: middle;
+      }
+      .badge-keyword::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        transform: skewX(-15deg);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+      }
+      .badge-keyword-green::before { background-color: #A3CF31; }
+      .badge-keyword-red::before { background-color: #E63946; color: #fff; }
+      .badge-keyword-red { color: #fff !important; }
+    </style>
   </head>
   <body class="bg-rift-950 text-rift-100 font-sans min-h-screen flex">
 

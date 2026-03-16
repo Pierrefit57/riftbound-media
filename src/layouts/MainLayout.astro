@@ -192,7 +192,12 @@ const ongoingEvent = activeEvents
         }
       }
 
-      /* TCG Keyword Badges */
+      .badge-keyword-red::before { background-color: #E63946; color: #fff; }
+      .badge-keyword-red { color: #fff !important; }
+    </style>
+
+    <style is:global>
+      /* TCG Keyword Badges - Global for Slots & Preview */
       .badge-keyword {
         display: inline-block;
         padding: 0.05em 0.5em;
