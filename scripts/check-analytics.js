@@ -11,30 +11,27 @@ const supabaseUrl = process.env.PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-async function checkLimit() {
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+async function checkOnline() {
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
     
-    // 1. Total count in last 30 days
-    const { count, error } = await supabase
+    const { data: logs, error } = await supabase
         .from('analytics_logs')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', thirtyDaysAgo);
+        .select('ip_address')
+        .eq('event_type', 'page_view')
+        .gte('created_at', fiveMinutesAgo);
 
     if (error) {
         console.error(error);
         return;
     }
-    console.log(`Total logs in last 30 days: ${count}`);
+
+    const uniqueIps = new Set(logs.map(l => l.ip_address));
+    console.log(`--- ONLINE NOW (5 MIN) ---`);
+    console.log(`Unique IPs in last 5 min: ${uniqueIps.size}`);
     
-    // 2. See if latest logs are page_views
-    const { data: latest } = await supabase
-        .from('analytics_logs')
-        .select('created_at, event_type, ip_address')
-        .order('created_at', { ascending: false })
-        .limit(5);
-    
-    console.log('\nLatest 5 logs:');
-    latest.forEach(l => console.log(`- ${l.created_at} | ${l.event_type} | ${l.ip_address}`));
+    // Sample of what's online
+    console.log('\nSample IPs:');
+    Array.from(uniqueIps).slice(0, 5).forEach(ip => console.log(`- ${ip}`));
 }
 
-checkLimit();
+checkOnline();

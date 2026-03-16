@@ -72,11 +72,16 @@ const { data: rawLogs } = await supabase
   .select('event_type, created_at, path, ip_address, referrer, country')
   .gte('created_at', thirtyDaysAgo)
   .eq('event_type', 'page_view')
-  .order('created_at', { ascending: true })
-  .limit(10000); // Augmenter la limite pour ne pas couper les données récentes
+  .order('created_at', { ascending: false }) // On prend les plus récents d'abord !
+  .limit(10000);
+
+// Inverser pour l'affichage chronologique (graphiques)
+const sortedLogs = rawLogs ? [...rawLogs].sort((a, b) => 
+  new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+) : [];
 
 // Filter out bots and datacenter traffic
-const logs = rawLogs?.filter(l => isRealVisitor(l.ip_address) && l.event_type !== 'diagnostic_test');
+const logs = sortedLogs?.filter(l => isRealVisitor(l.ip_address) && l.event_type !== 'diagnostic_test');
 
 
 // Process Logs for Charts
