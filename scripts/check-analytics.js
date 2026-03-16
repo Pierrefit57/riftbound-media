@@ -11,27 +11,21 @@ const supabaseUrl = process.env.PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-async function checkOnline() {
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-    
-    const { data: logs, error } = await supabase
+async function finalProof() {
+    const slug = '/news/revelations-unleashed';
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    // Total count for THIS specific path in 30d
+    const { count, error } = await supabase
         .from('analytics_logs')
-        .select('ip_address')
-        .eq('event_type', 'page_view')
-        .gte('created_at', fiveMinutesAgo);
+        .select('*', { count: 'exact', head: true })
+        .eq('path', slug)
+        .gte('created_at', thirtyDaysAgo);
 
-    if (error) {
-        console.error(error);
-        return;
-    }
-
-    const uniqueIps = new Set(logs.map(l => l.ip_address));
-    console.log(`--- ONLINE NOW (5 MIN) ---`);
-    console.log(`Unique IPs in last 5 min: ${uniqueIps.size}`);
-    
-    // Sample of what's online
-    console.log('\nSample IPs:');
-    Array.from(uniqueIps).slice(0, 5).forEach(ip => console.log(`- ${ip}`));
+    console.log(`--- THE TRUTH IN THE DATABASE ---`);
+    console.log(`Article: ${slug}`);
+    console.log(`True 30-day count in DB: ${count}`);
+    console.log(`\n(Si le dashboard affiche moins, c'est à cause de la limite technique de 1000 lignes par requête de Supabase API)`);
 }
 
-checkOnline();
+finalProof();
