@@ -36,9 +36,9 @@ export function parseShortcodes(text: string): string {
   // 7. Blockquote: [quote]...[/quote]
   processed = processed.replace(/\[quote\]([\s\S]*?)\[\/quote\]/g, '<blockquote>\n\n$1\n\n</blockquote>');
 
-  // 8. Video/GIF: [video:url] -> <video autoplay loop muted playsinline class="article-video"><source src="url" type="video/mp4"></video>
+  // 8. Video/GIF: [video:url] -> <video autoplay loop muted playsinline class="article-video cursor-zoom-in"><source src="url" type="video/mp4"></video>
   processed = processed.replace(/\[video:([^\]]+)\]/g, (match, url) => {
-    return `<div class="video-container"><video autoplay loop muted playsinline class="rounded-lg border border-rift-700/30 w-full"><source src="${url}" type="video/mp4"></video></div>`;
+    return `<div class="video-container"><video autoplay loop muted playsinline class="article-video cursor-zoom-in rounded-lg border border-rift-700/30 w-full shadow-lg"><source src="${url}" type="video/mp4"></video></div>`;
   });
 
   // 9. Section Layouts (Flexbox)

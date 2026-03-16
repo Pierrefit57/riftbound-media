@@ -240,44 +240,83 @@ function getTagStyle(tag: string): string {
         </svg>
       </button>
     </div>
-    <img id="lightbox-img" src="" alt="Zoom" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl" style="transform: scale(0.92); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform;" />
+    <img id="lightbox-img" src="" alt="Zoom" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl hidden" style="transform: scale(0.92); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform;" />
+    <video id="lightbox-video" autoplay loop muted playsinline class="max-w-full max-h-full object-contain rounded-lg shadow-2xl hidden" style="transform: scale(0.92); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform;">
+      <source src="" type="video/mp4">
+    </video>
   </div>
 
   <script>
     // Lightbox Logic
     const overlay = document.getElementById('lightbox-overlay');
     const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
+    const lightboxVideo = document.getElementById('lightbox-video') as HTMLVideoElement;
     const closeBtn = document.getElementById('lightbox-close');
     
-    // Find all images in the article content that are not icons
-    const articleImages = document.querySelectorAll('.prose img:not(.icon-tcg):not(.icon-energy)');
+    // Find all zoomable media in the article
+    const articleMedia = document.querySelectorAll('.prose img:not(.icon-tcg):not(.icon-energy), .prose .article-video');
     
-    function openLightbox(src: string) {
-      if (!overlay || !lightboxImg) return;
-      lightboxImg.src = src;
-      overlay.classList.remove('opacity-0', 'pointer-events-none');
-      // Use rAF to ensure the browser has painted the overlay before animating scale
-      requestAnimationFrame(() => {
+    function openLightbox(element: HTMLElement) {
+      if (!overlay || !lightboxImg || !lightboxVideo) return;
+      
+      const isVideo = element.tagName.toLowerCase() === 'video';
+      
+      if (isVideo) {
+        const videoSource = (element as HTMLVideoElement).querySelector('source')?.src || (element as HTMLVideoElement).src;
+        lightboxVideo.src = videoSource;
+        lightboxVideo.classList.remove('hidden');
+        lightboxImg.classList.add('hidden');
+        
+        // Ensure video starts playing
+        lightboxVideo.play().catch(e => console.error('Video play error:', e));
+        
+        // Background paint + Animation
         requestAnimationFrame(() => {
-          lightboxImg.style.transform = 'scale(1)';
+          requestAnimationFrame(() => {
+            lightboxVideo.style.transform = 'scale(1)';
+          });
         });
-      });
+      } else {
+        lightboxImg.src = (element as HTMLImageElement).src;
+        lightboxImg.classList.remove('hidden');
+        lightboxVideo.classList.add('hidden');
+        
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            lightboxImg.style.transform = 'scale(1)';
+          });
+        });
+      }
+
+      overlay.classList.remove('opacity-0', 'pointer-events-none');
       document.body.style.overflow = 'hidden';
     }
     
     function closeLightbox() {
-      if (!overlay || !lightboxImg) return;
+      if (!overlay || !lightboxImg || !lightboxVideo) return;
+      
       lightboxImg.style.transform = 'scale(0.92)';
+      lightboxVideo.style.transform = 'scale(0.92)';
+      lightboxVideo.pause();
+      
       overlay.classList.add('opacity-0', 'pointer-events-none');
       document.body.style.overflow = '';
+      
+      // Delay cleaning sources to avoid visual artifacts during transition
+      setTimeout(() => {
+        if (overlay.classList.contains('opacity-0')) {
+          lightboxImg.src = '';
+          lightboxVideo.src = '';
+        }
+      }, 300);
     }
 
-    articleImages.forEach(img => {
+    articleMedia.forEach(el => {
       // Add visual cue for interactivity
-      img.classList.add('cursor-zoom-in', 'hover:opacity-90', 'transition-opacity');
+      (el as HTMLElement).classList.add('cursor-zoom-in', 'hover:opacity-90', 'transition-opacity');
       
-      img.addEventListener('click', () => {
-        openLightbox((img as HTMLImageElement).src);
+      el.addEventListener('click', () => {
+        openLightbox(el as HTMLElement);
       });
     });
 
