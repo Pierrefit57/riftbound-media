@@ -130,7 +130,8 @@ const { data: popularRaw } = await supabase
   .from('analytics_logs')
   .select('path')
   .eq('event_type', 'page_view')
-  .gte('created_at', thirtyDaysAgo);
+  .gte('created_at', thirtyDaysAgo)
+  .limit(10000); // CRITIQUE : Toujours limiter explicitement pour ne pas s'arrêter à 1000
 
 const pathCounts = new Map();
 popularRaw?.forEach(l => {
