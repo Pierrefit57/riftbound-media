@@ -33,6 +33,7 @@ if (fetchError || !article) {
     const tagsRaw = formData.get('tags') as string;
     const tags = tagsRaw ? tagsRaw.split(',').map((t) => t.trim()).filter(Boolean) : [];
     const featured = formData.get('featured') === 'on';
+    const highlighted = formData.get('highlighted') === 'on';
     const published = formData.get('published') === 'on';
     const published_at = formData.get('published_at') as string;
 
@@ -45,7 +46,7 @@ if (fetchError || !article) {
 
     const { error } = await supabase
       .from('articles')
-      .update({ title, slug, content, summary, image_url, tags, featured, published, published_at })
+      .update({ title, slug, content, summary, image_url, tags, featured, highlighted, published, published_at })
       .eq('id', id);
 
     if (error) {
@@ -214,6 +215,11 @@ if (successParam === 'created') successMsg = 'Article créé avec succès ! Cont
                 <input type="checkbox" name="featured" checked={article.featured}
                   class="w-4 h-4 rounded border-rift-700 bg-rift-950 text-accent-cyan focus:ring-accent-cyan/30 checked:bg-accent-cyan checked:border-accent-cyan transition-colors" />
                 <span class="text-xs text-rift-300 group-hover:text-rift-100 transition-colors uppercase tracking-wider">Épinglé</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer group">
+                <input type="checkbox" name="highlighted" checked={article.highlighted}
+                  class="w-4 h-4 rounded border-rift-700 bg-rift-950 text-accent-cyan focus:ring-accent-cyan/30 checked:bg-accent-cyan checked:border-accent-cyan transition-colors" />
+                <span class="text-xs text-rift-300 group-hover:text-rift-100 transition-colors uppercase tracking-wider">✦ Surbrillance</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer group">
                 <input type="checkbox" name="published" checked={article.published}

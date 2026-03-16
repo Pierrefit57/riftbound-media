@@ -5,6 +5,7 @@ import MainLayout from '../../layouts/MainLayout.astro';
 import { supabase } from '../../lib/supabase';
 import { proxyUrl } from '../../lib/proxy';
 import { marked } from 'marked';
+import { parseShortcodes } from '../../lib/shortcodes';
 
 // Configurer marked pour les retours à la ligne
 marked.use({
@@ -51,6 +52,8 @@ let processedContent = rawContent.replace(/\n{3,}/g, (match) => {
 processedContent = processedContent
   .replace(/(<div[^>]*>)\n(?!\n)/g, '$1\n\n')
   .replace(/(?<!\n)\n(<\/div>)/g, '\n\n$1');
+
+processedContent = parseShortcodes(processedContent);
 
 let htmlContent = await marked.parse(processedContent);
 
@@ -334,6 +337,11 @@ function getTagStyle(tag: string): string {
   .prose.prose-invert p {
     margin-top: 0.8em;
     margin-bottom: 0.8em;
+  }
+
+  .prose .video-container {
+    margin: 2rem 0;
+    width: 100%;
   }
 
   /* Reset first child margins inside floating blocks to ensure top alignment */

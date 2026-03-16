@@ -46,11 +46,26 @@ if (Astro.request.method === 'POST') {
         .eq('id', articleId);
     }
   }
+
+  if (action === 'toggle-highlighted' && articleId) {
+    const { data: article } = await supabase
+      .from('articles')
+      .select('highlighted')
+      .eq('id', articleId)
+      .single();
+
+    if (article) {
+      await supabase
+        .from('articles')
+        .update({ highlighted: !article.highlighted })
+        .eq('id', articleId);
+    }
+  }
 }
 
 let { data: articles, error: fetchError } = await supabase
   .from('articles')
-  .select('id, title, slug, published, featured, created_at, published_at, summary, sort_order')
+  .select('id, title, slug, published, featured, highlighted, created_at, published_at, summary, sort_order')
   .order('sort_order', { ascending: false })
   .order('published_at', { ascending: false })
   .order('created_at', { ascending: false });
@@ -152,6 +167,9 @@ if (fetchError && (fetchError.code === 'PGRST204' || fetchError.message.includes
                   {article.featured && (
                     <span class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-accent-forge/20 text-accent-forge uppercase tracking-wider">★ Épinglé</span>
                   )}
+                  {article.highlighted && (
+                    <span class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-accent-cyan/20 text-accent-cyan uppercase tracking-wider animate-pulse">✦ Surbrillance</span>
+                  )}
                 </div>
                 <div class="flex items-center gap-3 text-xs text-rift-400">
                   <span class:list={[
@@ -170,6 +188,18 @@ if (fetchError && (fetchError.code === 'PGRST204' || fetchError.message.includes
 
             <!-- Action buttons -->
             <div class="flex items-center gap-2 flex-wrap flex-shrink-0 xl:opacity-80 group-hover:opacity-100 transition-opacity ml-[44px] xl:ml-0">
+              <form method="POST">
+                <input type="hidden" name="id" value={article.id} />
+                <input type="hidden" name="action" value="toggle-highlighted" />
+                <button type="submit" class:list={[
+                  "px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors uppercase tracking-wider",
+                  article.highlighted 
+                    ? "bg-accent-cyan/10 text-accent-cyan border-accent-cyan/20 hover:bg-accent-cyan/20" 
+                    : "bg-rift-950 text-rift-400 border-rift-700/50 hover:bg-rift-800"
+                ]}>
+                  {article.highlighted ? '✦ Surbrillance ON' : '✦ Surbrillance'}
+                </button>
+              </form>
               <form method="POST">
                 <input type="hidden" name="id" value={article.id} />
                 <input type="hidden" name="action" value="toggle-featured" />

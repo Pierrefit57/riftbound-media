@@ -8,9 +8,10 @@ interface Props {
   pubDate: Date;
   slug: string;
   featured?: boolean;
+  highlighted?: boolean;
 }
 
-const { title, summary, image, tags, author, pubDate, slug, featured = false } = Astro.props;
+const { title, summary, image, tags, author, pubDate, slug, featured = false, highlighted = false } = Astro.props;
 
 const formattedDate = pubDate.toLocaleDateString('fr-FR', {
   day: 'numeric',
@@ -41,7 +42,7 @@ function getTagStyle(tag: string): string {
 ---
 
 {featured ? (
-  <a href={`/news/${slug}`} class="group w-full block relative overflow-hidden rounded-2xl border border-rift-700/50 bg-rift-800 hover:border-accent-spirit/40 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-0.5 h-full flex flex-col">
+  <a href={`/news/${slug}`} class:list={["group w-full block relative overflow-hidden rounded-2xl border bg-rift-800 hover:border-accent-spirit/40 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-0.5 h-full flex flex-col", highlighted ? 'highlighted-card' : 'border-rift-700/50']}>
     <!-- Card image area -->
     <div class="relative h-56 md:h-[230px] overflow-hidden flex-shrink-0">
       {hasImage ? (
@@ -93,7 +94,7 @@ function getTagStyle(tag: string): string {
     </div>
   </a>
 ) : (
-  <a href={`/news/${slug}`} class="group block overflow-hidden rounded-2xl border border-rift-700/50 bg-rift-800 hover:border-accent-spirit/30 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 h-full flex flex-col">
+  <a href={`/news/${slug}`} class:list={["group block overflow-hidden rounded-2xl border bg-rift-800 hover:border-accent-spirit/30 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 h-full flex flex-col", highlighted ? 'highlighted-card' : 'border-rift-700/50']}>
     <div class="relative h-36 overflow-hidden flex-shrink-0">
       {hasImage ? (
         <img src={image} alt={title} class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
@@ -129,3 +130,14 @@ function getTagStyle(tag: string): string {
     </div>
   </a>
 )}
+
+<style is:global>
+  @keyframes highlight-glow {
+    0%, 100% { box-shadow: 0 0 15px rgba(255, 102, 51, 0.3), 0 0 40px rgba(255, 102, 51, 0.1); }
+    50% { box-shadow: 0 0 25px rgba(255, 102, 51, 0.5), 0 0 60px rgba(255, 102, 51, 0.2); }
+  }
+  .highlighted-card {
+    border-color: rgba(255, 102, 51, 0.6) !important;
+    animation: highlight-glow 2s ease-in-out infinite;
+  }
+</style>

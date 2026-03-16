@@ -70,6 +70,48 @@ try {
       </button>
     </div>
 
+    <!-- Text Color -->
+    <div class="relative group">
+      <button type="button" class="flex items-center gap-1 px-2 py-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors text-xs font-bold" title="Couleur du texte">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+        </svg>
+        <svg class="w-3 h-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      
+      <div class="absolute left-0 top-full mt-1 w-48 bg-rift-900 border border-rift-700 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 p-2 grid grid-cols-5 gap-1.5">
+        <!-- Preset Colors -->
+        {[
+          { color: '#ffffff', title: 'Blanc' },
+          { color: '#a3a3a3', title: 'Gris' },
+          { color: '#ef4444', title: 'Rouge' },
+          { color: '#f97316', title: 'Orange' },
+          { color: '#f59e0b', title: 'Ambre' },
+          { color: '#eab308', title: 'Jaune' },
+          { color: '#22c55e', title: 'Vert' },
+          { color: '#06b6d4', title: 'Cyan' },
+          { color: '#3b82f6', title: 'Bleu' },
+          { color: '#8b5cf6', title: 'Violet' },
+          { color: '#d946ef', title: 'Fuchsia' },
+          { color: '#f43f5e', title: 'Rose' },
+          { color: '#ff6b35', title: 'Rift Forge' },
+          { color: '#eab308', title: 'Rift Spirit' },
+          { color: '#0ea5e9', title: 'Rift Cyan' }
+        ].map(item => (
+          <button 
+            type="button" 
+            class="w-6 h-6 rounded-full border border-rift-800 hover:scale-110 transition-transform shadow-inner flex-shrink-0"
+            style={`background-color: ${item.color}`}
+            title={item.title}
+            data-action="textColor"
+            data-color={item.color}
+          ></button>
+        ))}
+      </div>
+    </div>
+
     <div class="w-px h-4 bg-rift-800 mx-1"></div>
 
     <button type="button" class="p-1.5 rounded hover:bg-rift-800 text-rift-400 hover:text-accent-spirit transition-colors" title="Citation" data-action="quote">
@@ -219,6 +261,7 @@ try {
 <script>
   import imageCompression from 'browser-image-compression';
   import { marked } from 'marked';
+  import { parseShortcodes } from '../../lib/shortcodes';
 
   class MarkdownEditor {
     constructor(container) {
@@ -289,6 +332,9 @@ try {
       processedValue = processedValue
         .replace(/(<div[^>]*>)\n(?!\n)/g, '$1\n\n')
         .replace(/(?<!\n)\n(<\/div>)/g, '\n\n$1');
+
+      // Interpréter les shortcodes avant le Markdown brut
+      processedValue = parseShortcodes(processedValue);
 
       let html = marked.parse(processedValue);
       // Post-processing: convert remaining markdown syntax that marked
@@ -383,20 +429,9 @@ try {
           if (!content) content = 'souligné';
           break;
         case 'quote':
-          // If selection contains HTML (e.g. flex sections), use <blockquote> tags to avoid breaking HTML
-          if (selection.includes('<div') || selection.includes('<img')) {
-            prefix = '<blockquote>\n\n';
-            suffix = '\n\n</blockquote>';
-            break;
-          }
-          if (selection.includes('\n')) {
-            const multiLine = selection.split('\n').map(line => `> ${line}`).join('\n');
-            this.insertText(multiLine, start, end);
-            this.textarea.setSelectionRange(start, start + multiLine.length);
-            return;
-          }
-          prefix = '> ';
-          if (!content) content = 'citation';
+          prefix = '[quote]\n\n';
+          suffix = '\n\n[/quote]';
+          if (!content) content = 'Citation ou contenu important';
           break;
         case 'link':
           prefix = '['; 
@@ -413,61 +448,67 @@ try {
             alert('Veuillez sélectionner une taille.');
             return;
           }
-          prefix = `<span style="font-size: ${size}px">`;
-          suffix = '</span>';
+          prefix = `[size:${size}]`;
+          suffix = '[/size]';
           if (!content) content = 'Texte';
           break;
+        case 'textColor':
+          const colorHex = target.getAttribute('data-color');
+          prefix = `[color:${colorHex}]`;
+          suffix = '[/color]';
+          if (!content) content = 'Texte coloré';
+          break;
         case 'alignLeft':
-          prefix = '<div style="text-align: left">\n\n';
-          suffix = '\n\n</div>';
+          prefix = '[align-left]\n\n';
+          suffix = '\n\n[/align]';
           if (!content) content = 'Texte à gauche';
           break;
         case 'alignCenter':
-          prefix = '<div style="text-align: center">\n\n';
-          suffix = '\n\n</div>';
+          prefix = '[align-center]\n\n';
+          suffix = '\n\n[/align]';
           if (!content) content = 'Texte centré';
           break;
         case 'alignRight':
-          prefix = '<div style="text-align: right">\n\n';
-          suffix = '\n\n</div>';
+          prefix = '[align-right]\n\n';
+          suffix = '\n\n[/align]';
           if (!content) content = 'Texte à droite';
           break;
         case 'sectionLeft':
-          prefix = '<div style="display: flex; align-items: center; gap: 2rem; margin: 0.5rem 0; flex-wrap: wrap;">\n\n<div style="flex: 1; min-width: 300px;">\n\n';
-          suffix = '\n\n</div>\n\n<div style="flex: 1; min-width: 300px;">\n\nTexte ici\n\n</div>\n\n</div>';
+          prefix = '[layout-left]\n\n';
+          suffix = '\n\n---\n\nTexte ici\n\n[/layout]';
           if (!content) content = '![Image](url)';
           break;
         case 'sectionRight':
-          prefix = '<div style="display: flex; align-items: center; gap: 2rem; margin: 0.5rem 0; flex-wrap: wrap; flex-direction: row-reverse;">\n\n<div style="flex: 1; min-width: 300px;">\n\n';
-          suffix = '\n\n</div>\n\n<div style="flex: 1; min-width: 300px;">\n\nTexte ici\n\n</div>\n\n</div>';
+          prefix = '[layout-right]\n\n';
+          suffix = '\n\n---\n\nTexte ici\n\n[/layout]';
           if (!content) content = '![Image](url)';
           break;
         case 'sectionDualImage':
-          prefix = '<div style="display: flex; align-items: center; gap: 1.5rem; margin: 1rem 0; flex-wrap: wrap;">\n\n<div style="flex: 1; min-width: 250px;">\n\n';
-          suffix = '\n\n</div>\n\n<div style="flex: 1; min-width: 250px;">\n\n![Image 2](url)\n\n</div>\n\n</div>';
+          prefix = '[layout-dual]\n\n';
+          suffix = '\n\n---\n\n![Image 2](url)\n\n[/layout]';
           if (!content) content = '![Image 1](url)';
           break;
         case 'clearFloat':
-          prefix = '\n<div style="clear: both; height: 1px;"></div><!-- Séparateur -->\n';
+          prefix = '\n[clear]\n';
           suffix = '';
           content = '';
           break;
         case 'insertTCGIcon':
           const iconFile = target.getAttribute('data-icon');
           const iconName = iconFile.replace('.png', '');
-          prefix = `<img src="/assets/icons/${iconFile}" class="icon-tcg" alt="${iconName}" />`;
+          prefix = `[icon:${iconName}]`;
           suffix = '';
           content = '';
           break;
         case 'insertEnergy':
           const manualCost = prompt('Coût en énergie ?', '1') || '1';
-          prefix = `<span class="icon-energy">${manualCost}</span>`;
+          prefix = `[energy:${manualCost}]`;
           suffix = '';
           content = '';
           break;
         case 'insertEnergyValue':
           const cost = target.getAttribute('data-value');
-          prefix = `<span class="icon-energy">${cost}</span>`;
+          prefix = `[energy:${cost}]`;
           suffix = '';
           content = '';
           break;
@@ -517,11 +558,11 @@ try {
       try {
         // Options de compression
         const options = {
-          maxSizeMB: 0.2, // < 200 Ko
-          maxWidthOrHeight: 1200,
+          maxSizeMB: 1.5, // < 1.5 Mo — qualité HD préservée
+          maxWidthOrHeight: 2400,
           useWebWorker: true,
           fileType: 'image/webp',
-          initialQuality: 0.8
+          initialQuality: 0.85
         };
 
         // Compression
@@ -647,8 +688,9 @@ try {
       box-shadow: 0 1px 3px rgba(0,0,0,0.5);
     }
 
-    /* Ensure font-size spans are respected within Tailwind's prose */
-    .article-live-preview span[style*="font-size"] {
+    /* Ensure font-size and color spans are respected within Tailwind's prose */
+    .article-live-preview span[style*="font-size"],
+    .article-live-preview span[style*="color"] {
       display: inline-block !important;
       line-height: normal !important;
       vertical-align: baseline !important;
@@ -656,8 +698,11 @@ try {
     
     /* Stronger override to ensure inline style wins */
     .article-live-preview .prose span[style*="font-size"],
-    .prose.prose-invert span[style*="font-size"] {
+    .prose.prose-invert span[style*="font-size"],
+    .article-live-preview .prose span[style*="color"],
+    .prose.prose-invert span[style*="color"] {
       font-size: inherit; /* This allows the inline style attribute to take full effect */
+      color: inherit;
     }
 
     /* Sync with News Article styling */
@@ -668,6 +713,12 @@ try {
       font-style: normal !important;
       margin: 2rem 0 !important;
       border-radius: 0 !important;
+    }
+
+    .article-live-preview .video-container,
+    .prose .video-container {
+      margin: 2rem 0;
+      width: 100%;
     }
 
     .article-live-preview .prose img {

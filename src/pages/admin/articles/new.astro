@@ -13,6 +13,7 @@ let summary = '';
 let image_url = '';
 let tagsStr = '';
 let featured = false;
+let highlighted = false;
 let published = true;
 let published_at = new Date().toISOString().slice(0, 16);
 let slug = '';
@@ -35,6 +36,7 @@ if (Astro.request.method === 'POST') {
   tagsStr = (formData.get('tags') as string);
   const tags = tagsStr.split(',').map((t) => t.trim()).filter(Boolean);
   featured = formData.get('featured') === 'on';
+  highlighted = formData.get('highlighted') === 'on';
   published = formData.get('published') === 'on';
   published_at = formData.get('published_at') as string || new Date().toISOString();
 
@@ -52,6 +54,7 @@ if (Astro.request.method === 'POST') {
       published,
       published_at,
       author_id: Astro.locals.user?.id,
+      highlighted,
     })
     .select('id')
     .single();
@@ -225,6 +228,11 @@ if (Astro.request.method === 'POST') {
                   <input type="checkbox" name="featured" checked={featured}
                     class="w-4 h-4 rounded border-rift-700 bg-rift-950 text-accent-cyan focus:ring-accent-cyan/30 checked:bg-accent-cyan checked:border-accent-cyan transition-colors" />
                   <span class="text-xs text-rift-300 group-hover:text-rift-100 transition-colors uppercase tracking-wider">Épinglé</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer group">
+                  <input type="checkbox" name="highlighted" checked={highlighted}
+                    class="w-4 h-4 rounded border-rift-700 bg-rift-950 text-accent-cyan focus:ring-accent-cyan/30 checked:bg-accent-cyan checked:border-accent-cyan transition-colors" />
+                  <span class="text-xs text-rift-300 group-hover:text-rift-100 transition-colors uppercase tracking-wider">✦ Surbrillance</span>
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer group">
                   <input type="checkbox" name="published" checked={published}
