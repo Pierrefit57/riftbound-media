@@ -191,6 +191,34 @@ const ongoingEvent = activeEvents
           filter: blur(0);
         }
       }
+
+      /* TCG Keyword Badges */
+      .badge-keyword {
+        display: inline-block;
+        padding: 0.05em 0.5em;
+        font-weight: 900;
+        font-style: italic;
+        color: #000 !important;
+        position: relative;
+        z-index: 1;
+        margin: 0 0.4em;
+        line-height: normal;
+        font-family: 'Outfit', sans-serif;
+        text-transform: uppercase;
+        font-size: 0.9em;
+        vertical-align: baseline;
+      }
+      .badge-keyword::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        transform: skewX(-15deg);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+      }
+      .badge-keyword-green::before { background-color: #A3CF31; }
+      .badge-keyword-red::before { background-color: #E63946; color: #fff; }
+      .badge-keyword-red { color: #fff !important; }
     </style>
   </head>
   <body class="bg-rift-900 text-rift-100 font-sans min-h-screen flex flex-col relative">

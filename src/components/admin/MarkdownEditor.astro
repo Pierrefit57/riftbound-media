@@ -228,6 +228,17 @@ try {
       </div>
     </div>
 
+    <div class="h-4 w-px bg-rift-800 mx-1"></div>
+
+    <div class="flex items-center gap-1.5 px-2">
+      <button type="button" class="px-2 py-1 rounded bg-[#A3CF31] text-black text-[10px] font-bold hover:scale-105 transition-transform shadow-lg" title="Badge Vert" data-action="badgeGreen">
+        VERT
+      </button>
+      <button type="button" class="px-2 py-1 rounded bg-[#E63946] text-white text-[10px] font-bold hover:scale-105 transition-transform shadow-lg" title="Badge Rouge" data-action="badgeRed">
+        ROUGE
+      </button>
+    </div>
+
     <div class="flex-1"></div>
 
     <button type="button" class="flex-shrink-0 flex items-center gap-1.5 px-3 py-1 rounded bg-accent-spirit text-rift-950 hover:bg-accent-spirit/90 transition-colors text-xs font-bold whitespace-nowrap" title="Image" data-action="image">
@@ -517,6 +528,16 @@ try {
           prefix = `[energy:${cost}]`;
           suffix = '';
           content = '';
+          break;
+        case 'badgeGreen':
+          prefix = '[badge:green]';
+          suffix = '[/badge]';
+          if (!content) content = 'MOT-CLÉ';
+          break;
+        case 'badgeRed':
+          prefix = '[badge:red]';
+          suffix = '[/badge]';
+          if (!content) content = 'MOT-CLÉ';
           break;
         case 'video':
           const url = prompt('URL de la vidéo ou du GIF (mp4, webm...) ?', '');
