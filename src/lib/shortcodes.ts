@@ -63,5 +63,11 @@ export function parseShortcodes(text: string): string {
     return `<div style="display: flex; align-items: center; gap: 1.5rem; margin: 1rem 0; flex-wrap: wrap;">\n\n<div style="flex: 1; min-width: 250px;">\n\n${part1.trim()}\n\n</div>\n\n<div style="flex: 1; min-width: 250px;">\n\n${part2.trim()}\n\n</div>\n\n</div>`;
   });
 
+  // 10. Volet Rétractable (Accordion)
+  // [volet:Titre du volet]...[/volet]
+  processed = processed.replace(/\[volet:([^\]]+)\]([\s\S]*?)\[\/volet\]/g, (match, title, content) => {
+    return `<details class="article-volet">\n<summary class="volet-summary">${title}</summary>\n<div class="volet-content">\n\n${content.trim()}\n\n</div>\n</details>`;
+  });
+
   return processed;
 }
