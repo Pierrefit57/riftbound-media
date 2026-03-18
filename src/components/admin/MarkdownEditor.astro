@@ -385,6 +385,16 @@ try {
       // this prevents images from collapsing and destroying the layout during edit.
       morphdom(this.preview, `<div>${html}</div>`, {
         childrenOnly: true,
+        onBeforeElUpdated: function (fromEl, toEl) {
+          // Si l'élément est un volet (details) et qu'il est ouvert,
+          // on préserve cet état pour éviter de fermer le volet pendant qu'on tape dedans
+          if (fromEl.tagName === 'DETAILS' && toEl.tagName === 'DETAILS') {
+            if (fromEl.hasAttribute('open')) {
+              toEl.setAttribute('open', '');
+            }
+          }
+          return true;
+        }
       });
 
       // Restore scroll position to prevent minor diff-shifts
