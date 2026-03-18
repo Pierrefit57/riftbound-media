@@ -290,6 +290,7 @@ try {
   import imageCompression from 'browser-image-compression';
   import { marked } from 'marked';
   import { parseShortcodes } from '../../lib/shortcodes';
+  import morphdom from 'morphdom';
 
   class MarkdownEditor {
     constructor(container) {
@@ -373,16 +374,20 @@ try {
       html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
       html = html.replace(/(?<!\*)\*(?!\*)([^*]+)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
       
-      // Save scroll position to prevent layout jumping
-      const scrollPos = this.preview.scrollTop;
-
-      this.preview.innerHTML = html;
-      
-      if (this.preview.innerHTML.trim() === '' && rawValue.trim() !== '') {
-        this.preview.innerHTML = '<p>' + rawValue + '</p>';
+      if (html.trim() === '' && rawValue.trim() !== '') {
+        html = '<p>' + rawValue + '</p>';
       }
 
-      // Restore scroll position
+      // Save scroll position
+      const scrollPos = this.preview.scrollTop;
+
+      // Use morphdom to update the DOM tree instead of rebuilding it entirely,
+      // this prevents images from collapsing and destroying the layout during edit.
+      morphdom(this.preview, `<div>${html}</div>`, {
+        childrenOnly: true,
+      });
+
+      // Restore scroll position to prevent minor diff-shifts
       this.preview.scrollTop = scrollPos;
     }
 
