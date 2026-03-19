@@ -55,6 +55,19 @@ const errataArticles = [
 ---
 
 <MainLayout title="Règles du Jeu" petalMode="sides">
+  <!-- JSON-LD FAQ Schema for Errata -->
+  <script type="application/ld+json" is:inline set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": errataArticles.map(errata => ({
+      "@type": "Question",
+      "name": `Quels sont les derniers erratas pour ${errata.title} ?`,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": `${errata.visualSummary}. Retrouvez les détails sur ${errata.visualLink}`
+      }
+    }))
+  })} />
 
   <div class="relative pt-16 pb-24 overflow-hidden">
     <!-- Spiritforged Shading Background -->

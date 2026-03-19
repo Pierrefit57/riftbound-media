@@ -98,14 +98,27 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "NewsArticle",
   "headline": article.title,
-  "image": [article.image_url].filter(Boolean),
+  "description": seoDescription,
+  "image": [article.image_url ? proxyUrl(article.image_url) : undefined].filter(Boolean),
   "datePublished": publishDate,
   "dateModified": article.updated_at || publishDate,
   "author": [{
     "@type": "Person",
     "name": authorName,
-    "url": new URL('/about', Astro.site) // Or specific author page if exists
-  }]
+    "url": new URL('/', Astro.site).href
+  }],
+  "publisher": {
+    "@type": "Organization",
+    "name": "Riftbound Media",
+    "logo": {
+      "@type": "ImageObject",
+      "url": new URL('/riftbound-logo.png', Astro.site).href
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": pageUrl.href
+  }
 };
 
 function getTagStyle(tag: string): string {

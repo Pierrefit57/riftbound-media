@@ -78,10 +78,12 @@ const ongoingEvent = activeEvents
     <title>{title} | Riftbound Media</title>
     <meta name="title" content={`${title} | Riftbound Media`} />
     <meta name="description" content={description} />
+    <meta name="keywords" content="Riftbound, TCG, Jeu de cartes, Riftbound Media, JCC Riftbound, Communauté française, Tournois Riftbound, Origins, Spiritforged" />
     <link rel="canonical" href={canonicalURL} />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content={type} />
+    <meta property="og:site_name" content="Riftbound Media" />
     <meta property="og:url" content={Astro.url} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -93,6 +95,33 @@ const ongoingEvent = activeEvents
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
     <meta property="twitter:image" content={new URL(image, Astro.url)} />
+
+    <!-- JSON-LD Global -->
+    <script type="application/ld+json" is:inline set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Riftbound Media",
+      "url": "https://riftbound-media.com",
+      "logo": "https://riftbound-media.com/riftbound-logo.png",
+      "description": "Portail francophone officiel de la communauté Riftbound TCG. Actualités, tournois et guides.",
+      "sameAs": [
+        "https://x.com/RiftboundMedia",
+        "https://discord.gg/QDB6WfA9Zm"
+      ]
+    })} />
+    
+    <script type="application/ld+json" is:inline set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Riftbound Media",
+      "url": "https://riftbound-media.com",
+      "alternateName": ["Riftbound TCG France", "JCC Riftbound"],
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://riftbound-media.com/news?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    })} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

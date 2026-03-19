@@ -2,10 +2,7 @@
 export const prerender = false;
 
 import AdminLayout from '../../layouts/AdminLayout.astro';
-import DashboardCharts from '../../components/admin/DashboardCharts';
-import StatCard from '../../components/admin/StatCard';
 import { createServiceClient } from '../../lib/supabase';
-import { format, subDays, eachDayOfInterval } from 'date-fns';
 
 // Utiliser le service client pour contourner les RLS (lecture logs admin)
 const supabase = createServiceClient();
@@ -26,126 +23,11 @@ const { data: articles } = await supabase
   .select('id, published, title, slug')
   .order('created_at', { ascending: false });
 
-// Map slugs to titles for "Top Articles"
-const articleTitleMap = new Map();
-articles?.forEach(a => {
-    if (a.slug) articleTitleMap.set(`/news/${a.slug}`, a.title);
-});
-
 const totalArticles = articles?.length || 0;
 const publishedCount = articles?.filter((a) => a.published)?.length || 0;
 const draftCount = totalArticles - publishedCount;
 
-// 2. Analytics Stats
-const now = new Date();
-const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000).toISOString();
-const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
-
-// Datacenter IP prefixes to exclude (uniquement les plus évidents/problématiques)
-const DATACENTER_PREFIXES = [
-    '143.198.', '137.184.', '143.244.',  // DigitalOcean
-    '18.144.', '3.125.',                 // AWS spécifiques (évitons de bloquer tout 54. / 52.)
-    '127.0.0.1', '::1',                  // Local
-];
-
-function isRealVisitor(ip: string | null): boolean {
-    if (!ip) return false;
-    // On garde un filtrage léger pour ne pas masquer de vrais utilisateurs
-    return !DATACENTER_PREFIXES.some(prefix => ip.startsWith(prefix));
-}
-
-// Online Now (Unique IPs in last 5 min)
-const { data: onlineLogs } = await supabase
-  .from('analytics_logs')
-  .select('ip_address')
-  .eq('event_type', 'page_view')
-  .gte('created_at', fiveMinutesAgo);
-
-const onlineCount = new Set(onlineLogs?.filter(l => isRealVisitor(l.ip_address)).map(l => l.ip_address)).size;
-
-// Date range for charts
-const endDate = new Date();
-const startDate = subDays(endDate, 30);
-
-// 3. Stats Globales (Last 30 days)
-// On utilise .select('*', { count: 'exact', head: true }) pour avoir le vrai total sans charger les lignes
-const { count: totalViews30d } = await supabase
-  .from('analytics_logs')
-  .select('*', { count: 'exact', head: true })
-  .eq('event_type', 'page_view')
-  .gte('created_at', thirtyDaysAgo);
-
-const { data: uniqueData } = await supabase
-  .from('analytics_logs')
-  .select('ip_address')
-  .eq('event_type', 'page_view')
-  .gte('created_at', thirtyDaysAgo);
-
-const realUniqueLogs = uniqueData?.filter(l => isRealVisitor(l.ip_address)) || [];
-const totalUnique30d = new Set(realUniqueLogs.map(l => l.ip_address)).size;
-
-// Today Stats
-const todayStart = new Date().toISOString().split('T')[0] + 'T00:00:00.000Z';
-const { count: viewsToday } = await supabase
-  .from('analytics_logs')
-  .select('*', { count: 'exact', head: true })
-  .eq('event_type', 'page_view')
-  .gte('created_at', todayStart);
-
-const { data: uniqueTodayData } = await supabase
-  .from('analytics_logs')
-  .select('ip_address')
-  .eq('event_type', 'page_view')
-  .gte('created_at', todayStart);
-
-const uniqueVisitorsToday = new Set(uniqueTodayData?.filter(l => isRealVisitor(l.ip_address)).map(l => l.ip_address)).size;
-
-// 4. Chart Data (Last 30 days) - On charge le minimum de colonnes pour les graphiques
-const { data: chartLogs } = await supabase
-  .from('analytics_logs')
-  .select('created_at')
-  .eq('event_type', 'page_view')
-  .gte('created_at', thirtyDaysAgo)
-  .order('created_at', { ascending: true })
-  .limit(10000);
-
-const dailyViewsMap = {};
-eachDayOfInterval({ start: startDate, end: endDate }).forEach(day => {
-    dailyViewsMap[format(day, 'yyyy-MM-dd')] = 0;
-});
-
-chartLogs?.forEach(log => {
-    const dateStr = log.created_at.split('T')[0];
-    if (dailyViewsMap[dateStr] !== undefined) dailyViewsMap[dateStr]++;
-});
-
-const chartData = Object.entries(dailyViewsMap).map(([date, views]) => ({
-    date: format(new Date(date), 'dd/MM'),
-    views
-}));
-
-// 5. Popular Content (Top 15)
-// Nous comptons directement en BDD pour garantir 100% de fiabilité sans limite de fetch
-const { data: popularRaw } = await supabase
-  .from('analytics_logs')
-  .select('path')
-  .eq('event_type', 'page_view')
-  .gte('created_at', thirtyDaysAgo)
-  .limit(10000); // CRITIQUE : Toujours limiter explicitement pour ne pas s'arrêter à 1000
-
-const pathCounts = new Map();
-popularRaw?.forEach(l => {
-    if (l.path && (l.path.startsWith('/news/') || l.path === '/')) {
-        pathCounts.set(l.path, (pathCounts.get(l.path) || 0) + 1);
-    }
-});
-
-const sortedPages = Array.from(pathCounts.entries())
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 15);
-
-const referrerStats = new Map(); // Simplified for now to avoid fetch issues
-const countryStats = new Map();
+const umamiShareUrl = "https://cloud.umami.is/analytics/eu/share/VjJpgvQiIFJSFV7W";
 ---
 
 <AdminLayout title="Tableau de bord" activeItem="dashboard">
@@ -165,44 +47,42 @@ const countryStats = new Map();
       </div>
     </div>
 
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard
-            title="En ligne"
-            value={onlineCount}
-            color="spirit"
-        >
-            <span slot="icon" class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-spirit opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-accent-spirit"></span></span>
-        </StatCard>
+    <!-- Stats Grid (Articles Only) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-rift-800/50 rounded-2xl border border-rift-700/50 p-6 shadow-card flex items-center justify-between group hover:border-rift-600 transition-colors">
+            <div>
+                <p class="text-xs font-bold text-rift-400 uppercase tracking-widest mb-1">Total Articles</p>
+                <p class="text-3xl font-display font-bold text-rift-100">{totalArticles}</p>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-rift-900/50 flex items-center justify-center text-rift-400 group-hover:text-rift-200 transition-colors">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l4 4v10a2 2 0 01-2 2z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 2v4a2 2 0 002 2h4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h2" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12h10" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16h10" /></svg>
+            </div>
+        </div>
         
-        <StatCard
-            title="Visiteurs (Unique/J)"
-            value={uniqueVisitorsToday}
-            color="forge"
-        >
-            <svg slot="icon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-        </StatCard>
+        <div class="bg-rift-800/50 rounded-2xl border border-rift-700/50 p-6 shadow-card flex items-center justify-between group hover:border-accent-spirit/30 transition-colors">
+            <div>
+                <p class="text-xs font-bold text-accent-spirit uppercase tracking-widest mb-1">Articles Publiés</p>
+                <p class="text-3xl font-display font-bold text-rift-100">{publishedCount}</p>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-accent-spirit/10 flex items-center justify-center text-accent-spirit">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+        </div>
 
-        <StatCard
-            title="Visiteurs (Unique/30j)"
-            value={totalUnique30d}
-            color="blue"
-        >
-            <svg slot="icon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-        </StatCard>
-
-        <StatCard
-            title="Vues Totales (30j)"
-            value={totalViews30d}
-            color="sakura"
-        >
-            <svg slot="icon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-        </StatCard>
+        <div class="bg-rift-800/50 rounded-2xl border border-rift-700/50 p-6 shadow-card flex items-center justify-between group hover:border-rift-600 transition-colors">
+            <div>
+                <p class="text-xs font-bold text-rift-400 uppercase tracking-widest mb-1">Brouillons</p>
+                <p class="text-3xl font-display font-bold text-rift-100">{draftCount}</p>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-rift-900/50 flex items-center justify-center text-rift-400">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+            </div>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         
-        <!-- Left Column: Quick Actions & Trends -->
+        <!-- Left Column: Quick Actions -->
         <div class="lg:col-span-1 space-y-6">
            <div class="bg-rift-800/50 rounded-2xl border border-rift-700/50 p-5 shadow-card sticky top-6">
               <h2 class="text-base font-display font-bold text-rift-100 mb-4">Actions rapides</h2>
@@ -220,67 +100,31 @@ const countryStats = new Map();
                   Voir le site ↗
                 </a>
               </div>
-
-              {referrerStats.size > 0 && (
-                <div class="pt-4 border-t border-rift-700/50">
-                  <h3 class="text-xs font-bold text-rift-400 uppercase tracking-widest mb-3">Sources principales</h3>
-                  <div class="space-y-2">
-                    {Array.from(referrerStats.entries()).sort((a,b) => b[1] - a[1]).slice(0, 5).map(([ref, count]) => (
-                      <div class="flex items-center justify-between text-xs">
-                        <span class="text-rift-200 truncate pr-2">{ref}</span>
-                        <span class="text-rift-400 font-medium">{count}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {countryStats.size > 0 && (
-                <div class="pt-4 mt-4 border-t border-rift-700/50">
-                  <h3 class="text-xs font-bold text-rift-400 uppercase tracking-widest mb-3">Géographie</h3>
-                  <div class="space-y-2">
-                    {Array.from(countryStats.entries()).sort((a,b) => b[1] - a[1]).slice(0, 5).map(([country, count]) => (
-                      <div class="flex items-center justify-between text-xs">
-                        <span class="text-rift-200">{country}</span>
-                        <span class="text-rift-400 font-medium">{count}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              
+              <div class="pt-4 border-t border-rift-700/50">
+                <a href="https://cloud.umami.is" target="_blank" class="flex items-center justify-center gap-2 text-xs text-rift-400 hover:text-accent-spirit transition-colors">
+                  Ouvrir Umami Cloud ↗
+                </a>
+              </div>
             </div>
         </div>
     
-        <!-- Right Column: Charts & Popular Content -->
-        <div class="lg:col-span-3 space-y-8">
-           <!-- Main Stats Chart -->
-           <DashboardCharts client:load data={chartData} />
-
-           <!-- Popular Content -->
-           <div class="bg-rift-900/40 border border-rift-800/50 rounded-xl p-6 h-fit">
-            <h3 class="text-lg font-bold text-rift-100 mb-4 flex items-center gap-2">
-              <svg class="w-5 h-5 text-accent-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-              </svg>
-              Contenu Populaire (30j)
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-               {sortedPages.length > 0 ? sortedPages.map(([path, count]) => (
-                 <div class="flex items-center justify-between p-3 rounded-lg bg-rift-950/50 border border-rift-800/50 hover:border-accent-cyan/30 transition-colors">
-                   <div class="min-w-0 flex-1 mr-2">
-                     <p class="text-sm font-medium text-rift-100 truncate" title={path}>
-                       {articleTitleMap.get(path) || (path === '/' ? 'Accueil' : path.replace('/news/', ''))}
-                     </p>
-                   </div>
-                   <span class="text-xs font-bold text-accent-cyan px-2 py-0.5 bg-accent-cyan/10 rounded">
-                     {count}
-                   </span>
-                 </div>
-               )) : (
-                 <p class="text-sm text-rift-500 italic md:col-span-2">Aucune donnée récente.</p>
-               )}
-            </div>
-          </div>
+        <!-- Right Column: Umami Iframe -->
+        <div class="lg:col-span-3">
+           <div class="bg-rift-900/40 border border-rift-800/50 rounded-2xl overflow-hidden shadow-card h-[800px] relative">
+              <div class="absolute inset-0 flex items-center justify-center z-0">
+                <div class="flex flex-col items-center gap-3">
+                 <div class="w-8 h-8 border-2 border-accent-spirit border-t-transparent rounded-full animate-spin"></div>
+                 <p class="text-rift-500 text-sm animate-pulse">Chargement d'Umami...</p>
+                </div>
+              </div>
+              <iframe 
+                src={umamiShareUrl} 
+                class="relative z-10 w-full h-full border-0" 
+                title="Umami Analytics"
+                allowtransparency="true"
+              ></iframe>
+           </div>
         </div>
     
     </div>
