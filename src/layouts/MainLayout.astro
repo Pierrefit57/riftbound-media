@@ -622,6 +622,15 @@ const ongoingEvent = activeEvents
           notification.classList.remove('pointer-events-none');
         }
       }
+      // Volet scroll fix: prevent scroll jump when opening/closing details
+      document.querySelectorAll('details.article-volet').forEach((volet) => {
+        volet.querySelector('summary')?.addEventListener('click', (e) => {
+          const scrollY = window.scrollY;
+          requestAnimationFrame(() => {
+            window.scrollTo(0, scrollY);
+          });
+        });
+      });
     </script>
   </body>
 </html>

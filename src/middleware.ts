@@ -1,6 +1,5 @@
 import { defineMiddleware } from 'astro:middleware';
-import { createAuthClient, getUserProfile, createAstroServerClient } from './lib/supabase';
-import { trackEvent } from './lib/analytics';
+import { getUserProfile, createAstroServerClient } from './lib/supabase';
 
 const IGNORED_PATHS = [
     '/_astro',
@@ -18,41 +17,20 @@ const IGNORED_PATHS = [
 ];
 
 export const onRequest = defineMiddleware(async (context, next) => {
-    // 1. Analytics Tracking
     const path = context.url.pathname;
 
     // PROTECTION CRITIQUE : Ne jamais interférer ou rediriger les routes d'authentification
-    // Cela évite de perdre le code PKCE pendant une redirection www vers non-www
     if (path.startsWith('/api/auth/')) {
         return next();
     }
 
-    if (!IGNORED_PATHS.some((p) => path.startsWith(p) || path.endsWith(p))) {
-        // Obtenir l'IP de manière sécurisée (compatible Vercel/Node)
-        const ip = context.request.headers.get('x-forwarded-for') || context.clientAddress;
-
-        // On ne bloque pas la requête, on lance le tracking en "background"
-        // Note: Dans un environnement serverless strict, il vaudrait mieux utiliser context.waitUntil si disponible,
-        // mais Astro ne l'expose pas toujours directement. On appelle la fonction async sans await.
-        // ATTENTION: Sur Vercel Edge, sans await, la promesse peut être annulée.
-        // Pour l'instant, on fait un tracking simple qui attend (rapide avec Supabase) ou on accepte le risque.
-        // On va attendre pour garantir l'écriture, ça ajoute quelques ms mais c'est plus sûr.
-        const referrer = context.request.headers.get('referer') || undefined;
-        const country = context.request.headers.get('x-vercel-ip-country') || undefined;
-
-        await trackEvent('page_view', {
-            path,
-            ip: typeof ip === 'string' ? ip : undefined,
-            agent: context.request.headers.get('user-agent') || undefined,
-            user_id: undefined,
-            referrer,
-            country,
-        });
+    // Skip auth pour les assets statiques et API (pas besoin de session)
+    if (IGNORED_PATHS.some((p) => path.startsWith(p) || path.endsWith(p))) {
+        return next();
     }
-    // 2. Gestion de la Session via Supabase SSR
-    const supabaseServer = createAstroServerClient(context);
 
-    // Tentative de récupération de la session (SSR gère les cookies segmentés .0, .1 automatiquement)
+    // Gestion de la Session via Supabase SSR
+    const supabaseServer = createAstroServerClient(context);
     const { data: { session }, error: sessionError } = await supabaseServer.auth.getSession();
 
     if (sessionError || !session) {
@@ -74,10 +52,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
             });
         }
     } else {
-        // Session valide → attacher user + profil
+        // Session valide → attacher user + profil (en parallèle avec next si possible)
         context.locals.user = session.user;
 
-        // Charger le profil (rôle) via le service client (on pourrait aussi utiliser le supabaseServer si RLS permettent)
         const profile = await getUserProfile(session.user.id);
         context.locals.profile = profile;
 
@@ -100,4 +77,5 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
     return next();
 });
+
 
