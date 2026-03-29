@@ -329,7 +329,7 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
                             {selectedEvent.image_url && (
                                 <div className="h-48 w-full relative">
                                     <div className="absolute inset-0 bg-gradient-to-t from-rift-900 to-transparent z-10" />
-                                    <img src={selectedEvent.image_url} alt={selectedEvent.title} className="w-full h-full object-cover" style={{ objectPosition: selectedEvent.image_position || '50% 50%' }} />
+                                    <img src={selectedEvent.image_url} alt={selectedEvent.title} className="w-full h-full object-cover" loading="lazy" style={{ objectPosition: selectedEvent.image_position || '50% 50%' }} />
                                     <div className="absolute bottom-0 left-0 w-full h-1 bg-accent-spirit/50 z-20" />
                                 </div>
                             )}

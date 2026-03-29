@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createServiceClient } from '../../lib/supabase';
+import sharp from 'sharp';
 
 export const prerender = false;
 
@@ -43,20 +44,42 @@ export const POST: APIRoute = async ({ request, locals }) => {
             });
         }
 
+        const arrayBuffer = await file.arrayBuffer();
+        const inputBuffer = new Uint8Array(arrayBuffer);
+
+        // Optimiser l'image avec sharp (sauf GIF animé)
+        let outputBuffer: Uint8Array;
+        let outputContentType: string;
+        let outputExt: string;
+
+        if (file.type === 'image/gif') {
+            // Garder les GIF tels quels (sharp ne gère pas bien les GIF animés)
+            outputBuffer = inputBuffer;
+            outputContentType = 'image/gif';
+            outputExt = 'gif';
+        } else {
+            // Redimensionner (max 1400px de large) et convertir en WebP
+            outputBuffer = new Uint8Array(
+                await sharp(inputBuffer)
+                    .resize(1400, undefined, { withoutEnlargement: true, fit: 'inside' })
+                    .webp({ quality: 80 })
+                    .toBuffer()
+            );
+            outputContentType = 'image/webp';
+            outputExt = 'webp';
+        }
+
         // Générer un nom de fichier unique
-        const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${outputExt}`;
         const filePath = `articles/${fileName}`;
 
         // Upload vers Supabase Storage
         const supabase = createServiceClient();
-        const arrayBuffer = await file.arrayBuffer();
-        const buffer = new Uint8Array(arrayBuffer);
 
         const { error: uploadError } = await supabase.storage
             .from('article-images')
-            .upload(filePath, buffer, {
-                contentType: file.type,
+            .upload(filePath, outputBuffer, {
+                contentType: outputContentType,
                 upsert: false,
                 cacheControl: '31536000' // 1 an de cache navigateur
             });

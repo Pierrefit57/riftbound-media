@@ -23,7 +23,7 @@ const { data: visualArticleOrigins } = await supabase
 const errataArticles = [
   {
     title: "Errata Spiritforged",
-    content: "https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/PDFrules/UPDATED%20Riftbound%20Erratas%20Spiritforged.pdf",
+    content: proxyUrl("https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/PDFrules/UPDATED%20Riftbound%20Erratas%20Spiritforged.pdf"),
     date: "14-01-2026",
     activeClass: "bg-[#A5A9B4] text-rift-950 border-[#A5A9B4] shadow-[#A5A9B4]/20",
     textClass: "text-[#A5A9B4]",
@@ -38,7 +38,7 @@ const errataArticles = [
   },
   {
     title: "Errata Origins",
-    content: "https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/PDFrules/Riftbound%20Card%20Errata%20Origins%20.pdf",
+    content: proxyUrl("https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/PDFrules/Riftbound%20Card%20Errata%20Origins%20.pdf"),
     date: "21-10-2025",
     activeClass: "bg-[#C5A059] text-rift-950 border-[#C5A059] shadow-[#C5A059]/20",
     textClass: "text-[#C5A059]",
@@ -118,7 +118,7 @@ const errataArticles = [
                  <span class="text-sm text-rift-500 italic relative z-10">Mis à jour le 01-12-2025</span>
             </div>
             <div class="min-h-[600px] w-full bg-rift-900/50 flex flex-col justify-center">
-              <PDFViewer client:only="react" url="https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/PDFrules/Riftbound%20Core%20Rules%20v1.2.pdf" />
+              <PDFViewer client:only="react" url={proxyUrl("https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/PDFrules/Riftbound%20Core%20Rules%20v1.2.pdf")} />
             </div>
         </div>
     </div>
@@ -133,7 +133,7 @@ const errataArticles = [
                  <span class="text-sm text-rift-500 italic relative z-10">Mis à jour le 30-01-2025</span>
             </div>
             <div class="min-h-[600px] w-full">
-              <PDFViewer client:only="react" url="https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/PDFrules/Tournament%20Rules,%20January%20Update.pdf" />
+              <PDFViewer client:only="react" url={proxyUrl("https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/PDFrules/Tournament%20Rules,%20January%20Update.pdf")} />
             </div>
         </div>
     </div>

@@ -474,7 +474,7 @@ const ongoingEvent = activeEvents
             >
               {ongoingEvent.image_url && (
                 <div class="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0">
-                  <img src={proxyUrl(ongoingEvent.image_url)} alt="" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                  <img src={proxyUrl(ongoingEvent.image_url)} alt="" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" />
                 </div>
               )}
               <div class="flex-1 min-w-0" id="notification-content">
