@@ -91,7 +91,7 @@ export default function ErrataViewer({ articles }: { articles: Article[] }) {
 
                 <div className="min-h-[800px] w-full bg-rift-900/50 flex flex-col justify-center rounded-xl overflow-hidden shadow-inner">
                     {selectedArticle?.content ? (
-                        <PDFViewer url={selectedArticle.content} initialScale="1.0" />
+                        <PDFViewer url={selectedArticle.content} />
                     ) : (
                         <div className="flex items-center justify-center h-64 text-rift-500">
                             Document non disponible
