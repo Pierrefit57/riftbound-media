@@ -3,7 +3,11 @@ import { getUserProfile, createAstroServerClient } from './lib/supabase';
 
 const IGNORED_PATHS = [
     '/_astro',
-    '/api',
+    '/api/auth/',
+    '/api/news',
+    '/api/img/',
+    '/api/cron/',
+    '/api/calendar/',
     '/lib',
     '/favicon.ico',
     '/robots.txt',
