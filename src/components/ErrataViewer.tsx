@@ -84,7 +84,7 @@ export default function ErrataViewer({ articles }: { articles: Article[] }) {
                     {/* Right side: Update Date */}
                     <div className="flex-1 flex justify-end z-10">
                         {selectedArticle?.date && (
-                            <span className="text-sm text-rift-500 italic">Mis à jour le {selectedArticle.date}</span>
+                            <span className="text-sm text-rift-500 italic flex items-center gap-1">Mis à jour le <span className="text-emerald-400 font-medium font-sans">{selectedArticle.date}</span></span>
                         )}
                     </div>
                 </div>
