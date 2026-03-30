@@ -272,7 +272,7 @@ function getTagStyle(tag: string): string {
     const closeBtn = document.getElementById('lightbox-close');
     
     // Find all zoomable media in the article
-    const articleMedia = document.querySelectorAll('.prose img:not(.icon-tcg):not(.icon-energy), .prose .article-video');
+    const articleMedia = document.querySelectorAll('.prose img:not(.icon-tcg):not(.icon-energy):not(.youtube-thumbnail), .prose .article-video');
     
     function openLightbox(element: HTMLElement) {
       if (!overlay || !lightboxImg || !lightboxVideo) return;
