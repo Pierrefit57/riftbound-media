@@ -401,6 +401,39 @@ function getTagStyle(tag: string): string {
     width: 100%;
   }
 
+  /* YouTube Embed Styles */
+  .prose .youtube-embed {
+    margin: 2rem 0;
+    width: 100%;
+  }
+
+  .prose .youtube-facade {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background-color: #000;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  }
+
+  .prose .youtube-play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 68px;
+    height: 48px;
+    transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    pointer-events: none;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+  }
+
+  .prose .youtube-facade:hover .youtube-play-btn {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+
   /* Reset first child margins inside floating blocks to ensure top alignment */
   .prose div[style*="float"] > *:first-child {
     margin-top: 0 !important;
