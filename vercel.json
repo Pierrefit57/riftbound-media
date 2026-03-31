@@ -4,5 +4,22 @@
             "path": "/api/cron/send-notifications",
             "schedule": "0 6 * * *"
         }
+    ],
+    "rewrites": [
+        {
+            "source": "/api/img/(.*)",
+            "destination": "https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/$1"
+        }
+    ],
+    "headers": [
+        {
+            "source": "/api/img/(.*)",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, s-maxage=2592000, max-age=604800, stale-while-revalidate=86400"
+                }
+            ]
+        }
     ]
 }

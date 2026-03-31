@@ -21,6 +21,15 @@ export const GET: APIRoute = async ({ params }) => {
         return new Response('Missing path', { status: 400 });
     }
 
+    // En production, cette Serverless Function ne devrait jamais être appelée, 
+    // car le rewrite `vercel.json` doit intercepter l'appel directement à l'Edge.
+    // Si cette fonction s'exécute quand même, cela signifie que la config Edge a échoué.
+    // On retourne une erreur pour éviter de surcharger les Serverless Invocations et le Fast Origin Transfer
+    if (import.meta.env.PROD) {
+        console.error('[img-proxy-alert] La Serverless Function a été appelée en production ! Le rewrite vercel.json n a pas fonctionné.');
+        return new Response('Edge Rewrite failed - Route should bypass Compute', { status: 500 });
+    }
+
     const supabaseUrl = `${SUPABASE_STORAGE_BASE}${path}`;
 
     try {
