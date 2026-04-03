@@ -137,6 +137,7 @@ function getTagStyle(tag: string): string {
   if (t.includes('carte') || t.includes('règles')) return 'bg-domain-mind/15 text-domain-mind border-domain-mind/30';
   if (t.includes('interview')) return 'bg-accent-sakura/20 text-accent-sakura border-accent-sakura/30';
   if (t.includes('errata')) return 'bg-domain-body/15 text-domain-body border-domain-body/30';
+  if (t.includes('gris')) return 'bg-rift-800/50 text-rift-300 border-rift-700/50';
 
   return 'bg-rift-800/50 text-rift-200 border-rift-700/50';
 }
@@ -454,4 +455,5 @@ function getTagStyle(tag: string): string {
     margin-right: auto !important;
     display: block !important;
   }
+
 </style>

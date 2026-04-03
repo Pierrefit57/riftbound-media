@@ -229,14 +229,14 @@ const ongoingEvent = activeEvents
       /* TCG Keyword Badges - Global for Slots & Preview */
       .badge-keyword {
         display: inline-block;
-        padding: 0.05em 0.5em;
+        padding: 0.11em 0.55em 0.1em 0.25em; /* Léger padding vertical rétabli */
         font-weight: 900;
         font-style: italic;
         color: #000 !important;
         position: relative;
         z-index: 1;
         margin: 0 0.4em;
-        line-height: normal;
+        line-height: 1; /* Resserre la boîte autour du texte (supprime l'espace naturel de la police) */
         font-family: 'Outfit', sans-serif;
         text-transform: uppercase;
         font-size: 0.9em;
@@ -258,6 +258,12 @@ const ongoingEvent = activeEvents
       
       .badge-keyword-red::before { background-color: #C42761; }
       .badge-keyword-red { color: #fff !important; }
+
+      .badge-keyword-magenta::before { background-color: #D946EF; }
+      .badge-keyword-magenta { color: #fff !important; }
+
+      .badge-keyword-gray::before { background-color: #6B7280; }
+      .badge-keyword-gray { color: #fff !important; }
 
       /* Volet Accordion Styles */
       .article-volet {

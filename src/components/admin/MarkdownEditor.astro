@@ -245,8 +245,11 @@ try {
       <button type="button" class="px-2 py-1 rounded bg-[#006B5F] text-white text-[10px] font-bold hover:scale-105 transition-transform shadow-lg" title="Badge Teal (Vert Foncé / Police Blanche)" data-action="badgeTeal">
         TEAL
       </button>
-      <button type="button" class="px-2 py-1 rounded bg-[#C42761] text-white text-[10px] font-bold hover:scale-105 transition-transform shadow-lg" title="Badge Magenta (Rouge / Police Blanche)" data-action="badgeRed">
+      <button type="button" class="px-2 py-1 rounded bg-[#C42761] text-white text-[10px] font-bold hover:scale-105 transition-transform shadow-lg" title="Badge Magenta (Rouge / Police Blanche)" data-action="badgeMagenta">
         MAGENTA
+      </button>
+      <button type="button" class="px-2 py-1 rounded bg-[#6B7280] text-white text-[10px] font-bold hover:scale-105 transition-transform shadow-lg" title="Badge Gray (Gris / Police Blanche)" data-action="badgeGray">
+        GRAY
       </button>
     </div>
 
@@ -591,6 +594,16 @@ try {
           break;
         case 'badgeRed':
           prefix = '[badge:red]';
+          suffix = '[/badge]';
+          if (!content) content = 'MOT-CLÉ';
+          break;
+        case 'badgeMagenta':
+          prefix = '[badge:magenta]';
+          suffix = '[/badge]';
+          if (!content) content = 'MOT-CLÉ';
+          break;
+        case 'badgeGray':
+          prefix = '[badge:gray]';
           suffix = '[/badge]';
           if (!content) content = 'MOT-CLÉ';
           break;

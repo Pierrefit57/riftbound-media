@@ -1,0 +1,121 @@
+
+­ƒöì Checking 33 event image URLs...
+
+ÔØî [400] "Sortie Spiritforged"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1770922214892-wp38r8.jpg
+   ÔÜá´©Å  No .png fallback found either
+
+ÔØî [400] "Riot Merch : Pack Nouvel An Lunaire"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1770927547726-6czjzu.jpg
+   ÔÜá´©Å  No .png fallback found either
+
+Ô£à [200] "Billetterie RQ Lille"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1770928045145-cymcd2.webp
+
+Ô£à [200] "RQ Bologne"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1770927570156-kzmase.webp
+
+Ô£à [200] "RQ Las Vegas"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1770927577247-ljmtny.webp
+
+ÔØî [400] "R├®v├®lation Set 3"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1770990830739-lz7do6.jpg
+   ÔÜá´©Å  No .png fallback found either
+
+Ô£à [200] "Shenzhen National Open"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1770992537923-6f1rhh.webp
+
+ÔØî [400] "PAX East"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1770991249414-1gxb1c.jpg
+   ÔÜá´©Å  No .png fallback found either
+
+Ô£à [200] "DreamHack Birmingham"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1770991592897-g1g9zs.webp
+
+ÔØî [400] "Avant Premi├¿res Unleashed CN"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1770994716998-7j21bc.jpg
+   ÔÜá´©Å  No .png fallback found either
+
+ÔØî [400] "Riot Merch : Produits Unleashed"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1770994908066-33p6xg.jpg
+   ÔÜá´©Å  No .png fallback found either
+
+ÔØî [400] "Sortie Officielle Unleashed CN"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1770995131823-djf0bo.jpg
+   ÔÜá´©Å  No .png fallback found either
+
+Ô£à [200] "RQ Lille "
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771005557439-cpnzvu.webp
+
+Ô£à [200] "RQ Atlanta "
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771005752287-mrje27.webp
+
+ÔØî [400] "AP Unleashed "
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771005930912-v3zkqy.jpg
+   ÔÜá´©Å  No .png fallback found either
+
+ÔØî [400] "SORTIE UNLEASHED "
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771006014345-nvrjpj.jpg
+   ÔÜá´©Å  No .png fallback found either
+
+Ô£à [200] "RQ Sydney "
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771006169347-4km6w2.webp
+
+ÔØî [400] "MomoCon 2026"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771006384413-5laqs2.jpg
+   ÔÜá´©Å  No .png fallback found either
+
+Ô£à [200] "RQ Vancouver"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771006493108-zikfbc.webp
+
+Ô£à [200] "RQ Utrecht"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771006686448-ypcgn1.webp
+
+Ô£à [200] "RQ Hartford"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771006779844-h39pg4.webp
+
+ÔØî [400] "R├®v├®lation Set 4 "
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771006865763-j0ejf3.jpg
+   ÔÜá´©Å  No .png fallback found either
+
+ÔØî [400] "MSI Daejeon"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771007026256-646vfc.jpg
+   ÔÜá´©Å  No .png fallback found either
+
+ÔØî [400] "AP Vendetta"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771007120393-breuwx.jpg
+   ÔÜá´©Å  No .png fallback found either
+
+ÔØî [400] "Sortie Vendetta "
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771007184886-yvi7wq.jpg
+   ÔÜá´©Å  No .png fallback found either
+
+Ô£à [200] "RQ Barcelone "
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771007313991-ato2rq.webp
+
+Ô£à [200] "RQ Singapour"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771007471621-ob2sce.webp
+
+ÔØî [400] "R├®v├®lation Set 5"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771007536224-zy5ex5.jpeg
+   ÔÜá´©Å  No .png fallback found either
+
+Ô£à [200] "RQ Los Angeles"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771007966764-uuagwu.webp
+
+ÔØî [400] "AP Radiance"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771007674155-8tss80.jpeg
+   ÔÜá´©Å  No .png fallback found either
+
+ÔØî [400] "Sortie Radiance"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771007701528-sb6d5z.jpeg
+   ÔÜá´©Å  No .png fallback found either
+
+Ô£à [200] "DreamHack Stockholm"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771007824193-kkmjo9.webp
+
+ÔØî [400] "PAX Unplugged"
+   URL: https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/article-images/articles/1771007856576-ugx0p4.jpg
+   ÔÜá´©Å  No .png fallback found either
+
+­ƒÄë Done!
