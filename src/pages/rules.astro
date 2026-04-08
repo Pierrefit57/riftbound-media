@@ -8,6 +8,12 @@ import { supabase } from '../lib/supabase';
 import { proxyUrl } from '../lib/proxy';
 
 // Fetch metadata for the visual errata articles
+const { data: visualArticleUnleashed } = await supabase
+  .from('articles')
+  .select('*')
+  .eq('slug', 'les-errata-unleashed')
+  .single();
+
 const { data: visualArticleSpiritforged } = await supabase
   .from('articles')
   .select('*')
@@ -21,6 +27,21 @@ const { data: visualArticleOrigins } = await supabase
   .single();
 
 const errataArticles = [
+  {
+    title: "Errata Unleashed",
+    content: proxyUrl("https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/PDFrules/Errata%20Unleashed.pdf"),
+    date: "03-04-2026",
+    activeClass: "bg-[#722d6c] text-white border-[#722d6c] shadow-[#722d6c]/20",
+    textClass: "text-[#722d6c]",
+    visualLink: "/news/les-errata-unleashed",
+    visualTitle: visualArticleUnleashed?.title || "LES ERRATA UNLEASHED",
+    visualSummary: visualArticleUnleashed?.summary || "Découvrez les errata pour le set Unleashed.",
+    visualImage: proxyUrl(visualArticleUnleashed?.image_url) || undefined,
+    visualDate: visualArticleUnleashed?.published_at 
+      ? new Date(visualArticleUnleashed.published_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+      : "3 avril 2026",
+    visualTags: visualArticleUnleashed?.tags || ["Règles", "Errata"]
+  },
   {
     title: "Errata Spiritforged",
     content: proxyUrl("https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/PDFrules/UPDATED%20Riftbound%20Erratas%20Spiritforged.pdf"),
