@@ -162,7 +162,7 @@ const sidebarItems = [
           )}
           <div class="min-w-0">
             <p class="text-sm font-medium text-rift-100 truncate">{profile?.username || 'Utilisateur'}</p>
-            <p class="text-[10px] text-accent-spirit uppercase tracking-widest font-bold">{profile?.role || 'user'}</p>
+            <p class="text-[10px] text-accent-spirit uppercase tracking-widest font-bold">{profile?.role === 'admin' ? 'Admin' : 'Rédacteur'}</p>
           </div>
         </div>
         <button 

@@ -5,6 +5,8 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { createServiceClient } from '../../../lib/supabase';
 
 const supabase = createServiceClient();
+const userRole = Astro.locals.profile?.role;
+const isAdmin = userRole === 'admin';
 
 // Gérer la suppression
 if (Astro.request.method === 'POST') {
@@ -13,6 +15,9 @@ if (Astro.request.method === 'POST') {
   const articleId = formData.get('id') as string;
 
   if (action === 'delete' && articleId) {
+    if (!isAdmin) {
+      return Astro.redirect('/admin/articles?error=unauthorized');
+    }
     await supabase.from('articles').delete().eq('id', articleId);
     return Astro.redirect('/admin/articles?success=deleted');
   }
@@ -143,6 +148,12 @@ if (fetchError && (fetchError.code === 'PGRST204' || fetchError.message.includes
     <!-- Header -->
     <div class="flex items-center justify-between">
       <p class="text-sm text-rift-400">{articles?.length || 0} article(s) — <span class="text-accent-cyan/70 text-[10px] uppercase tracking-widest">Glissez pour réorganiser</span></p>
+      <button id="sort-by-date-btn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all uppercase tracking-wider bg-rift-950 text-rift-400 border-rift-700/50 hover:bg-rift-800 hover:text-accent-spirit flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        Trier par date
+      </button>
     </div>
 
     <!-- Articles list -->
@@ -222,13 +233,15 @@ if (fetchError && (fetchError.code === 'PGRST204' || fetchError.message.includes
               <a href={`/admin/articles/${article.id}`} class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-accent-cyan/10 text-accent-cyan hover:bg-accent-cyan/20 border border-accent-cyan/20 transition-colors uppercase tracking-wider">
                 Éditer
               </a>
-              <button 
-                type="button" 
-                class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors uppercase tracking-wider delete-btn"
-                data-id={article.id}
-              >
-                Supprimer
-              </button>
+              {isAdmin && (
+                <button 
+                  type="button" 
+                  class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors uppercase tracking-wider delete-btn"
+                  data-id={article.id}
+                >
+                  Supprimer
+                </button>
+              )}
             </div>
           </div>
         ))
@@ -244,9 +257,10 @@ if (fetchError && (fetchError.code === 'PGRST204' || fetchError.message.includes
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js" is:inline></script>
   <script is:inline>
     // Sortable initialization
+    let sortableInstance = null;
     const el = document.getElementById('sortable-articles');
     if (el && typeof Sortable !== 'undefined') {
-      Sortable.create(el, {
+      sortableInstance = Sortable.create(el, {
         animation: 150,
         handle: '.drag-handle',
         ghostClass: 'bg-accent-cyan/5',
@@ -275,6 +289,57 @@ if (fetchError && (fetchError.code === 'PGRST204' || fetchError.message.includes
         }
       });
     }
+
+    // Sort by date toggle — persisted in sessionStorage
+    let isSortedByDate = sessionStorage.getItem('articles_sort_by_date') === '1';
+    const sortBtn = document.getElementById('sort-by-date-btn');
+    const sortableContainer = document.getElementById('sortable-articles');
+    let originalOrder = [];
+
+    // Store original order
+    if (sortableContainer) {
+      originalOrder = Array.from(sortableContainer.querySelectorAll('.sortable-item'));
+    }
+
+    function applySortByDate() {
+      const items = Array.from(sortableContainer.querySelectorAll('.sortable-item'));
+      items.forEach(item => item.classList.remove('newest-article'));
+
+      if (isSortedByDate) {
+        if (sortableInstance) sortableInstance.option('disabled', true);
+        sortBtn.classList.remove('bg-rift-950', 'text-rift-400', 'border-rift-700/50');
+        sortBtn.classList.add('bg-accent-spirit/15', 'text-accent-spirit', 'border-accent-spirit/40');
+        sortBtn.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg> Tri par date \u2713';
+
+        const sorted = [...items].sort((a, b) => {
+          const dateA = a.querySelector('.opacity-60:last-child')?.textContent?.trim() || '';
+          const dateB = b.querySelector('.opacity-60:last-child')?.textContent?.trim() || '';
+          const [dA, mA, yA] = dateA.split('/');
+          const [dB, mB, yB] = dateB.split('/');
+          const tA = new Date(yA, mA - 1, dA).getTime();
+          const tB = new Date(yB, mB - 1, dB).getTime();
+          return tB - tA;
+        });
+
+        sorted.forEach(item => sortableContainer.appendChild(item));
+        if (sorted.length > 0) sorted[0].classList.add('newest-article');
+      } else {
+        if (sortableInstance) sortableInstance.option('disabled', false);
+        sortBtn.classList.add('bg-rift-950', 'text-rift-400', 'border-rift-700/50');
+        sortBtn.classList.remove('bg-accent-spirit/15', 'text-accent-spirit', 'border-accent-spirit/40');
+        sortBtn.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg> Trier par date';
+        originalOrder.forEach(item => sortableContainer.appendChild(item));
+      }
+    }
+
+    // Auto-apply on page load if was active
+    if (isSortedByDate) applySortByDate();
+
+    sortBtn?.addEventListener('click', () => {
+      isSortedByDate = !isSortedByDate;
+      sessionStorage.setItem('articles_sort_by_date', isSortedByDate ? '1' : '0');
+      applySortByDate();
+    });
 
     // Success Toast Logic
     const params = new URLSearchParams(window.location.search);
@@ -335,4 +400,11 @@ if (fetchError && (fetchError.code === 'PGRST204' || fetchError.message.includes
       }
     });
   </script>
+
+  <style is:global>
+    .newest-article {
+      border-left: 3px solid rgba(255, 102, 51, 0.5) !important;
+      background: linear-gradient(to right, rgba(255, 102, 51, 0.05) 0%, transparent 50%) !important;
+    }
+  </style>
 </AdminLayout>

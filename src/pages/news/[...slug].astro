@@ -137,7 +137,9 @@ function getTagStyle(tag: string): string {
   if (t.includes('carte') || t.includes('règles')) return 'bg-domain-mind/15 text-domain-mind border-domain-mind/30';
   if (t.includes('interview')) return 'bg-accent-sakura/20 text-accent-sakura border-accent-sakura/30';
   if (t.includes('errata')) return 'bg-domain-body/15 text-domain-body border-domain-body/30';
-  if (t.includes('gris')) return 'bg-rift-800/50 text-rift-300 border-rift-700/50';
+  if (t === 'set 1') return 'bg-[#C5A059]/15 text-[#C5A059] border-[#C5A059]/30';
+  if (t === 'set 2') return 'bg-[#A5A9B4]/15 text-[#A5A9B4] border-[#A5A9B4]/30';
+  if (t === 'set 3') return 'bg-[#722d6c]/15 text-[#c46db8] border-[#722d6c]/30';
 
   return 'bg-rift-800/50 text-rift-200 border-rift-700/50';
 }
@@ -250,33 +252,92 @@ function getTagStyle(tag: string): string {
     </div>
   </article>
 
-  <!-- Image Lightbox Overlay -->
-  <div id="lightbox-overlay" class="fixed inset-0 z-[100] bg-rift-950/90 backdrop-blur-md opacity-0 pointer-events-none flex flex-col items-center justify-center p-4 sm:p-8 cursor-zoom-out" style="transition: opacity 0.25s ease; will-change: opacity;">
-    <div class="absolute top-4 right-4 sm:top-8 sm:right-8">
-      <button id="lightbox-close" class="w-10 h-10 rounded-full bg-rift-800/80 text-rift-100 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors">
+  <!-- Image Lightbox Overlay — no backdrop-blur for max GPU perf -->
+  <div id="lightbox-overlay" class="fixed inset-0 z-[100] pointer-events-none cursor-zoom-out" style="contain: layout style;">
+    <!-- Dark background (separate layer for independent opacity animation) -->
+    <div id="lightbox-bg" class="absolute inset-0 bg-rift-950/95" style="opacity: 0; transition: opacity 0.3s ease; will-change: opacity;"></div>
+    
+    <!-- Close button -->
+    <div class="absolute top-4 right-4 sm:top-8 sm:right-8 z-10">
+      <button id="lightbox-close" class="w-10 h-10 rounded-full bg-rift-800/80 text-rift-100 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors" style="opacity: 0; transition: opacity 0.2s ease 0.15s;">
         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
     </div>
-    <img id="lightbox-img" src="" alt="Zoom" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl hidden" style="transform: scale(0.92); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform;" />
-    <video id="lightbox-video" autoplay loop muted playsinline class="max-w-full max-h-full object-contain rounded-lg shadow-2xl hidden" style="transform: scale(0.92); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform;">
+
+    <!-- FLIP Image — positioned absolutely, animated via transform only (GPU-composited) -->
+    <img id="lightbox-img" src="" alt="Zoom" class="absolute rounded-lg shadow-2xl hidden" style="transform-origin: 0 0; will-change: transform; transition: none;" />
+    
+    <!-- Video fallback (keeps old scale approach) -->
+    <video id="lightbox-video" autoplay loop muted playsinline class="absolute top-1/2 left-1/2 max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl hidden" style="transform: translate(-50%, -50%) scale(0.88); opacity: 0; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease; will-change: transform, opacity;">
       <source src="" type="video/mp4">
     </video>
   </div>
 
   <script>
-    // Lightbox Logic
-    const overlay = document.getElementById('lightbox-overlay');
+    // FLIP Lightbox — smooth zoom from source position, GPU-only transforms, no backdrop-blur
+    const overlay = document.getElementById('lightbox-overlay')!;
+    const overlayBg = document.getElementById('lightbox-bg')!;
     const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
     const lightboxVideo = document.getElementById('lightbox-video') as HTMLVideoElement;
-    const closeBtn = document.getElementById('lightbox-close');
+    const closeBtn = document.getElementById('lightbox-close')!;
     
-    // Find all zoomable media in the article
     const articleMedia = document.querySelectorAll('.prose img:not(.icon-tcg):not(.icon-energy):not(.youtube-thumbnail), .prose .article-video');
     
+    let sourceElement: HTMLElement | null = null;
+    let isAnimating = false;
+
+    // Scrollbar compensation — prevents layout shift when toggling overflow
+    function lockScroll() {
+      const scrollbarW = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = scrollbarW + 'px';
+    }
+    function unlockScroll() {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    }
+
+    // Compute the FLIP transform: from final position, invert back to source position
+    function computeFlip(sourceRect: DOMRect, img: HTMLImageElement) {
+      const viewW = window.innerWidth;
+      const viewH = window.innerHeight;
+      const pad = window.innerWidth < 640 ? 16 : 32; // p-4 / p-8
+
+      // Final: image centered in viewport, constrained to max-w/max-h
+      const natW = img.naturalWidth || sourceRect.width;
+      const natH = img.naturalHeight || sourceRect.height;
+      const aspect = natW / natH;
+
+      const maxW = viewW - pad * 2;
+      const maxH = viewH - pad * 2;
+
+      let finalW: number, finalH: number;
+      if (maxW / maxH > aspect) {
+        finalH = Math.min(maxH, natH);
+        finalW = finalH * aspect;
+      } else {
+        finalW = Math.min(maxW, natW);
+        finalH = finalW / aspect;
+      }
+
+      const finalX = (viewW - finalW) / 2;
+      const finalY = (viewH - finalH) / 2;
+
+      // Invert: transform from final to source
+      const scaleX = sourceRect.width / finalW;
+      const scaleY = sourceRect.height / finalH;
+      const translateX = sourceRect.left - finalX;
+      const translateY = sourceRect.top - finalY;
+
+      return { finalX, finalY, finalW, finalH, scaleX, scaleY, translateX, translateY };
+    }
+
     function openLightbox(element: HTMLElement) {
-      if (!overlay || !lightboxImg || !lightboxVideo) return;
+      if (isAnimating) return;
+      isAnimating = true;
+      sourceElement = element;
       
       const isVideo = element.tagName.toLowerCase() === 'video';
       
@@ -285,54 +346,147 @@ function getTagStyle(tag: string): string {
         lightboxVideo.src = videoSource;
         lightboxVideo.classList.remove('hidden');
         lightboxImg.classList.add('hidden');
-        
-        // Ensure video starts playing
-        lightboxVideo.play().catch(e => console.error('Video play error:', e));
-        
-        // Background paint + Animation
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            lightboxVideo.style.transform = 'scale(1)';
-          });
-        });
-      } else {
-        lightboxImg.src = (element as HTMLImageElement).src;
-        lightboxImg.classList.remove('hidden');
-        lightboxVideo.classList.add('hidden');
+        lightboxVideo.play().catch(() => {});
+
+        overlay.style.pointerEvents = 'auto';
+        overlayBg.style.opacity = '1';
+        closeBtn.style.opacity = '1';
         
         requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            lightboxImg.style.transform = 'scale(1)';
-          });
+          lightboxVideo.style.transform = 'translate(-50%, -50%) scale(1)';
+          lightboxVideo.style.opacity = '1';
+          setTimeout(() => { isAnimating = false; }, 400);
         });
+        lockScroll();
+        return;
       }
 
-      overlay.classList.remove('opacity-0', 'pointer-events-none');
-      document.body.style.overflow = 'hidden';
+      // --- FLIP for images ---
+      const src = (element as HTMLImageElement).src;
+      const sourceRect = element.getBoundingClientRect();
+
+      // Prepare lightbox img — keep INVISIBLE until FLIP transform is set
+      lightboxImg.style.transition = 'none';
+      lightboxImg.style.visibility = 'hidden';
+      lightboxImg.src = src;
+      lightboxImg.classList.remove('hidden');
+      lightboxVideo.classList.add('hidden');
+
+      // Wait for image dimensions to be available
+      const proceed = () => {
+        const flip = computeFlip(sourceRect, lightboxImg);
+        
+        // Position at final location
+        lightboxImg.style.left = flip.finalX + 'px';
+        lightboxImg.style.top = flip.finalY + 'px';
+        lightboxImg.style.width = flip.finalW + 'px';
+        lightboxImg.style.height = flip.finalH + 'px';
+        
+        // INVERT: start at source position via transform
+        lightboxImg.style.transform = `translate(${flip.translateX}px, ${flip.translateY}px) scale(${flip.scaleX}, ${flip.scaleY})`;
+        lightboxImg.style.borderRadius = '8px';
+        
+        // NOW reveal — transform is in place, no flash
+        lightboxImg.style.visibility = 'visible';
+        
+        // Show overlay
+        overlay.style.pointerEvents = 'auto';
+        lockScroll();
+        
+        // Fade the source element slightly
+        (element as HTMLElement).style.opacity = '0.3';
+        
+        // PLAY: animate to final position in next frame
+        requestAnimationFrame(() => {
+          // Enable transition
+          lightboxImg.style.transition = 'transform 0.4s cubic-bezier(0.2, 0, 0.1, 1)';
+          overlayBg.style.opacity = '1';
+          closeBtn.style.opacity = '1';
+          
+          // Animate to identity (final centered position)
+          lightboxImg.style.transform = 'translate(0, 0) scale(1, 1)';
+          
+          setTimeout(() => { isAnimating = false; }, 400);
+        });
+      };
+
+      // If natural dimensions available (cached), proceed immediately
+      if (lightboxImg.naturalWidth > 0) {
+        proceed();
+      } else {
+        lightboxImg.onload = proceed;
+      }
     }
     
     function closeLightbox() {
-      if (!overlay || !lightboxImg || !lightboxVideo) return;
+      if (isAnimating) return;
+      isAnimating = true;
+
+      // Unlock scroll IMMEDIATELY while overlay is still opaque — prevents flash
+      unlockScroll();
       
-      lightboxImg.style.transform = 'scale(0.92)';
-      lightboxVideo.style.transform = 'scale(0.92)';
-      lightboxVideo.pause();
-      
-      overlay.classList.add('opacity-0', 'pointer-events-none');
-      document.body.style.overflow = '';
-      
-      // Delay cleaning sources to avoid visual artifacts during transition
-      setTimeout(() => {
-        if (overlay.classList.contains('opacity-0')) {
-          lightboxImg.src = '';
+      // Restore source opacity NOW — the lightbox image covers it so this is invisible
+      if (sourceElement) (sourceElement as HTMLElement).style.opacity = '';
+
+      // Video path
+      if (!lightboxVideo.classList.contains('hidden')) {
+        lightboxVideo.style.transform = 'translate(-50%, -50%) scale(0.88)';
+        lightboxVideo.style.opacity = '0';
+        lightboxVideo.pause();
+        overlayBg.style.opacity = '0';
+        closeBtn.style.opacity = '0';
+        
+        setTimeout(() => {
+          overlay.style.pointerEvents = 'none';
+          lightboxVideo.classList.add('hidden');
           lightboxVideo.src = '';
-        }
-      }, 300);
+          sourceElement = null;
+          isAnimating = false;
+        }, 400);
+        return;
+      }
+
+      // --- FLIP reverse for images ---
+      if (sourceElement) {
+        const sourceRect = sourceElement.getBoundingClientRect();
+        const flip = computeFlip(sourceRect, lightboxImg);
+        
+        // Animate back to source position — sync bg fade with image duration
+        lightboxImg.style.transition = 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
+        lightboxImg.style.transform = `translate(${flip.translateX}px, ${flip.translateY}px) scale(${flip.scaleX}, ${flip.scaleY})`;
+        overlayBg.style.transition = 'opacity 0.35s ease';
+        overlayBg.style.opacity = '0';
+        closeBtn.style.opacity = '0';
+        
+        setTimeout(() => {
+          overlay.style.pointerEvents = 'none';
+          lightboxImg.classList.add('hidden');
+          lightboxImg.style.visibility = 'hidden';
+          lightboxImg.style.transition = 'none';
+          lightboxImg.src = '';
+          overlayBg.style.transition = 'opacity 0.3s ease';
+          sourceElement = null;
+          isAnimating = false;
+        }, 360);
+      } else {
+        // Fallback: simple fade
+        lightboxImg.style.transition = 'opacity 0.25s ease';
+        lightboxImg.style.opacity = '0';
+        overlayBg.style.opacity = '0';
+        closeBtn.style.opacity = '0';
+        
+        setTimeout(() => {
+          overlay.style.pointerEvents = 'none';
+          lightboxImg.classList.add('hidden');
+          lightboxImg.src = '';
+          isAnimating = false;
+        }, 300);
+      }
     }
 
     articleMedia.forEach(el => {
-      // Add visual cue for interactivity
-      (el as HTMLElement).classList.add('cursor-zoom-in', 'hover:opacity-90', 'transition-opacity');
+      (el as HTMLElement).classList.add('cursor-zoom-in');
+      (el as HTMLElement).style.transition = 'opacity 0.2s ease';
       
       el.addEventListener('click', () => {
         openLightbox(el as HTMLElement);
@@ -342,13 +496,11 @@ function getTagStyle(tag: string): string {
     closeBtn?.addEventListener('click', closeLightbox);
     
     overlay?.addEventListener('click', (e) => {
-      // Close only if clicking the background, not the image itself
-      if (e.target === overlay) {
+      if (e.target === overlay || e.target === overlayBg) {
         closeLightbox();
       }
     });
 
-    // Close on Escape key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeLightbox();
     });

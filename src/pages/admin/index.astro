@@ -28,6 +28,7 @@ const publishedCount = articles?.filter((a) => a.published)?.length || 0;
 const draftCount = totalArticles - publishedCount;
 
 const umamiShareUrl = "https://cloud.umami.is/analytics/eu/share/VjJpgvQiIFJSFV7W";
+const isAdmin = Astro.locals.profile?.role === 'admin';
 ---
 
 <AdminLayout title="Tableau de bord" activeItem="dashboard">
@@ -36,7 +37,7 @@ const umamiShareUrl = "https://cloud.umami.is/analytics/eu/share/VjJpgvQiIFJSFV7
       <div>
         <h1 class="text-2xl font-bold text-rift-100 font-display uppercase tracking-wider">Tableau de bord</h1>
         <p class="text-rift-400 text-sm mt-1">
-          Bienvenue, {Astro.props.user?.email || 'Admin'} !
+          Bienvenue, <span class="capitalize text-rift-200">{isAdmin ? 'Admin' : 'Rédacteur'}</span> !
           {!hasServiceKey && <span class="text-red-500 font-bold ml-2">⚠️ Clé Service Role manquante !</span>}
         </p>
       </div>
@@ -102,29 +103,47 @@ const umamiShareUrl = "https://cloud.umami.is/analytics/eu/share/VjJpgvQiIFJSFV7
               </div>
               
               <div class="pt-4 border-t border-rift-700/50">
-                <a href="https://cloud.umami.is" target="_blank" class="flex items-center justify-center gap-2 text-xs text-rift-400 hover:text-accent-spirit transition-colors">
-                  Ouvrir Umami Cloud ↗
-                </a>
+                {isAdmin && (
+                  <a href="https://cloud.umami.is" target="_blank" class="flex items-center justify-center gap-2 text-xs text-rift-400 hover:text-accent-spirit transition-colors">
+                    Ouvrir Umami Cloud ↗
+                  </a>
+                )}
               </div>
             </div>
         </div>
     
-        <!-- Right Column: Umami Iframe -->
+    
+        <!-- Right Column: Umami Iframe (Admin only) -->
         <div class="lg:col-span-3">
-           <div class="bg-rift-900/40 border border-rift-800/50 rounded-2xl overflow-hidden shadow-card h-[800px] relative">
-              <div class="absolute inset-0 flex items-center justify-center z-0">
-                <div class="flex flex-col items-center gap-3">
-                 <div class="w-8 h-8 border-2 border-accent-spirit border-t-transparent rounded-full animate-spin"></div>
-                 <p class="text-rift-500 text-sm animate-pulse">Chargement d'Umami...</p>
+          {isAdmin ? (
+            <div class="bg-rift-900/40 border border-rift-800/50 rounded-2xl overflow-hidden shadow-card h-[800px] relative">
+                <div class="absolute inset-0 flex items-center justify-center z-0">
+                  <div class="flex flex-col items-center gap-3">
+                   <div class="w-8 h-8 border-2 border-accent-spirit border-t-transparent rounded-full animate-spin"></div>
+                   <p class="text-rift-500 text-sm animate-pulse">Chargement d'Umami...</p>
+                  </div>
                 </div>
-              </div>
-              <iframe 
-                src={umamiShareUrl} 
-                class="relative z-10 w-full h-full border-0" 
-                title="Umami Analytics"
-                allowtransparency="true"
-              ></iframe>
-           </div>
+                <iframe 
+                  src={umamiShareUrl} 
+                  class="relative z-10 w-full h-full border-0" 
+                  title="Umami Analytics"
+                  allowtransparency="true"
+                ></iframe>
+            </div>
+          ) : (
+            <div class="bg-rift-900/40 border border-rift-800/50 rounded-2xl overflow-hidden shadow-card h-full min-h-[400px] flex flex-col items-center justify-center p-8 text-center relative">
+               <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(114,45,108,0.1),transparent_70%)]"></div>
+               <div class="w-16 h-16 rounded-full bg-rift-800/80 border border-rift-700/50 flex items-center justify-center mb-4 relative z-10">
+                  <svg class="w-8 h-8 text-rift-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+               </div>
+               <h2 class="text-xl font-bold text-rift-100 font-display uppercase tracking-widest relative z-10">Espace Rédacteur</h2>
+               <p class="text-rift-400 mt-2 max-w-md mx-auto relative z-10">
+                 Les statistiques detaillées (vues, visiteurs, rebond) sont réservées aux administrateurs. Vous pouvez gérer vos articles via le menu latéral !
+               </p>
+            </div>
+          )}
         </div>
     
     </div>

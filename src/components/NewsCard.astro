@@ -36,7 +36,9 @@ function getTagStyle(tag: string): string {
   if (t.includes('errata')) return 'bg-domain-body/15 text-domain-body border-domain-body/30';
   if (t.includes('faq')) return 'bg-domain-body/15 text-domain-body border-domain-body/30';
   if (t.includes('site web')) return 'bg-sky-400/20 text-sky-400 border-sky-400/40 font-bold shadow-[0_0_10px_rgba(56,189,248,0.1)]';
-  if (t.includes('gris')) return 'bg-rift-800/10 text-rift-400 border-rift-700/50';
+  if (t === 'set 1') return 'bg-[#C5A059]/15 text-[#C5A059] border-[#C5A059]/30';
+  if (t === 'set 2') return 'bg-[#A5A9B4]/15 text-[#A5A9B4] border-[#A5A9B4]/30';
+  if (t === 'set 3') return 'bg-[#722d6c]/15 text-[#c46db8] border-[#722d6c]/30';
 
   return 'bg-rift-800/50 text-rift-200 border-rift-700/50';
 }
