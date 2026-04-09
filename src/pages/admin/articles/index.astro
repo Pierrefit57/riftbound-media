@@ -145,15 +145,26 @@ if (fetchError && (fetchError.code === 'PGRST204' || fetchError.message.includes
       </a>
     </div>
 
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-      <p class="text-sm text-rift-400">{articles?.length || 0} article(s) — <span class="text-accent-cyan/70 text-[10px] uppercase tracking-widest">Glissez pour réorganiser</span></p>
-      <button id="sort-by-date-btn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all uppercase tracking-wider bg-rift-950 text-rift-400 border-rift-700/50 hover:bg-rift-800 hover:text-accent-spirit flex items-center gap-1.5">
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-        Trier par date
-      </button>
+    <!-- Header components -->
+    <div class="flex flex-col gap-4">
+      <!-- Search Bar -->
+      <div class="relative flex-1 w-full">
+        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-rift-400">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+        </span>
+        <input type="text" id="article-search" placeholder="Rechercher un article..." class="w-full bg-rift-950/80 border border-rift-700/50 rounded-xl pl-10 pr-4 py-2.5 text-sm text-rift-100 placeholder-rift-500 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/50 transition-all font-medium" />
+      </div>
+      
+      <!-- Stats and Sort -->
+      <div class="flex items-center justify-between">
+        <p class="text-sm text-rift-400"><span id="article-count-display">{articles?.length || 0}</span> article(s) — <span class="text-accent-cyan/70 text-[10px] uppercase tracking-widest hidden sm:inline-block">Glissez pour réorganiser</span></p>
+        <button id="sort-by-date-btn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all uppercase tracking-wider bg-rift-950 text-rift-400 border-rift-700/50 hover:bg-rift-800 hover:text-accent-spirit flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          Trier par date
+        </button>
+      </div>
     </div>
 
     <!-- Articles list -->
@@ -397,6 +408,34 @@ if (fetchError && (fetchError.code === 'PGRST204' || fetchError.message.includes
     window.addEventListener('click', (e) => {
       if (e.target === modal) {
         modal.classList.add('hidden');
+      }
+    });
+
+    // Search Logic
+    const searchInput = document.getElementById('article-search');
+    const countDisplay = document.getElementById('article-count-display');
+    
+    searchInput?.addEventListener('input', (e) => {
+      const term = e.target.value.toLowerCase();
+      const items = document.querySelectorAll('.sortable-item');
+      let visibleCount = 0;
+      
+      items.forEach(item => {
+        const titleEl = item.querySelector('a[title="Lire l\'article"]');
+        const slugEl = item.querySelector('.opacity-60');
+        
+        const text = ((titleEl?.textContent || '') + ' ' + (slugEl?.textContent || '')).toLowerCase();
+        
+        if (text.includes(term)) {
+          item.style.display = '';
+          visibleCount++;
+        } else {
+          item.style.display = 'none';
+        }
+      });
+      
+      if (countDisplay) {
+        countDisplay.textContent = visibleCount;
       }
     });
   </script>
