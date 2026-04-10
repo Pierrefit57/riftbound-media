@@ -74,20 +74,22 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
 
     const getEventsForDay = (date: Date) => {
         return initialEvents.filter(event => {
-            const toYMD = (d: Date) => {
-                const year = d.getFullYear();
-                const month = String(d.getMonth() + 1).padStart(2, '0');
-                const day = String(d.getDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
+            const toParisYMD = (dateStringOrDate: string | Date) => {
+                try {
+                    return new Intl.DateTimeFormat('en-CA', { 
+                        timeZone: 'Europe/Paris', 
+                        year: 'numeric', 
+                        month: '2-digit', 
+                        day: '2-digit' 
+                    }).format(new Date(dateStringOrDate));
+                } catch(e) {
+                    return "";
+                }
             };
 
-            const stripTZ = (s: string) => s.split('.')[0].split('+')[0].split('Z')[0];
-            const eventStart = new Date(stripTZ(event.start_date));
-            const eventEnd = event.end_date ? new Date(stripTZ(event.end_date)) : new Date(eventStart);
-
-            const checkYMD = toYMD(date);
-            const startYMD = toYMD(eventStart);
-            const endYMD = toYMD(eventEnd);
+            const checkYMD = toParisYMD(date);
+            const startYMD = toParisYMD(event.start_date);
+            const endYMD = event.end_date ? toParisYMD(event.end_date) : startYMD;
 
             return checkYMD >= startYMD && checkYMD <= endYMD;
         });
@@ -389,13 +391,34 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
                                                 <p className="text-[10px] font-bold text-rift-500 uppercase tracking-widest leading-none mb-1">Date et Heure</p>
                                                 <p className="font-semibold">
                                                     {(() => {
-                                                        const date = new Date(selectedEvent.start_date.split('.')[0]);
-                                                        const dateStr = date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-                                                        const hasTime = date.getHours() !== 0 || date.getMinutes() !== 0;
+                                                        const getParisTime = (d: Date) => {
+                                                            const timeStr = d.toLocaleTimeString('fr-FR', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit' });
+                                                            const [h, m] = timeStr.split(':');
+                                                            return m === '00' ? `${parseInt(h, 10)}h` : `${parseInt(h, 10)}h${m}`;
+                                                        };
 
-                                                        return hasTime
-                                                            ? `${dateStr} à ${date.getHours()}h${date.getMinutes() > 0 ? date.getMinutes().toString().padStart(2, '0') : ''}`
-                                                            : dateStr;
+                                                        const optionsDate: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Europe/Paris' };
+                                                        const startDate = new Date(selectedEvent.start_date);
+                                                        const startDateStr = startDate.toLocaleDateString('fr-FR', optionsDate);
+                                                        const sHours = getParisTime(startDate);
+                                                        
+                                                        const startHasTime = sHours !== '0h' && !selectedEvent.all_day;
+                                                        
+                                                        if (selectedEvent.end_date && selectedEvent.end_date !== selectedEvent.start_date) {
+                                                            const endDate = new Date(selectedEvent.end_date);
+                                                            const endDateStr = endDate.toLocaleDateString('fr-FR', optionsDate);
+                                                            const eHours = getParisTime(endDate);
+                                                            
+                                                            if (startDateStr === endDateStr) {
+                                                                if (selectedEvent.all_day) return startDateStr;
+                                                                return `${startDateStr} de ${sHours} à ${eHours}`;
+                                                            } else {
+                                                                if (selectedEvent.all_day) return `Du ${startDateStr} au ${endDateStr}`;
+                                                                return `Du ${startDateStr} à ${sHours} au ${endDateStr} à ${eHours}`;
+                                                            }
+                                                        }
+
+                                                        return startHasTime ? `${startDateStr} à ${sHours}` : startDateStr;
                                                     })()}
                                                 </p>
                                             </div>
