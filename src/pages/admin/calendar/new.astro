@@ -97,13 +97,17 @@ if (Astro.request.method === 'POST') {
           />
         </div>
 
-        <div class="md:col-span-2">
+        <div class="md:col-span-2 flex flex-col sm:flex-row sm:items-center gap-4">
           <label class="flex items-center gap-2 cursor-pointer group">
             <input type="checkbox" id="all_day" name="all_day" checked={all_day}
               class="w-4 h-4 rounded border-rift-700 bg-rift-950 text-accent-spirit focus:ring-accent-spirit/30 cursor-pointer"
             />
-            <span class="text-sm font-medium text-rift-300 group-hover:text-rift-100 transition-colors">Événement toute la journée (masquer l'heure)</span>
+            <span class="text-sm font-medium text-rift-300 group-hover:text-rift-100 transition-colors">Événement toute la journée</span>
           </label>
+          <div id="all_day_time_container" class="hidden items-center gap-2 animate-fade-in bg-rift-950/50 p-1.5 rounded-lg border border-rift-800">
+              <span class="text-xs text-rift-400 font-medium ml-1">Lancement :</span>
+              <input type="time" id="all_day_time" class="bg-rift-900 border border-rift-700 rounded md:rounded-lg px-2 py-1 text-xs text-rift-100 focus:outline-none focus:border-accent-spirit/50" />
+          </div>
         </div>
 
         <div>
@@ -248,6 +252,74 @@ if (Astro.request.method === 'POST') {
     });
 
     uploadBtn?.addEventListener('click', () => fileInput?.click());
+
+    // All Day Sync Logic
+    const allDayCb = document.getElementById('all_day') as HTMLInputElement;
+    const allDayTimeContainer = document.getElementById('all_day_time_container');
+    const allDayTimeInput = document.getElementById('all_day_time') as HTMLInputElement;
+    const startDateInput = document.getElementById('start_date') as HTMLInputElement;
+
+    const updateVisibility = () => {
+        if (allDayCb?.checked) {
+            allDayTimeContainer?.classList.remove('hidden');
+            allDayTimeContainer?.classList.add('flex');
+        } else {
+            allDayTimeContainer?.classList.add('hidden');
+            allDayTimeContainer?.classList.remove('flex');
+            if (allDayTimeInput) {
+               allDayTimeInput.value = '00:00';
+               syncTimeToStartDate('00:00');
+            }
+        }
+    };
+
+    const syncTimeToStartDate = (timeStr: string) => {
+        if (!startDateInput) return;
+        const iso = startDateInput.value;
+        if (!iso) return;
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return;
+        
+        const [h, m] = (timeStr || '00:00').split(':').map(Number);
+        d.setHours(h || 0, m || 0, 0, 0);
+        
+        window.dispatchEvent(new CustomEvent('update-date-start_date', { detail: { date: d.toISOString() } }));
+    };
+
+    const initTimeFromStart = () => {
+       if (!startDateInput) return;
+       const iso = startDateInput.value;
+       if (!iso || !allDayTimeInput) return;
+       const d = new Date(iso);
+       if (!isNaN(d.getTime())) {
+           const h = d.getHours().toString().padStart(2, '0');
+           const m = d.getMinutes().toString().padStart(2, '0');
+           allDayTimeInput.value = `${h}:${m}`;
+       }
+    };
+
+    allDayCb?.addEventListener('change', updateVisibility);
+    allDayTimeInput?.addEventListener('input', (e) => {
+        if (allDayCb?.checked) syncTimeToStartDate((e.target as HTMLInputElement).value);
+    });
+
+    window.addEventListener('date-change-start_date', ((e: CustomEvent) => {
+        if (allDayCb?.checked && e.detail?.date) {
+           const d = new Date(e.detail.date);
+           if (!isNaN(d.getTime()) && allDayTimeInput) {
+               const h = d.getHours().toString().padStart(2, '0');
+               const m = d.getMinutes().toString().padStart(2, '0');
+               allDayTimeInput.value = `${h}:${m}`;
+           }
+        }
+    }) as EventListener);
+
+    // Initialisation
+    setTimeout(() => {
+        initTimeFromStart();
+        if (allDayCb) updateVisibility();
+    }, 100);
+
 
     fileInput?.addEventListener('change', async () => {
       const file = fileInput.files?.[0];

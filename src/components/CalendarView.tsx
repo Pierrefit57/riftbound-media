@@ -410,14 +410,21 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
                                                             const eHours = getParisTime(endDate);
                                                             
                                                             if (startDateStr === endDateStr) {
-                                                                if (selectedEvent.all_day) return startDateStr;
+                                                                if (selectedEvent.all_day) {
+                                                                    return sHours !== '0h' ? `${startDateStr} (Dès ${sHours})` : startDateStr;
+                                                                }
                                                                 return `${startDateStr} de ${sHours} à ${eHours}`;
                                                             } else {
-                                                                if (selectedEvent.all_day) return `Du ${startDateStr} au ${endDateStr}`;
+                                                                if (selectedEvent.all_day) {
+                                                                    return sHours !== '0h' ? `Du ${startDateStr} au ${endDateStr} (Dès ${sHours})` : `Du ${startDateStr} au ${endDateStr}`;
+                                                                }
                                                                 return `Du ${startDateStr} à ${sHours} au ${endDateStr} à ${eHours}`;
                                                             }
                                                         }
 
+                                                        if (selectedEvent.all_day) {
+                                                            return sHours !== '0h' ? `${startDateStr} (Dès ${sHours})` : startDateStr;
+                                                        }
                                                         return startHasTime ? `${startDateStr} à ${sHours}` : startDateStr;
                                                     })()}
                                                 </p>
