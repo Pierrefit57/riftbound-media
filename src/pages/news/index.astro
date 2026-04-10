@@ -45,6 +45,10 @@ const regularNews = (allNews?.filter((n) => !featuredNews.some(f => f.slug === n
       </div>
       <h1 class="text-3xl md:text-4xl font-display font-bold text-rift-100 mb-3">Dernières Nouvelles</h1>
       <p class="text-rift-300 leading-relaxed max-w-2xl mx-auto">Restez informés des dernières nouvelles et annonces de l'univers Riftbound<br />Le tout traduit pour vous en français</p>
+      <a href="/rss.xml" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 mt-4 px-3 py-1.5 rounded-full border border-rift-700/50 text-xs font-medium text-rift-400 hover:text-accent-spirit hover:border-accent-spirit/40 transition-all duration-300 group" title="Flux RSS">
+        <svg class="w-3.5 h-3.5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor"><circle cx="6.18" cy="17.82" r="2.18"/><path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56zm0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z"/></svg>
+        <span>S'abonner via RSS</span>
+      </a>
     </div>
 
     {featuredNews.length > 0 && (
