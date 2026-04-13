@@ -67,6 +67,7 @@ const regularNews = (allNews?.filter((n) => !featuredNews.some(f => f.slug === n
               author=""
               pubDate={new Date(article.published_at || article.created_at)}
               slug={article.slug}
+              articleNumber={article.article_number}
               featured={true}
               highlighted={article.highlighted || false}
             />
@@ -124,6 +125,7 @@ const regularNews = (allNews?.filter((n) => !featuredNews.some(f => f.slug === n
                   author=""
                   pubDate={new Date(article.published_at || article.created_at)}
                   slug={article.slug}
+                  articleNumber={article.article_number}
                   highlighted={article.highlighted || false}
                 />
               </div>

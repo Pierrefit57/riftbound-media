@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { supabase } from '../lib/supabase';
+import { articleUrl } from '../lib/articleUrl';
 
 export const prerender = false;
 
@@ -22,7 +23,7 @@ export const GET: APIRoute = async ({ site }) => {
 
   const { data: articles, error } = await supabase
     .from('articles')
-    .select('title, slug, summary, image_url, tags, published_at, created_at, updated_at')
+    .select('title, slug, article_number, summary, image_url, tags, published_at, created_at, updated_at')
     .eq('published', true)
     .order('published_at', { ascending: false })
     .limit(50);
@@ -37,7 +38,7 @@ export const GET: APIRoute = async ({ site }) => {
 
   const items = articles.map((article) => {
     const pubDate = toRFC822(article.published_at || article.created_at);
-    const link = `${siteUrl}/news/${article.slug}`;
+    const link = `${siteUrl}${articleUrl(article)}`;
     const description = article.summary || '';
     const categories = (article.tags || [])
       .map((tag: string) => `      <category>${escapeXml(tag)}</category>`)

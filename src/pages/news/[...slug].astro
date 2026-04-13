@@ -15,15 +15,39 @@ marked.use({
 
 const { slug } = Astro.params;
 
-// Fetch article first (without join to avoid PGRST200 error if relation cache is stale)
-const { data: article, error } = await supabase
-  .from('articles')
-  .select('*')
-  .eq('slug', slug)
-  .eq('published', true)
-  .single();
+// --- Resolve article: new numeric format OR legacy slug ---
+let article: any = null;
 
-if (error || !article) {
+const numMatch = slug?.match(/^(\d+)(?:-|$)/);
+
+if (numMatch) {
+  // New format: /news/42-katchouze-interview
+  const articleNumber = parseInt(numMatch[1]);
+  const { data } = await supabase
+    .from('articles')
+    .select('*')
+    .eq('article_number', articleNumber)
+    .eq('published', true)
+    .single();
+  article = data;
+} else {
+  // Legacy format: /news/katchouze-linterview-du-commentateur-...
+  const { data } = await supabase
+    .from('articles')
+    .select('*')
+    .eq('slug', slug)
+    .eq('published', true)
+    .single();
+  article = data;
+
+  // 301 redirect to the new short URL for SEO
+  if (article?.article_number) {
+    const shortSlug = article.slug.split('-').slice(0, 4).join('-');
+    return Astro.redirect(`/news/${article.article_number}-${shortSlug}`, 301);
+  }
+}
+
+if (!article) {
   return Astro.redirect('/news');
 }
 

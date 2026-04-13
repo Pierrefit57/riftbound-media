@@ -6,6 +6,7 @@ import PDFViewer from '../components/PDFViewer.tsx';
 import ErrataViewer from '../components/ErrataViewer.tsx';
 import { supabase } from '../lib/supabase';
 import { proxyUrl } from '../lib/proxy';
+import { articleUrl } from '../lib/articleUrl';
 
 // Fetch metadata for the visual errata articles
 const { data: visualArticleUnleashed } = await supabase
@@ -33,7 +34,7 @@ const errataArticles = [
     date: "03-04-2026",
     activeClass: "bg-[#722d6c] text-white border-[#722d6c] shadow-[#722d6c]/20",
     textClass: "text-[#722d6c]",
-    visualLink: "/news/les-errata-unleashed",
+    visualLink: visualArticleUnleashed ? articleUrl(visualArticleUnleashed) : "/news/les-errata-unleashed",
     visualTitle: visualArticleUnleashed?.title || "LES ERRATA UNLEASHED",
     visualSummary: visualArticleUnleashed?.summary || "Découvrez les errata pour le set Unleashed.",
     visualImage: proxyUrl(visualArticleUnleashed?.image_url) || undefined,
@@ -48,7 +49,7 @@ const errataArticles = [
     date: "14-01-2026",
     activeClass: "bg-[#A5A9B4] text-rift-950 border-[#A5A9B4] shadow-[#A5A9B4]/20",
     textClass: "text-[#A5A9B4]",
-    visualLink: "/news/les-errata-spiritforged",
+    visualLink: visualArticleSpiritforged ? articleUrl(visualArticleSpiritforged) : "/news/les-errata-spiritforged",
     visualTitle: visualArticleSpiritforged?.title || "LES ERRATA SPIRITFORGED",
     visualSummary: visualArticleSpiritforged?.summary || "Un résumé rapide des derniers Errata pour Origins et Spiritforged.",
     visualImage: proxyUrl(visualArticleSpiritforged?.image_url) || undefined,
@@ -63,7 +64,7 @@ const errataArticles = [
     date: "21-10-2025",
     activeClass: "bg-[#C5A059] text-rift-950 border-[#C5A059] shadow-[#C5A059]/20",
     textClass: "text-[#C5A059]",
-    visualLink: "/news/les-errata-origins",
+    visualLink: visualArticleOrigins ? articleUrl(visualArticleOrigins) : "/news/les-errata-origins",
     visualTitle: visualArticleOrigins?.title || "LES ERRATA ORIGINS",
     visualSummary: visualArticleOrigins?.summary || "Découvrez les errata pour le set Origins.",
     visualImage: proxyUrl(visualArticleOrigins?.image_url) || undefined,

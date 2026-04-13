@@ -120,7 +120,7 @@ if (successParam === 'created') successMsg = 'Article créé avec succès ! Cont
             <div>
               <label for="slug" class="block text-sm font-medium text-rift-300 mb-2">Slug (URL)</label>
               <div class="flex items-center gap-2">
-                <span class="text-sm text-rift-500 font-mono">/news/</span>
+                <span class="text-sm text-rift-500 font-mono">/news/{article.article_number || '?'}-</span>
                 <input type="text" id="slug" name="slug" required value={article.slug}
                   class="flex-1 px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors font-mono text-sm"
                 />

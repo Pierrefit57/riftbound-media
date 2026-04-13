@@ -3,6 +3,7 @@ export const prerender = false;
 
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { createServiceClient } from '../../../lib/supabase';
+import { articleUrl } from '../../../lib/articleUrl';
 
 const supabase = createServiceClient();
 const userRole = Astro.locals.profile?.role;
@@ -70,7 +71,7 @@ if (Astro.request.method === 'POST') {
 
 let { data: articles, error: fetchError } = await supabase
   .from('articles')
-  .select('id, title, slug, published, featured, highlighted, created_at, published_at, summary, sort_order')
+  .select('id, title, slug, article_number, published, featured, highlighted, created_at, published_at, summary, sort_order')
   .order('sort_order', { ascending: false })
   .order('published_at', { ascending: false })
   .order('created_at', { ascending: false });
@@ -179,7 +180,7 @@ if (fetchError && (fetchError.code === 'PGRST204' || fetchError.message.includes
 
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2 mb-1">
-                  <a href={`/news/${article.slug}`} target="_blank" class="text-sm font-bold text-rift-50 truncate hover:text-accent-cyan transition-colors" title="Lire l'article">
+                  <a href={articleUrl(article)} target="_blank" class="text-sm font-bold text-rift-50 truncate hover:text-accent-cyan transition-colors" title="Lire l'article">
                     {article.title} ↗
                   </a>
                   {article.featured && (
@@ -198,7 +199,7 @@ if (fetchError && (fetchError.code === 'PGRST204' || fetchError.message.includes
                   ]}>
                     {article.published ? '● Publié' : '○ Brouillon'}
                   </span>
-                  <span class="opacity-60">/{article.slug}</span>
+                  <span class="opacity-60">#{article.article_number || '?'} · /{article.slug}</span>
                   <span class="opacity-60">{new Date(article.published_at || article.created_at).toLocaleDateString('fr-FR')}</span>
                 </div>
               </div>
