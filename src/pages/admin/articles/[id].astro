@@ -231,9 +231,19 @@ if (successParam === 'created') successMsg = 'Article créé avec succès ! Cont
               </label>
             </div>
             <div class="hidden sm:block flex-1"></div>
-            <button type="submit" class="w-full sm:w-auto px-8 py-2.5 rounded-lg bg-accent-spirit text-rift-950 font-bold text-sm hover:bg-accent-spirit/90 transition-all shadow-lg shadow-accent-spirit/20 uppercase tracking-widest text-center mt-2 sm:mt-0">
-              Enregistrer
-            </button>
+            <div class="flex items-center gap-3 w-full sm:w-auto mt-2 sm:mt-0">
+              <a href={`/admin/articles/preview?id=${id}`} target="_blank" rel="noopener noreferrer"
+                class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg border border-rift-700/50 text-rift-300 hover:text-accent-spirit hover:border-accent-spirit/40 text-sm font-medium transition-all">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                Rendu final
+              </a>
+              <button type="submit" class="flex-1 sm:flex-none px-8 py-2.5 rounded-lg bg-accent-spirit text-rift-950 font-bold text-sm hover:bg-accent-spirit/90 transition-all shadow-lg shadow-accent-spirit/20 uppercase tracking-widest text-center">
+                Enregistrer
+              </button>
+            </div>
           </div>
         </form>
       </div>

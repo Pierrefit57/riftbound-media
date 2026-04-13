@@ -1,0 +1,573 @@
+---
+export const prerender = false;
+
+import MainLayout from '../../../layouts/MainLayout.astro';
+import { createServiceClient } from '../../../lib/supabase';
+import { proxyUrl } from '../../../lib/proxy';
+import { marked } from 'marked';
+import { parseShortcodes } from '../../../lib/shortcodes';
+
+// Configurer marked pour les retours à la ligne
+marked.use({
+  breaks: true,
+  gfm: true
+});
+
+const articleId = Astro.url.searchParams.get('id');
+
+if (!articleId) {
+  return Astro.redirect('/admin/articles');
+}
+
+// Utiliser le service client pour bypasser les restrictions published=true
+const supabase = createServiceClient();
+
+const { data: article, error } = await supabase
+  .from('articles')
+  .select('*')
+  .eq('id', articleId)
+  .single();
+
+if (error || !article) {
+  return Astro.redirect('/admin/articles');
+}
+
+// Manually fetch author profile
+if (article.author_id) {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('username, avatar_url')
+    .eq('id', article.author_id)
+    .single();
+  
+  if (profile) {
+    (article as any).profiles = profile;
+  }
+}
+
+// --- Markdown processing (identique à [...slug].astro) ---
+const rawContent = (article.content || '').replace(/\r\n/g, '\n');
+let processedContent = rawContent.replace(/\n{3,}/g, (match) => {
+  const count = match.length - 2;
+  return '\n\n' + '<div class="spacer" style="height: ' + (count * 1.5) + 'rem" aria-hidden="true"></div>\n\n';
+});
+
+processedContent = processedContent
+  .replace(/(<div[^>]*>)\n(?!\n)/g, '$1\n\n')
+  .replace(/(?<!\n)\n(<\/div>)/g, '\n\n$1');
+
+processedContent = parseShortcodes(processedContent);
+
+let htmlContent = await marked.parse(processedContent);
+
+// Post-processing (identique à [...slug].astro)
+htmlContent = htmlContent.replace(
+  /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
+  '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+);
+htmlContent = htmlContent.replace(
+  /!\[([^\]]*)\]\(([^)]+)\)/g,
+  '<img src="$2" alt="$1">'
+);
+htmlContent = htmlContent.replace(
+  /\*\*([^*]+)\*\*/g,
+  '<strong>$1</strong>'
+);
+htmlContent = htmlContent.replace(
+  /(?<!\*)\*(?!\*)([^*]+)(?<!\*)\*(?!\*)/g,
+  '<em>$1</em>'
+);
+
+// Proxy: Replace all Supabase Storage URLs with CDN-proxied versions
+const SUPABASE_STORAGE_RE = /https:\/\/otbccpoavhfvjpqpzemz\.supabase\.co\/storage\/v1\/object\/public\/([^"'\s)]+)/g;
+htmlContent = htmlContent.replace(SUPABASE_STORAGE_RE, (_match, path) => `/api/img/${path}`);
+
+const formattedDate = new Date(article.published_at || article.created_at).toLocaleDateString('fr-FR', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+
+const authorName = article.profiles?.username || 'Équipe Riftbound';
+
+function getTagStyle(tag: string): string {
+  const t = tag.toLowerCase().trim();
+  
+  if (t.includes('riot') || t.includes('officiel') || t.includes('store')) return 'bg-domain-order/15 text-domain-order border-domain-order/30';
+  if (t.includes('tournoi') || t.includes('compétitif')) return 'bg-accent-spirit/15 text-accent-spirit border-accent-spirit/30';
+  if (t.includes('mise à jour') || t.includes('actualité') || t.includes('news')) return 'bg-domain-calm/15 text-domain-calm border-domain-calm/30';
+  if (t.includes('équilibrage') || t.includes('patch')) return 'bg-accent-forge/15 text-accent-forge border-accent-forge/30';
+  if (t.includes('lore') || t.includes('fun')) return 'bg-domain-chaos/15 text-domain-chaos border-domain-chaos/30';
+  if (t.includes('carte') || t.includes('règles')) return 'bg-domain-mind/15 text-domain-mind border-domain-mind/30';
+  if (t.includes('interview')) return 'bg-accent-sakura/20 text-accent-sakura border-accent-sakura/30';
+  if (t.includes('errata')) return 'bg-domain-body/15 text-domain-body border-domain-body/30';
+  if (t === 'set 1') return 'bg-[#C5A059]/15 text-[#C5A059] border-[#C5A059]/30';
+  if (t === 'set 2') return 'bg-[#A5A9B4]/15 text-[#A5A9B4] border-[#A5A9B4]/30';
+  if (t === 'set 3') return 'bg-[#722d6c]/15 text-[#c46db8] border-[#722d6c]/30';
+
+  return 'bg-rift-800/50 text-rift-200 border-rift-700/50';
+}
+---
+
+<MainLayout 
+  title={`[Preview] ${article.title}`}
+  petalMode="sides"
+>
+
+  <!-- Preview Banner -->
+  <div class="fixed top-0 left-0 right-0 z-[200] bg-gradient-to-r from-amber-600/95 via-orange-500/95 to-amber-600/95 backdrop-blur-sm border-b border-amber-400/30 shadow-lg shadow-amber-900/30">
+    <div class="max-w-4xl mx-auto px-4 py-2.5 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-black/20 text-white text-xs font-bold uppercase tracking-wider whitespace-nowrap">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+          Preview
+        </span>
+        <span class="text-white/80 text-xs truncate hidden sm:block">
+          {article.published ? '✅ Cet article est publié' : '🔒 Cet article n\'est pas encore publié'}
+        </span>
+      </div>
+      <a 
+        href={`/admin/articles/${article.id}`}
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/20 hover:bg-black/30 text-white text-xs font-semibold transition-colors whitespace-nowrap"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+        </svg>
+        Éditeur
+      </a>
+    </div>
+  </div>
+
+  <!-- Spacer to offset the fixed banner -->
+  <div class="h-[52px]"></div>
+
+  <!-- Article content — Identique à [...slug].astro -->
+  <article class="max-w-4xl mx-auto px-4 sm:px-6 pt-10 pb-16">
+
+    <a href="/news" class="inline-flex items-center gap-1.5 text-sm text-accent-spirit hover:text-accent-forge font-medium mb-8 transition-colors duration-300 group">
+      <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+      </svg>
+      Retour aux actualités
+    </a>
+
+    <header class="mb-8">
+      <div class="flex flex-wrap gap-2 mb-4">
+        {article.tags?.map((tag: string) => (
+          <span class={`px-2.5 py-0.5 text-xs font-medium rounded-full border ${getTagStyle(tag)}`}>
+            {tag}
+          </span>
+        ))}
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-display font-bold text-rift-50 mb-4 leading-tight">
+        {article.title}
+      </h1>
+
+      <div class="flex items-center gap-3 text-sm text-rift-500">
+        <div class="flex items-center gap-2">
+          {article.profiles?.avatar_url ? (
+            <img 
+              src={article.profiles.avatar_url} 
+              alt={authorName} 
+              class="w-7 h-7 rounded-full object-cover border border-rift-700/50" 
+            />
+          ) : (
+            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-accent-spirit to-accent-sakura flex items-center justify-center text-[10px] font-bold text-white">
+              {authorName.charAt(0)}
+            </div>
+          )}
+          <span>{authorName}</span>
+        </div>
+        <span class="text-rift-300">·</span>
+        <span>Publié le {formattedDate}</span>
+      </div>
+    </header>
+
+    <!-- Hero image -->
+    <div class="relative w-full overflow-hidden mb-12 rounded-lg border border-rift-700/30">
+      {article.image_url ? (
+        <img src={proxyUrl(article.image_url)} alt={article.title} class="w-full h-auto block" />
+      ) : (
+        <>
+          <div class="absolute inset-0 bg-gradient-to-br from-accent-sakura/15 via-rift-100 to-accent-forge/10"></div>
+          <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(227,158,166,0.12),transparent_60%)]"></div>
+          <div class="absolute inset-0 opacity-[0.04]" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22><circle cx=%2220%22 cy=%2220%22 r=%221.5%22 fill=%22%23e39ea6%22/></svg>'); background-size: 40px 40px;"></div>
+        </>
+      )}
+    </div>
+
+    <div class="prose prose-invert prose-orange max-w-none flow-root
+      prose-headings:font-display prose-headings:font-bold prose-headings:text-rift-50
+      prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4
+      prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3
+      prose-p:text-rift-200 prose-p:leading-relaxed
+      prose-a:text-accent-spirit prose-a:no-underline hover:prose-a:text-accent-forge hover:prose-a:underline
+      prose-strong:text-rift-50
+      prose-li:text-rift-200
+      prose-blockquote:border-l-4 prose-blockquote:border-accent-spirit/70 prose-blockquote:text-rift-100 prose-blockquote:bg-rift-950/50 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:not-italic prose-blockquote:my-8 prose-blockquote:border-solid
+      prose-img:rounded-none
+      prose-table:text-sm
+      prose-th:text-accent-forge prose-th:font-semibold
+      prose-td:text-rift-200
+      prose-hr:border-rift-700/50"
+      set:html={htmlContent}
+    />
+
+    <div class="mt-12 pt-8 border-t border-rift-700/50 clear-both">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+        <a href="/news" class="inline-flex items-center gap-1.5 text-sm text-accent-spirit hover:text-accent-forge font-medium transition-colors duration-300 group">
+          <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+          </svg>
+          Retour aux actualités
+        </a>
+
+        <button 
+          onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+          class="inline-flex items-center gap-3 text-sm text-rift-400 hover:text-accent-spirit transition-all duration-300 group"
+        >
+          <span class="font-medium tracking-wide">Remonter en haut</span>
+          <div class="w-9 h-9 rounded-full border border-rift-700/50 group-hover:border-accent-spirit/50 flex items-center justify-center transition-all group-hover:bg-accent-spirit/5">
+            <svg class="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+          </div>
+        </button>
+      </div>
+    </div>
+  </article>
+
+  <!-- Image Lightbox Overlay — identique à [...slug].astro -->
+  <div id="lightbox-overlay" class="fixed inset-0 z-[100] pointer-events-none cursor-zoom-out" style="contain: layout style;">
+    <div id="lightbox-bg" class="absolute inset-0 bg-rift-950/95" style="opacity: 0; transition: opacity 0.3s ease; will-change: opacity;"></div>
+    
+    <div class="absolute top-4 right-4 sm:top-8 sm:right-8 z-10">
+      <button id="lightbox-close" class="w-10 h-10 rounded-full bg-rift-800/80 text-rift-100 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors" style="opacity: 0; transition: opacity 0.2s ease 0.15s;">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <img id="lightbox-img" src="" alt="Zoom" class="absolute rounded-lg shadow-2xl hidden" style="transform-origin: 0 0; will-change: transform; transition: none;" />
+    
+    <video id="lightbox-video" autoplay loop muted playsinline class="absolute top-1/2 left-1/2 max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl hidden" style="transform: translate(-50%, -50%) scale(0.88); opacity: 0; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease; will-change: transform, opacity;">
+      <source src="" type="video/mp4">
+    </video>
+  </div>
+
+  <script>
+    // FLIP Lightbox — identique à [...slug].astro
+    const overlay = document.getElementById('lightbox-overlay')!;
+    const overlayBg = document.getElementById('lightbox-bg')!;
+    const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
+    const lightboxVideo = document.getElementById('lightbox-video') as HTMLVideoElement;
+    const closeBtn = document.getElementById('lightbox-close')!;
+    
+    const articleMedia = document.querySelectorAll('.prose img:not(.icon-tcg):not(.icon-energy):not(.youtube-thumbnail), .prose .article-video');
+    
+    let sourceElement: HTMLElement | null = null;
+    let isAnimating = false;
+
+    function lockScroll() {
+      const scrollbarW = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = scrollbarW + 'px';
+    }
+    function unlockScroll() {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    }
+
+    function computeFlip(sourceRect: DOMRect, img: HTMLImageElement) {
+      const viewW = window.innerWidth;
+      const viewH = window.innerHeight;
+      const pad = window.innerWidth < 640 ? 16 : 32;
+
+      const natW = img.naturalWidth || sourceRect.width;
+      const natH = img.naturalHeight || sourceRect.height;
+      const aspect = natW / natH;
+
+      const maxW = viewW - pad * 2;
+      const maxH = viewH - pad * 2;
+
+      let finalW: number, finalH: number;
+      if (maxW / maxH > aspect) {
+        finalH = Math.min(maxH, natH);
+        finalW = finalH * aspect;
+      } else {
+        finalW = Math.min(maxW, natW);
+        finalH = finalW / aspect;
+      }
+
+      const finalX = (viewW - finalW) / 2;
+      const finalY = (viewH - finalH) / 2;
+
+      const scaleX = sourceRect.width / finalW;
+      const scaleY = sourceRect.height / finalH;
+      const translateX = sourceRect.left - finalX;
+      const translateY = sourceRect.top - finalY;
+
+      return { finalX, finalY, finalW, finalH, scaleX, scaleY, translateX, translateY };
+    }
+
+    function openLightbox(element: HTMLElement) {
+      if (isAnimating) return;
+      isAnimating = true;
+      sourceElement = element;
+      
+      const isVideo = element.tagName.toLowerCase() === 'video';
+      
+      if (isVideo) {
+        const videoSource = (element as HTMLVideoElement).querySelector('source')?.src || (element as HTMLVideoElement).src;
+        lightboxVideo.src = videoSource;
+        lightboxVideo.classList.remove('hidden');
+        lightboxImg.classList.add('hidden');
+        lightboxVideo.play().catch(() => {});
+
+        overlay.style.pointerEvents = 'auto';
+        overlayBg.style.opacity = '1';
+        closeBtn.style.opacity = '1';
+        
+        requestAnimationFrame(() => {
+          lightboxVideo.style.transform = 'translate(-50%, -50%) scale(1)';
+          lightboxVideo.style.opacity = '1';
+          setTimeout(() => { isAnimating = false; }, 400);
+        });
+        lockScroll();
+        return;
+      }
+
+      const src = (element as HTMLImageElement).src;
+      const sourceRect = element.getBoundingClientRect();
+
+      lightboxImg.style.transition = 'none';
+      lightboxImg.style.visibility = 'hidden';
+      lightboxImg.src = src;
+      lightboxImg.classList.remove('hidden');
+      lightboxVideo.classList.add('hidden');
+
+      const proceed = () => {
+        const flip = computeFlip(sourceRect, lightboxImg);
+        
+        lightboxImg.style.left = flip.finalX + 'px';
+        lightboxImg.style.top = flip.finalY + 'px';
+        lightboxImg.style.width = flip.finalW + 'px';
+        lightboxImg.style.height = flip.finalH + 'px';
+        
+        lightboxImg.style.transform = `translate(${flip.translateX}px, ${flip.translateY}px) scale(${flip.scaleX}, ${flip.scaleY})`;
+        lightboxImg.style.borderRadius = '8px';
+        
+        lightboxImg.style.visibility = 'visible';
+        
+        overlay.style.pointerEvents = 'auto';
+        lockScroll();
+        
+        (element as HTMLElement).style.opacity = '0.3';
+        
+        requestAnimationFrame(() => {
+          lightboxImg.style.transition = 'transform 0.4s cubic-bezier(0.2, 0, 0.1, 1)';
+          overlayBg.style.opacity = '1';
+          closeBtn.style.opacity = '1';
+          
+          lightboxImg.style.transform = 'translate(0, 0) scale(1, 1)';
+          
+          setTimeout(() => { isAnimating = false; }, 400);
+        });
+      };
+
+      if (lightboxImg.naturalWidth > 0) {
+        proceed();
+      } else {
+        lightboxImg.onload = proceed;
+      }
+    }
+    
+    function closeLightbox() {
+      if (isAnimating) return;
+      isAnimating = true;
+
+      unlockScroll();
+      
+      if (sourceElement) (sourceElement as HTMLElement).style.opacity = '';
+
+      if (!lightboxVideo.classList.contains('hidden')) {
+        lightboxVideo.style.transform = 'translate(-50%, -50%) scale(0.88)';
+        lightboxVideo.style.opacity = '0';
+        lightboxVideo.pause();
+        overlayBg.style.opacity = '0';
+        closeBtn.style.opacity = '0';
+        
+        setTimeout(() => {
+          overlay.style.pointerEvents = 'none';
+          lightboxVideo.classList.add('hidden');
+          lightboxVideo.src = '';
+          sourceElement = null;
+          isAnimating = false;
+        }, 400);
+        return;
+      }
+
+      if (sourceElement) {
+        const sourceRect = sourceElement.getBoundingClientRect();
+        const flip = computeFlip(sourceRect, lightboxImg);
+        
+        lightboxImg.style.transition = 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
+        lightboxImg.style.transform = `translate(${flip.translateX}px, ${flip.translateY}px) scale(${flip.scaleX}, ${flip.scaleY})`;
+        overlayBg.style.transition = 'opacity 0.35s ease';
+        overlayBg.style.opacity = '0';
+        closeBtn.style.opacity = '0';
+        
+        setTimeout(() => {
+          overlay.style.pointerEvents = 'none';
+          lightboxImg.classList.add('hidden');
+          lightboxImg.style.visibility = 'hidden';
+          lightboxImg.style.transition = 'none';
+          lightboxImg.src = '';
+          overlayBg.style.transition = 'opacity 0.3s ease';
+          sourceElement = null;
+          isAnimating = false;
+        }, 360);
+      } else {
+        lightboxImg.style.transition = 'opacity 0.25s ease';
+        lightboxImg.style.opacity = '0';
+        overlayBg.style.opacity = '0';
+        closeBtn.style.opacity = '0';
+        
+        setTimeout(() => {
+          overlay.style.pointerEvents = 'none';
+          lightboxImg.classList.add('hidden');
+          lightboxImg.src = '';
+          isAnimating = false;
+        }, 300);
+      }
+    }
+
+    articleMedia.forEach(el => {
+      (el as HTMLElement).classList.add('cursor-zoom-in');
+      (el as HTMLElement).style.transition = 'opacity 0.2s ease';
+      
+      el.addEventListener('click', () => {
+        openLightbox(el as HTMLElement);
+      });
+    });
+
+    closeBtn?.addEventListener('click', closeLightbox);
+    
+    overlay?.addEventListener('click', (e) => {
+      if (e.target === overlay || e.target === overlayBg) {
+        closeLightbox();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+  </script>
+
+</MainLayout>
+
+<style is:global>
+  /* Spacer for multiple empty lines */
+  .prose .spacer {
+    display: block;
+    width: 100%;
+  }
+
+  /* TCG Icons */
+  .prose .icon-tcg {
+    display: inline-block;
+    height: 1.3em;
+    width: auto;
+    vertical-align: middle;
+    margin: 0 0.2em;
+    transform: translateY(-1px);
+  }
+
+  .prose .icon-energy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.4em;
+    height: 1.4em;
+    border-radius: 50%;
+    background-color: #1a1a1a;
+    color: #fff;
+    font-size: 0.85em;
+    font-weight: 800;
+    border: 1px solid rgba(255,255,255,0.2);
+    vertical-align: middle;
+    margin: 0 0.2em;
+    transform: translateY(-1px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  }
+
+  /* Better paragraph spacing on frontend */
+  .prose.prose-invert p {
+    margin-top: 0.8em;
+    margin-bottom: 0.8em;
+  }
+
+  .prose .video-container {
+    margin: 2rem 0;
+    width: 100%;
+  }
+
+  /* YouTube Embed Styles */
+  .prose .youtube-embed {
+    margin: 2rem 0;
+    width: 100%;
+  }
+
+  .prose .youtube-facade {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background-color: #000;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  }
+
+  .prose .youtube-play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 68px;
+    height: 48px;
+    transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    pointer-events: none;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+  }
+
+  .prose .youtube-facade:hover .youtube-play-btn {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+
+  /* Reset first child margins inside floating blocks to ensure top alignment */
+  .prose div[style*="float"] > *:first-child {
+    margin-top: 0 !important;
+  }
+
+  /* Flex Section Resets - Ensure perfect vertical centering */
+  .prose div[style*="display: flex"] > div > *:first-child {
+    margin-top: 0 !important;
+  }
+
+  .prose div[style*="display: flex"] > div > *:last-child {
+    margin-bottom: 0 !important;
+  }
+
+  /* Ensure images in flex sections are centered - EXCEPT TCG Icons */
+  .prose div[style*="display: flex"] img:not(.icon-tcg) {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    display: block !important;
+  }
+</style>
