@@ -5,12 +5,6 @@
             "schedule": "0 6 * * *"
         }
     ],
-    "rewrites": [
-        {
-            "source": "/api/img/(.*)",
-            "destination": "https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/$1"
-        }
-    ],
     "headers": [
         {
             "source": "/api/img/(.*)",
