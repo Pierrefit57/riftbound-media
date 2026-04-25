@@ -40,19 +40,6 @@ const user = Astro.locals.user;
           Suivez les tournois, les lives et les mises à jour majeures de l'univers Riftbound. 
           Ne manquez aucun rendez-vous !
         </p>
-        <div class="flex items-center justify-center gap-3 mt-4 flex-wrap">
-          <button id="ics-copy-btn" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-rift-700/50 text-xs font-medium text-rift-400 hover:text-accent-spirit hover:border-accent-spirit/40 transition-all duration-300 group" title="Copier l'URL du calendrier ICS">
-            <svg class="w-3.5 h-3.5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 11v5m0 0l-2-2m2 2l2-2" />
-            </svg>
-            <span id="ics-copy-text">S'abonner au calendrier</span>
-          </button>
-          <a href="/rss.xml" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-rift-700/50 text-xs font-medium text-rift-400 hover:text-accent-spirit hover:border-accent-spirit/40 transition-all duration-300 group" title="Flux RSS">
-            <svg class="w-3.5 h-3.5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor"><circle cx="6.18" cy="17.82" r="2.18"/><path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56zm0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z"/></svg>
-            <span>Flux RSS</span>
-          </a>
-        </div>
       </div>
 
       <!-- Error State -->
@@ -65,6 +52,21 @@ const user = Astro.locals.user;
 
       <!-- Interactive Calendar Component -->
       <CalendarView client:only="react" initialEvents={calendarEvents} currentUser={user} />
+
+      <!-- Subscribe & RSS buttons -->
+      <div class="flex items-center justify-end gap-3 mt-8 flex-wrap">
+        <button id="ics-copy-btn" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-rift-700/50 text-xs font-medium text-rift-400 hover:text-accent-spirit hover:border-accent-spirit/40 transition-all duration-300 group" title="Copier l'URL du calendrier ICS">
+          <svg class="w-3.5 h-3.5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 11v5m0 0l-2-2m2 2l2-2" />
+          </svg>
+          <span id="ics-copy-text">S'abonner au calendrier</span>
+        </button>
+        <a href="/rss.xml" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-rift-700/50 text-xs font-medium text-rift-400 hover:text-accent-spirit hover:border-accent-spirit/40 transition-all duration-300 group" title="Flux RSS">
+          <svg class="w-3.5 h-3.5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor"><circle cx="6.18" cy="17.82" r="2.18"/><path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56zm0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z"/></svg>
+          <span>Flux RSS</span>
+        </a>
+      </div>
 
       <!-- Additional Info / CTA -->
       <div class="mt-20 grid grid-cols-1 md:grid-cols-2 gap-8">
