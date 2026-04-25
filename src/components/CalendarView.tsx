@@ -34,6 +34,7 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
     const [followedEventIds, setFollowedEventIds] = useState<Set<string>>(new Set());
     const [isFollowLoading, setIsFollowLoading] = useState(false);
 
+
     const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
     const firstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
 
