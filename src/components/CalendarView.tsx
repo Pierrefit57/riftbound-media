@@ -360,21 +360,34 @@ const CalendarView: React.FC<Props> = ({ initialEvents, currentUser }) => {
                                                 )}
                                             </div>
 
-                                            <button
-                                                onClick={() => handleToggleFollow(selectedEvent.id)}
-                                                disabled={isFollowLoading}
-                                                className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 mb-6 hover:scale-105
-                                                    ${isFollowed
-                                                        ? 'bg-[#4a9e6d] text-white shadow-[0_0_15px_rgba(74,158,109,0.4)] border-transparent'
-                                                        : 'bg-accent-spirit/5 text-accent-spirit border border-accent-spirit/30 hover:bg-accent-spirit/15'}
-                                                    ${isFollowLoading ? 'opacity-50 cursor-wait' : ''}
-                                                `}
-                                            >
-                                                <svg className="w-3.5 h-3.5" fill={isFollowed ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-                                                </svg>
-                                                {isFollowed ? 'Alerte active' : 'Alerte e-mail'}
-                                            </button>
+                                            <div className="flex items-center gap-2 mb-6">
+                                                <button
+                                                    onClick={() => handleToggleFollow(selectedEvent.id)}
+                                                    disabled={isFollowLoading}
+                                                    className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 hover:scale-105
+                                                        ${isFollowed
+                                                            ? 'bg-[#4a9e6d] text-white shadow-[0_0_15px_rgba(74,158,109,0.4)] border-transparent'
+                                                            : 'bg-accent-spirit/5 text-accent-spirit border border-accent-spirit/30 hover:bg-accent-spirit/15'}
+                                                        ${isFollowLoading ? 'opacity-50 cursor-wait' : ''}
+                                                    `}
+                                                >
+                                                    <svg className="w-3.5 h-3.5" fill={isFollowed ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+                                                    </svg>
+                                                    {isFollowed ? 'Alerte active' : 'Alerte e-mail'}
+                                                </button>
+                                                <a
+                                                    href={`/api/calendar/ics/${selectedEvent.id}`}
+                                                    download
+                                                    title="Ajouter au calendrier (.ics)"
+                                                    className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-accent-spirit/5 border border-accent-spirit/30 text-accent-spirit hover:bg-accent-spirit/15 transition-all duration-300 hover:scale-105"
+                                                >
+                                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 11v5m0 0l-2-2m2 2l2-2" />
+                                                    </svg>
+                                                </a>
+                                            </div>
                                         </>
                                     );
                                 })()}
