@@ -68,7 +68,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
 
     // Protéger les routes admin
-    if (context.url.pathname.startsWith('/admin')) {
+    if (context.url.pathname.startsWith('/admin') && context.url.pathname !== '/admin/articles/preview') {
         if (!context.locals.user) {
             console.log('[auth] Accès admin refusé: pas de session');
             return context.redirect('/login');
