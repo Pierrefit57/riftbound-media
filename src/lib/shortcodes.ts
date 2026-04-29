@@ -63,6 +63,13 @@ export function parseShortcodes(text: string): string {
     return `<div style="display: flex; align-items: center; gap: 1.5rem; margin: 1rem 0; flex-wrap: wrap;">\n\n<div style="flex: 1; min-width: 250px;">\n\n${part1.trim()}\n\n</div>\n\n<div style="flex: 1; min-width: 250px;">\n\n${part2.trim()}\n\n</div>\n\n</div>`;
   });
 
+  // [image-center]...[/image-center] or [image-center:40%]...[/image-center]
+  // — centered image, full-width container, controlled max-width, no text wrapping
+  processed = processed.replace(/\[image-center(?::([^\]]+))?\]([\s\S]*?)\[\/image-center\]/g, (match, width, content) => {
+    const maxWidth = width ? width.trim() : '100%';
+    return `<div class="image-center-block" style="max-width: ${maxWidth}; margin-left: auto; margin-right: auto;">\n\n${content.trim()}\n\n</div>`;
+  });
+
   // 10. Volet Rétractable (Accordion)
   // [volet:Titre du volet]...[/volet]
   processed = processed.replace(/\[volet:([^\]]+)\]([\s\S]*?)\[\/volet\]/g, (match, title, content) => {
