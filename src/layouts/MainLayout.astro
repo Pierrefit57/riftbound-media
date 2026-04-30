@@ -318,35 +318,14 @@ const ongoingEvent = activeEvents
   <body class="bg-rift-900 text-rift-100 font-sans min-h-screen flex flex-col relative">
 
     <!-- Global Background Shading -->
-    <div class="absolute inset-x-0 top-0 h-[800px] bg-spirit-radial pointer-events-none z-0"></div>
+    <div class="absolute inset-x-0 top-0 h-[800px] pointer-events-none z-0" style="background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(190,69,148,0.13), transparent);"></div>
     
-    <!-- Bottom Glow (Anchored to Footer) - Designed to match the user's hand-drawn "mountainous" glow -->
-    <div class="absolute inset-x-0 bottom-0 h-[1000px] bg-[radial-gradient(ellipse_80%_50%_at_50%_100%,_rgba(233,135,15,0.2)_0%,_transparent_70%)] pointer-events-none z-0"></div>
-    <div class="absolute inset-x-0 bottom-0 h-[800px] bg-[radial-gradient(ellipse_60%_40%_at_15%_100%,_rgba(233,135,15,0.15)_0%,_transparent_60%),_radial-gradient(ellipse_60%_40%_at_85%_100%,_rgba(233,135,15,0.15)_0%,_transparent_60%)] pointer-events-none z-0"></div>
-    <div class="absolute inset-x-0 bottom-0 h-[600px] bg-[radial-gradient(ellipse_50%_50%_at_50%_100%,_rgba(227,158,166,0.1)_0%,_transparent_70%)] pointer-events-none z-0"></div>
+    <!-- Bottom Glow (Anchored to Footer) -->
+    <div class="absolute inset-x-0 bottom-0 h-[1000px] bg-[radial-gradient(ellipse_80%_60%_at_50%_100%,_rgba(190,69,148,0.32)_0%,_transparent_70%)] pointer-events-none z-0"></div>
+    <div class="absolute inset-x-0 bottom-0 h-[800px] bg-[radial-gradient(ellipse_60%_40%_at_15%_100%,_rgba(190,69,148,0.22)_0%,_transparent_60%),_radial-gradient(ellipse_60%_40%_at_85%_100%,_rgba(190,69,148,0.22)_0%,_transparent_60%)] pointer-events-none z-0"></div>
+    <div class="absolute inset-x-0 bottom-0 h-[600px] bg-[radial-gradient(ellipse_50%_50%_at_50%_100%,_rgba(190,69,148,0.18)_0%,_transparent_70%)] pointer-events-none z-0"></div>
 
-    <!-- Falling Petals (Home Only or Requested) -->
-    {(currentPath === '/' || petals) ? (
-      <div class="petals-container">
-        <div class="petal"></div>
-        <div class="petal"></div>
-        <div class="petal"></div>
-        <div class="petal"></div>
-        <div class="petal"></div>
-        <div class="petal"></div>
-        <div class="petal"></div>
-        <div class="petal"></div>
-        <div class="petal"></div>
-        <div class="petal"></div>
-        <div class="petal"></div>
-        <div class="petal"></div>
-        <div class="petal"></div>
-        <div class="petal"></div>
-        <div class="petal"></div>
-        <div class="petal"></div>
-      </div>
-
-    ) : null}
+    <!-- Falling Petals removed -->
 
     <!-- Navbar -->
     <header class="sticky top-0 z-50 bg-rift-900/95 backdrop-blur-sm border-b border-rift-700/50">
@@ -507,8 +486,8 @@ const ongoingEvent = activeEvents
     </main>
 
     <!-- Footer -->
-    <footer class="relative z-10 border-t border-rift-800 mt-20 bg-rift-900">
-      <div class="h-px bg-gradient-to-r from-transparent via-accent-forge/30 to-transparent"></div>
+    <footer class="relative z-10 border-t border-[#BE4594]/30 mt-20 bg-rift-900">
+      <div class="h-px bg-gradient-to-r from-transparent via-[#BE4594]/50 to-transparent"></div>
 
       <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-12 pb-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">

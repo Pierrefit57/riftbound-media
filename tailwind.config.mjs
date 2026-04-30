@@ -42,7 +42,7 @@ export default {
                 // Accents Orange & Or
                 'accent': {
                     spirit: '#E9870F',       // Orange spécifique demandé
-                    sakura: '#ffbca1',       // Pêche clair (Pétales / Highlights)
+                    sakura: '#BE4594',       // Rose magenta Unleashed
                     forge: '#fabc2a',        // Or doré
                     steel: '#7a8599',        // Acier
                     glow: '#ffddd2',         // Lueur orange douce
@@ -58,13 +58,13 @@ export default {
                 },
             },
             backgroundImage: {
-                'spirit-radial': 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(227,158,166,0.15), transparent)',
+                'spirit-radial': 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(190,69,148,0.15), transparent)',
                 'forge-radial': 'radial-gradient(ellipse 60% 40% at 50% 120%, rgba(201,168,76,0.1), transparent)',
             },
             boxShadow: {
                 'spirit': '0 4px 20px rgba(227,158,166,0.15)',
                 'forge': '0 4px 20px rgba(201,168,76,0.1)',
-                'sakura': '0 4px 20px rgba(237,184,190,0.2)',
+                'sakura': '0 4px 20px rgba(190,69,148,0.2)',
                 'card': '0 2px 12px rgba(42,26,16,0.06)',
                 'card-hover': '0 8px 30px rgba(42,26,16,0.1)',
             },

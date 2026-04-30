@@ -37,7 +37,7 @@ export default function ErrataViewer({ articles }: { articles: Article[] }) {
                         key={index}
                         onClick={() => setSelectedArticle(article)}
                         className={`px-4 py-2 rounded-lg font-display font-bold text-sm transition-all duration-300 border ${selectedArticle === article
-                            ? (article.activeClass || 'bg-accent-sakura text-rift-950 border-accent-sakura shadow-lg shadow-accent-sakura/20')
+                            ? (article.activeClass || 'bg-[#BE4594] text-white border-[#BE4594] shadow-lg shadow-[#BE4594]/30')
                             : 'bg-rift-800/50 text-rift-300 border-rift-700/50 hover:bg-rift-700 hover:text-rift-100'
                             }`}
                     >
@@ -77,7 +77,7 @@ export default function ErrataViewer({ articles }: { articles: Article[] }) {
                     </div>
 
                     {/* Center: Title (absolute positioned on md+) */}
-                    <h2 className={`text-2xl font-display font-bold md:absolute md:left-1/2 md:-translate-x-1/2 w-full md:w-auto text-center ${selectedArticle?.textClass || 'text-accent-sakura'}`}>
+                    <h2 className={`text-2xl font-display font-bold md:absolute md:left-1/2 md:-translate-x-1/2 w-full md:w-auto text-center ${selectedArticle?.textClass || 'text-[#BE4594]'}`}>
                         {selectedArticle?.title}
                     </h2>
 

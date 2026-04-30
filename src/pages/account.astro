@@ -127,9 +127,13 @@ function getRoleBadge(role: string) {
 const roleBadge = getRoleBadge(displayProfile?.role || 'user');
 ---
 
-<MainLayout title="Mon compte" petals={true}>
+<MainLayout title="Mon compte">
 
-  <div class="max-w-xl mx-auto px-4 sm:px-6 pt-32 pb-20 relative z-10">
+  <div class="relative pt-0 pb-0 overflow-hidden">
+    <!-- Unleashed Shading Background -->
+    <div class="absolute inset-x-0 top-0 h-[500px] pointer-events-none z-0" style="background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(190,69,148,0.18), transparent);"></div>
+
+    <div class="max-w-xl mx-auto px-4 sm:px-6 pt-32 pb-20 relative z-10">
 
     {successMsg && (
       <div class="p-4 mb-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium flex items-center gap-2 shadow-lg shadow-emerald-900/10 animate-slide-up backdrop-blur-sm">
