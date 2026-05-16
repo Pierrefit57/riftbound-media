@@ -6,9 +6,12 @@ import NewsCard from '../../components/NewsCard.astro';
 import { supabase } from '../../lib/supabase';
 import { proxyUrl } from '../../lib/proxy';
 
+// Cache CDN : 5 min côté edge, 1 min navigateur
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=300, max-age=60, stale-while-revalidate=60');
+
 let { data: allNews, error: newsError } = await supabase
   .from('articles')
-  .select('*')
+  .select('id, title, slug, summary, image_url, tags, published_at, created_at, article_number, highlighted, featured')
   .eq('published', true)
   .order('published_at', { ascending: false })
   .order('created_at', { ascending: false });
@@ -17,7 +20,7 @@ let { data: allNews, error: newsError } = await supabase
 if (newsError && newsError.message.includes('published_at')) {
   const fallback = await supabase
     .from('articles')
-    .select('*')
+    .select('id, title, slug, summary, image_url, tags, published_at, created_at, article_number, highlighted, featured')
     .eq('published', true)
     .order('published_at', { ascending: false })
     .order('created_at', { ascending: false });

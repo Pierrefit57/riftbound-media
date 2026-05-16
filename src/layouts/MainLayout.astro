@@ -45,6 +45,7 @@ const parisTomorrowStr = parisTomorrow.toLocaleDateString('en-CA', { timeZone: '
 const { data: activeEvents } = await supabase
   .from('calendar_events')
   .select('id, title, start_date, end_date, image_url')
+  .gte('end_date', parisDateStr + 'T00:00:00')
   .lte('start_date', parisTomorrowStr + 'T23:59:59');
 
 // Trouver l'événement en cours basé sur la date Paris

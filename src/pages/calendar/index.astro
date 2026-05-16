@@ -6,10 +6,13 @@ import CalendarView from '../../components/CalendarView.tsx';
 import { supabase } from '../../lib/supabase';
 import { proxyUrl } from '../../lib/proxy';
 
+// Cache CDN : 5 min côté edge
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=300, max-age=60, stale-while-revalidate=60');
+
 // Récupérer tous les événements (on pourrait filtrer, mais le composant gère le tri par mois)
 const { data: events, error } = await supabase
   .from('calendar_events')
-  .select('*, image_url')
+  .select('id, title, description, start_date, end_date, location, image_url, url')
   .order('start_date', { ascending: true });
 
 const calendarEvents = (events || []).map(e => ({

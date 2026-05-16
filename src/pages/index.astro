@@ -7,10 +7,13 @@ import { proxyUrl } from '../lib/proxy';
 import { supabase } from '../lib/supabase';
 import { getCollection } from 'astro:content';
 
-// Articles depuis Supabase
+// Cache CDN : 5 min côté edge, 1 min navigateur, stale-while-revalidate 1 min
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=300, max-age=60, stale-while-revalidate=60');
+
+// Articles depuis Supabase (colonnes spécifiques = moins d'egress)
 const { data: latestArticles, error: latestError } = await supabase
   .from('articles')
-  .select('*')
+  .select('id, title, slug, summary, image_url, tags, published_at, created_at, article_number, highlighted')
   .eq('published', true)
   .order('published_at', { ascending: false })
   .order('created_at', { ascending: false })
@@ -21,7 +24,7 @@ const latestNews = latestArticles || [];
 // Fetch Tournaments specifically (check for 'tournoi' or 'Tournoi')
 const { data: tournamentNews } = await supabase
   .from('articles')
-  .select('*')
+  .select('id, title, slug, summary, image_url, tags, published_at, created_at, article_number, highlighted')
   .eq('published', true)
   .or('tags.cs.{"tournoi"},tags.cs.{"Tournoi"}')
   .order('published_at', { ascending: false })
