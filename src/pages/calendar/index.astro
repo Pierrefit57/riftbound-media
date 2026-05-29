@@ -12,7 +12,7 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=300, max-age=60, s
 // Récupérer tous les événements (on pourrait filtrer, mais le composant gère le tri par mois)
 const { data: events, error } = await supabase
   .from('calendar_events')
-  .select('id, title, description, start_date, end_date, location, image_url, url')
+  .select('id, title, description, start_date, end_date, location, image_url, url, country, all_day, image_position, type')
   .order('start_date', { ascending: true });
 
 const calendarEvents = (events || []).map(e => ({
