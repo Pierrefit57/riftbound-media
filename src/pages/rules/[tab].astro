@@ -125,7 +125,6 @@ const meta = tabMeta[activeTab];
       </div>
       <h1 class="text-3xl md:text-4xl font-display font-bold text-rift-100 mb-3">Règles du Jeu</h1>
       <p class="text-rift-300 leading-relaxed max-w-2xl mx-auto">Tout ce que vous devez savoir pour jouer à Riftbound. Des bases aux règles de tournoi.</p>
-      <p class="text-rift-400 italic text-sm mt-4">Les règles officielles n'existent qu'en anglais pour le moment</p>
     </div>
 
     <!-- Tabs Navigation — use <a> tags for proper URL routing -->
@@ -154,14 +153,30 @@ const meta = tabMeta[activeTab];
     {activeTab === 'base' && (
       <div id="core-rules" class="rules-content">
         <div class="bg-rift-800/50 border border-rift-700/50 rounded-2xl p-4 md:p-8 text-center text-rift-300">
-          <div class="relative flex flex-col md:flex-row items-center justify-center md:justify-end gap-2 mb-6">
-            <h2 class="text-2xl font-display font-bold text-accent-spirit md:absolute md:left-1/2 md:-translate-x-1/2 w-full md:w-auto text-center">
-              Core Rules <span class="text-rift-400 font-normal ml-2 text-lg">v 1.3</span>
-            </h2>
+          <div class="relative flex flex-col md:flex-row items-center justify-center md:justify-between gap-2 mb-6">
+            <div class="lang-toggle flex items-center gap-1">
+              <button class="lang-btn active" data-lang="en" data-section="core" aria-label="English">
+                <svg width="28" height="18" viewBox="0 0 24 16" fill="none" class="rounded-sm"><rect width="24" height="16" fill="#012169"/><path d="M0 0L24 16M24 0L0 16" stroke="white" stroke-width="3"/><path d="M0 0L24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.5"/><path d="M12 0V16M0 8H24" stroke="white" stroke-width="5"/><path d="M12 0V16M0 8H24" stroke="#C8102E" stroke-width="3"/></svg>
+              </button>
+              <button class="lang-btn" data-lang="fr" data-section="core" aria-label="Français">
+                <svg width="28" height="18" viewBox="0 0 24 16" fill="none" class="rounded-sm"><rect width="8" height="16" fill="#002395"/><rect x="8" width="8" height="16" fill="white"/><rect x="16" width="8" height="16" fill="#ED2939"/></svg>
+              </button>
+            </div>
+            <div class="md:absolute md:left-1/2 md:-translate-x-1/2 w-full md:w-auto text-center">
+              <h2 class="text-2xl font-display font-bold text-accent-spirit" data-lang-content="en" data-section="core">
+                Core Rules <span class="text-rift-400 font-normal ml-2 text-lg">v 1.3</span>
+              </h2>
+              <h2 class="text-2xl font-display font-bold text-accent-spirit hidden" data-lang-content="fr" data-section="core">
+                Règles de base <span class="text-rift-400 font-normal ml-2 text-lg">v 1.3</span>
+              </h2>
+            </div>
             <span class="text-sm text-rift-500 italic relative z-10">Mis à jour le <span class="text-emerald-400 font-medium font-sans">30-03-2026</span></span>
           </div>
-          <div class="min-h-[600px] w-full bg-rift-900/50 flex flex-col justify-center">
+          <div class="min-h-[600px] w-full bg-rift-900/50 flex flex-col justify-center" data-lang-content="en" data-section="core">
             <PDFViewer client:only="react" url="/pdfs/core-rules-v1.3.pdf" />
+          </div>
+          <div class="min-h-[600px] w-full bg-rift-900/50 flex flex-col justify-center hidden" data-lang-content="fr" data-section="core">
+            <PDFViewer client:only="react" url="/api/img/PDFrules/FRENCH_CR.pdf" />
           </div>
         </div>
       </div>
@@ -171,14 +186,30 @@ const meta = tabMeta[activeTab];
     {activeTab === 'tournoi' && (
       <div id="tournament-rules" class="rules-content">
         <div class="bg-rift-800/50 border border-rift-700/50 rounded-2xl p-4 md:p-8 text-center text-rift-300">
-          <div class="relative flex flex-col md:flex-row items-center justify-center md:justify-end gap-2 mb-6">
-            <h2 class="text-2xl font-display font-bold text-accent-spirit md:absolute md:left-1/2 md:-translate-x-1/2 w-full md:w-auto text-center">
-              Tournament Rules
-            </h2>
+          <div class="relative flex flex-col md:flex-row items-center justify-center md:justify-between gap-2 mb-6">
+            <div class="lang-toggle flex items-center gap-1">
+              <button class="lang-btn active" data-lang="en" data-section="tournament" aria-label="English">
+                <svg width="28" height="18" viewBox="0 0 24 16" fill="none" class="rounded-sm"><rect width="24" height="16" fill="#012169"/><path d="M0 0L24 16M24 0L0 16" stroke="white" stroke-width="3"/><path d="M0 0L24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.5"/><path d="M12 0V16M0 8H24" stroke="white" stroke-width="5"/><path d="M12 0V16M0 8H24" stroke="#C8102E" stroke-width="3"/></svg>
+              </button>
+              <button class="lang-btn" data-lang="fr" data-section="tournament" aria-label="Français">
+                <svg width="28" height="18" viewBox="0 0 24 16" fill="none" class="rounded-sm"><rect width="8" height="16" fill="#002395"/><rect x="8" width="8" height="16" fill="white"/><rect x="16" width="8" height="16" fill="#ED2939"/></svg>
+              </button>
+            </div>
+            <div class="md:absolute md:left-1/2 md:-translate-x-1/2 w-full md:w-auto text-center">
+              <h2 class="text-2xl font-display font-bold text-accent-spirit" data-lang-content="en" data-section="tournament">
+                Tournament Rules
+              </h2>
+              <h2 class="text-2xl font-display font-bold text-accent-spirit hidden" data-lang-content="fr" data-section="tournament">
+                Règles de tournoi
+              </h2>
+            </div>
             <span class="text-sm text-rift-500 italic relative z-10">Mis à jour le <span class="text-emerald-400 font-medium font-sans">29-04-2026</span></span>
           </div>
-          <div class="min-h-[600px] w-full">
+          <div class="min-h-[600px] w-full" data-lang-content="en" data-section="tournament">
             <PDFViewer client:only="react" url="/pdfs/tournament-rules-2026-04-29.pdf" />
+          </div>
+          <div class="min-h-[600px] w-full hidden" data-lang-content="fr" data-section="tournament">
+            <PDFViewer client:only="react" url="/api/img/PDFrules/FRENCH_TR.pdf" />
           </div>
         </div>
       </div>
@@ -210,4 +241,42 @@ const meta = tabMeta[activeTab];
   .tab-btn.active {
     @apply bg-accent-spirit text-white shadow-spirit;
   }
+
+  /* Language Toggle */
+  .lang-btn {
+    @apply p-1.5 rounded-lg border-2 border-transparent transition-all duration-200 opacity-50 cursor-pointer;
+  }
+  .lang-btn:hover {
+    @apply opacity-80;
+  }
+  .lang-btn.active {
+    @apply opacity-100 border-accent-spirit bg-rift-700/50;
+  }
 </style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const section = btn.dataset.section;
+      const lang = btn.dataset.lang;
+
+      // Toggle active state on buttons
+      document.querySelectorAll<HTMLButtonElement>(`.lang-btn[data-section="${section}"]`).forEach(b => {
+        b.classList.remove('active');
+      });
+      btn.classList.add('active');
+
+      // Toggle content visibility
+      document.querySelectorAll<HTMLElement>(`[data-lang-content][data-section="${section}"]`).forEach(el => {
+        if (el.dataset.langContent === lang) {
+          el.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+
+      // Trigger resize so PDF viewer recalculates dimensions
+      setTimeout(() => window.dispatchEvent(new Event('resize')), 150);
+    });
+  });
+</script>
