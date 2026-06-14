@@ -15,9 +15,6 @@ const SUPABASE_STORAGE_PREFIX = 'https://otbccpoavhfvjpqpzemz.supabase.co/storag
  * // → '/api/img/article-images/articles/image.webp'
  */
 export function proxyUrl(url: string | null | undefined): string {
-    if (!url) return '';
-    if (!url.startsWith(SUPABASE_STORAGE_PREFIX)) return url;
-
-    const path = url.slice(SUPABASE_STORAGE_PREFIX.length);
-    return `/api/img/${path}`;
+    return url || '';
 }
+
