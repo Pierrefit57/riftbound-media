@@ -99,6 +99,23 @@ if (successParam === 'created') successMsg = 'Article créé avec succès ! Cont
             </div>
           )}
 
+          <div id="draft-alert" class="hidden p-4 rounded-lg bg-accent-spirit/10 border border-accent-spirit/30 text-rift-100 text-sm flex flex-col sm:flex-row items-center justify-between gap-3 animate-fade-in">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-accent-spirit shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span>Vous avez des modifications non enregistrées pour cet article.</span>
+            </div>
+            <div class="flex gap-2 shrink-0">
+              <button type="button" id="restore-draft-btn" class="px-3 py-1.5 rounded bg-accent-spirit text-rift-950 font-bold text-xs hover:bg-accent-spirit/90 transition-colors uppercase tracking-wider">
+                Restaurer
+              </button>
+              <button type="button" id="discard-draft-btn" class="px-3 py-1.5 rounded bg-rift-950 border border-rift-700/50 text-rift-300 font-bold text-xs hover:text-rift-100 hover:border-rift-600 transition-all uppercase tracking-wider">
+                Ignorer
+              </button>
+            </div>
+          </div>
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label for="title" class="block text-sm font-medium text-rift-300 mb-2">Titre</label>
@@ -341,34 +358,60 @@ if (successParam === 'created') successMsg = 'Article créé avec succès ! Cont
       try {
         const draft = JSON.parse(saved);
         
-        // Only restore if the draft is relatively recent or different from base
-        // For simplicity, we just restore everything. The user can see the changes.
-        if (draft.title) titleInput.value = draft.title;
-        if (draft.slug) slugInput.value = draft.slug;
-        if (draft.summary) summaryInput.value = draft.summary;
-        if (draft.tags) tagsInput.value = draft.tags;
-        if (draft.image_url) {
-          imageUrlInput.value = draft.image_url;
-          previewImg.src = draft.image_url;
-          previewContainer.classList.remove('hidden');
-          uploadPrompt.classList.add('hidden');
-        }
-        if (draft.content) {
-          contentInput.value = draft.content;
-          // Trigger editor preview update
-          contentInput.dispatchEvent(new Event('input'));
-        }
-        if (draft.published_at) {
-          publishedAtInput.value = draft.published_at;
-          window.dispatchEvent(new CustomEvent('update-date-published_at', { detail: { date: draft.published_at } }));
-        }
-        if (draft.featured !== undefined) featuredInput.checked = draft.featured;
-        if (draft.published !== undefined) publishedInput.checked = draft.published;
+        // Check if draft has actual differences from the database values currently in inputs
+        const hasDiff = 
+          (draft.title && draft.title !== titleInput.value) ||
+          (draft.slug && draft.slug !== slugInput.value) ||
+          (draft.summary && draft.summary !== summaryInput.value) ||
+          (draft.tags && draft.tags !== tagsInput.value) ||
+          (draft.image_url && draft.image_url !== imageUrlInput.value) ||
+          (draft.content && draft.content !== contentInput.value);
 
-        // Update tag chips UI
-        updateChipStates();
+        if (!hasDiff) {
+          localStorage.removeItem(DRAFT_KEY);
+          return;
+        }
+
+        // Show draft alert banner
+        const draftAlert = document.getElementById('draft-alert')!;
+        const restoreBtn = document.getElementById('restore-draft-btn')!;
+        const discardBtn = document.getElementById('discard-draft-btn')!;
         
-        console.log('Brouillon restauré avec succès.');
+        draftAlert.classList.remove('hidden');
+        
+        restoreBtn.addEventListener('click', () => {
+          if (draft.title) titleInput.value = draft.title;
+          if (draft.slug) slugInput.value = draft.slug;
+          if (draft.summary) summaryInput.value = draft.summary;
+          if (draft.tags) tagsInput.value = draft.tags;
+          if (draft.image_url) {
+            imageUrlInput.value = draft.image_url;
+            previewImg.src = draft.image_url;
+            previewContainer.classList.remove('hidden');
+            uploadPrompt.classList.add('hidden');
+          }
+          if (draft.content) {
+            contentInput.value = draft.content;
+            contentInput.dispatchEvent(new Event('input'));
+          }
+          if (draft.published_at) {
+            publishedAtInput.value = draft.published_at;
+            window.dispatchEvent(new CustomEvent('update-date-published_at', { detail: { date: draft.published_at } }));
+          }
+          if (draft.featured !== undefined) featuredInput.checked = draft.featured;
+          if (draft.published !== undefined) publishedInput.checked = draft.published;
+
+          updateChipStates();
+          draftAlert.classList.add('hidden');
+          console.log('Brouillon restauré avec succès.');
+        });
+
+        discardBtn.addEventListener('click', () => {
+          localStorage.removeItem(DRAFT_KEY);
+          draftAlert.classList.add('hidden');
+          console.log('Brouillon supprimé.');
+        });
+
       } catch (e) {
         console.error('Erreur lors de la restauration du brouillon:', e);
       }
