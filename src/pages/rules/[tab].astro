@@ -16,8 +16,8 @@ if (!validTabs.includes(tab!)) {
   return Astro.redirect('/rules/base', 301);
 }
 
-// Cache CDN : 1h côté edge (les règles changent très rarement)
-Astro.response.headers.set('Cache-Control', 'public, s-maxage=3600, max-age=300, stale-while-revalidate=60');
+// Cache navigateur uniquement (pas de cache CDN public pour éviter les conflits de session)
+Astro.response.headers.set('Cache-Control', 'private, max-age=60');
 
 const activeTab = tab!;
 

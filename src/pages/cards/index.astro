@@ -1,0 +1,44 @@
+---
+export const prerender = false;
+
+import MainLayout from '../../layouts/MainLayout.astro';
+import CardGallery from '../../components/CardGallery.tsx';
+import cardsData from '../../data/cards.json';
+import '../../styles/card-gallery.css';
+
+// Cache navigateur uniquement (pas de cache CDN public pour éviter les conflits de session)
+Astro.response.headers.set('Cache-Control', 'private, max-age=60');
+---
+
+<MainLayout 
+  title="Cartes — Galerie Riftbound TCG"
+  description="Explorez la galerie complète des cartes Riftbound TCG. Recherchez, filtrez par domaine, type, coût et rareté. Consultez les détails de chaque carte."
+>
+
+  <!-- Hero -->
+  <section class="relative overflow-hidden">
+    <div class="absolute inset-x-0 top-0 h-[400px] pointer-events-none z-0" style="background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(190,69,148,0.18), transparent);"></div>
+    
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-6 z-10">
+      <!-- Section header -->
+      <div class="flex items-center justify-center gap-4 mb-2 animate-fade-in">
+        <div class="h-px w-12 bg-gradient-to-r from-transparent to-[#BE4594]/50"></div>
+        <span class="text-[#BE4594] text-xs font-display tracking-[0.3em] uppercase">Collection</span>
+        <div class="h-px w-12 bg-gradient-to-l from-transparent to-[#BE4594]/50"></div>
+      </div>
+      
+      <h1 class="text-3xl md:text-4xl font-display font-bold text-rift-50 text-center mb-2 animate-slide-up">
+        Galerie des Cartes
+      </h1>
+      <p class="text-rift-300 text-center max-w-xl mx-auto mb-8 animate-slide-up-delay text-sm md:text-base leading-relaxed">
+        Parcourez l'ensemble des cartes françaises de Riftbound.
+      </p>
+    </div>
+  </section>
+
+  <!-- Gallery -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
+    <CardGallery client:load cards={cardsData} />
+  </section>
+
+</MainLayout>

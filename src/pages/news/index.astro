@@ -6,8 +6,8 @@ import NewsCard from '../../components/NewsCard.astro';
 import { supabase } from '../../lib/supabase';
 import { proxyUrl } from '../../lib/proxy';
 
-// Cache CDN : 5 min côté edge, 1 min navigateur
-Astro.response.headers.set('Cache-Control', 'public, s-maxage=300, max-age=60, stale-while-revalidate=60');
+// Cache navigateur uniquement (pas de cache CDN public pour éviter les conflits de session)
+Astro.response.headers.set('Cache-Control', 'private, max-age=60');
 
 let { data: allNews, error: newsError } = await supabase
   .from('articles')

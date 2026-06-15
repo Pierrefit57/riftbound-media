@@ -7,8 +7,8 @@ import { proxyUrl } from '../lib/proxy';
 import { supabase } from '../lib/supabase';
 import { getCollection } from 'astro:content';
 
-// Cache CDN : 5 min côté edge, 1 min navigateur, stale-while-revalidate 1 min
-Astro.response.headers.set('Cache-Control', 'public, s-maxage=300, max-age=60, stale-while-revalidate=60');
+// Cache navigateur uniquement (pas de cache CDN public pour éviter les conflits de session)
+Astro.response.headers.set('Cache-Control', 'private, max-age=60');
 
 // Articles depuis Supabase (colonnes spécifiques = moins d'egress)
 const { data: latestArticles, error: latestError } = await supabase

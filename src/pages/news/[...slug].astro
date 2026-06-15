@@ -15,8 +15,8 @@ marked.use({
 
 const { slug } = Astro.params;
 
-// Cache CDN : 1h côté edge (les articles changent rarement après publication)
-Astro.response.headers.set('Cache-Control', 'public, s-maxage=3600, max-age=300, stale-while-revalidate=60');
+// Cache navigateur uniquement (pas de cache CDN public pour éviter les conflits de session)
+Astro.response.headers.set('Cache-Control', 'private, max-age=60');
 
 // --- Resolve article: new numeric format OR legacy slug ---
 let article: any = null;
