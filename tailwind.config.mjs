@@ -49,7 +49,7 @@ export default {
                 },
                 // Domains du jeu
                 'domain': {
-                    fury: '#E9870F',     // Orange
+                    fury: '#c22e2e',     // Rouge (Fury)
                     calm: '#4a9e6d',     // Vert
                     mind: '#4a7ec9',     // Bleu
                     body: '#d48a3c',     // Bronze

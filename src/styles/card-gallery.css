@@ -1,0 +1,571 @@
+/* ===================================================
+   Card Gallery — Riftbound Media
+   =================================================== */
+
+/* ---------- Filter Bar ---------- */
+.card-gallery-filters {
+  background: rgba(28, 37, 65, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(233, 135, 15, 0.12);
+  border-radius: 1rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+  transition: border-color 0.3s ease;
+}
+.card-gallery-filters:hover {
+  border-color: rgba(233, 135, 15, 0.25);
+}
+
+/* Search Input */
+.card-search-input {
+  width: 100%;
+  background: rgba(10, 17, 40, 0.6);
+  border: 1px solid rgba(233, 135, 15, 0.15);
+  border-radius: 0.75rem;
+  padding: 0.625rem 1rem 0.625rem 2.75rem;
+  color: #f0f4f8;
+  font-size: 0.875rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.card-search-input::placeholder {
+  color: #829ab1;
+}
+.card-search-input:focus {
+  border-color: #E9870F;
+  box-shadow: 0 0 0 3px rgba(233, 135, 15, 0.1);
+}
+
+/* Filter Section */
+.filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.filter-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #9fb3c8;
+}
+
+/* Domain Color Pills */
+.domain-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(10, 17, 40, 0.5);
+  color: #bcccdc;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.domain-pill:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+.domain-pill.active {
+  border-color: var(--domain-color);
+  background: color-mix(in srgb, var(--domain-color) 15%, transparent);
+  color: #f0f4f8;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--domain-color) 25%, transparent);
+}
+.domain-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--domain-color);
+  flex-shrink: 0;
+}
+
+/* Type & Cost Pills */
+.filter-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.7rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 17, 40, 0.4);
+  color: #9fb3c8;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.filter-pill:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #bcccdc;
+}
+.filter-pill.active {
+  background: rgba(233, 135, 15, 0.15);
+  border-color: rgba(233, 135, 15, 0.4);
+  color: #E9870F;
+}
+
+/* Sort Dropdown */
+.sort-select {
+  background: rgba(10, 17, 40, 0.6);
+  border: 1px solid rgba(233, 135, 15, 0.15);
+  border-radius: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  color: #bcccdc;
+  font-size: 0.75rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.sort-select:focus {
+  border-color: #E9870F;
+}
+.sort-select option {
+  background: #0a1128;
+  color: #f0f4f8;
+}
+
+/* Clear All */
+.clear-filters-btn {
+  background: none;
+  border: none;
+  color: #E9870F;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  transition: background 0.2s;
+}
+.clear-filters-btn:hover {
+  background: rgba(233, 135, 15, 0.1);
+}
+
+/* ---------- Card Grid ---------- */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+@media (min-width: 480px) {
+  .card-grid { grid-template-columns: repeat(3, 1fr); gap: 1.125rem; }
+}
+@media (min-width: 768px) {
+  .card-grid { grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+}
+@media (min-width: 1024px) {
+  .card-grid { grid-template-columns: repeat(5, 1fr); gap: 1.25rem; }
+}
+@media (min-width: 1280px) {
+  .card-grid { grid-template-columns: repeat(6, 1fr); gap: 1.5rem; }
+}
+
+/* ---------- Card Item ---------- */
+.card-item {
+  position: relative;
+  cursor: pointer;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.3s ease;
+  will-change: transform;
+}
+.card-item:hover {
+  transform: translateY(-6px) scale(1.03);
+  z-index: 10;
+}
+.card-item:active {
+  transform: translateY(-2px) scale(1.01);
+}
+
+/* Domain-specific hover glow */
+.card-item[data-domain="fury"]:hover {
+  box-shadow: 0 8px 30px rgba(194, 46, 46, 0.35), 0 0 0 1px rgba(194, 46, 46, 0.2);
+}
+.card-item[data-domain="calm"]:hover {
+  box-shadow: 0 8px 30px rgba(74, 158, 109, 0.35), 0 0 0 1px rgba(74, 158, 109, 0.2);
+}
+.card-item[data-domain="mind"]:hover {
+  box-shadow: 0 8px 30px rgba(74, 126, 201, 0.35), 0 0 0 1px rgba(74, 126, 201, 0.2);
+}
+.card-item[data-domain="body"]:hover {
+  box-shadow: 0 8px 30px rgba(212, 138, 60, 0.35), 0 0 0 1px rgba(212, 138, 60, 0.2);
+}
+.card-item[data-domain="chaos"]:hover {
+  box-shadow: 0 8px 30px rgba(138, 78, 201, 0.35), 0 0 0 1px rgba(138, 78, 201, 0.2);
+}
+.card-item[data-domain="order"]:hover {
+  box-shadow: 0 8px 30px rgba(250, 188, 42, 0.35), 0 0 0 1px rgba(250, 188, 42, 0.2);
+}
+.card-item[data-domain="colorless"]:hover {
+  box-shadow: 0 8px 30px rgba(122, 133, 153, 0.35), 0 0 0 1px rgba(122, 133, 153, 0.2);
+}
+
+.card-image-wrapper {
+  aspect-ratio: 63 / 88;
+  overflow: hidden;
+  background: rgba(28, 37, 65, 0.5);
+  border-radius: 0.75rem;
+}
+.card-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-item:hover .card-image-wrapper img {
+  transform: scale(1.05);
+}
+
+/* Landscape cards (battlefields) rotation in grid */
+.card-item[data-orientation="landscape"] .card-image-wrapper {
+  position: relative;
+}
+.card-item[data-orientation="landscape"] .card-image-wrapper img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 139.68% !important;
+  height: 71.59% !important;
+  transform: translate(-50%, -50%) rotate(90deg);
+  object-fit: cover;
+}
+.card-item[data-orientation="landscape"]:hover .card-image-wrapper img {
+  transform: translate(-50%, -50%) rotate(90deg) scale(1.05);
+}
+
+.card-name-label {
+  text-align: center;
+  padding: 0.5rem 0.25rem 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #d9e2ec;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Stagger animation */
+.card-item {
+  animation: card-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ---------- No Results ---------- */
+.no-results {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #627d98;
+}
+.no-results-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+.no-results-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #9fb3c8;
+  margin-bottom: 0.5rem;
+}
+
+/* ---------- Modal ---------- */
+.card-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(5, 9, 20, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: modal-overlay-in 0.3s ease both;
+}
+@keyframes modal-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.card-modal-overlay.closing {
+  animation: modal-overlay-out 0.25s ease both;
+}
+@keyframes modal-overlay-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.card-modal-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  gap: 1.5rem;
+  animation: modal-content-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@media (min-width: 768px) {
+  .card-modal-content {
+    flex-direction: row;
+    gap: 2.5rem;
+    align-items: flex-start;
+  }
+}
+@keyframes modal-content-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.card-modal-overlay.closing .card-modal-content {
+  animation: modal-content-out 0.2s ease both;
+}
+@keyframes modal-content-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+}
+
+/* Modal Card Image */
+.modal-card-image {
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+@media (min-width: 768px) {
+  .modal-card-image {
+    width: 320px;
+    margin: 0;
+  }
+}
+.modal-card-image img {
+  width: 100%;
+  aspect-ratio: 63 / 88;
+  object-fit: cover;
+  display: block;
+}
+
+/* Landscape cards (battlefields) rotation in modal */
+.modal-card-image[data-orientation="landscape"] {
+  aspect-ratio: 63 / 88;
+  position: relative;
+  height: auto;
+}
+.modal-card-image[data-orientation="landscape"] img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 139.68% !important;
+  height: 71.59% !important;
+  transform: translate(-50%, -50%) rotate(90deg);
+  object-fit: cover;
+  aspect-ratio: auto;
+}
+
+/* Modal Details Panel */
+.modal-details {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  max-height: 80vh;
+  padding-right: 0.5rem;
+}
+.modal-card-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #f0f4f8;
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+}
+.modal-domain-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #fff;
+  margin-bottom: 1rem;
+}
+.modal-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+@media (min-width: 480px) {
+  .modal-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.modal-stat {
+  background: rgba(10, 17, 40, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  text-align: center;
+}
+.modal-stat-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #627d98;
+  margin-bottom: 0.25rem;
+}
+.modal-stat-value {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #f0f4f8;
+}
+.modal-description {
+  color: #bcccdc;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: rgba(10, 17, 40, 0.4);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* TCG/Rune/Energy Icons in card modal description */
+.modal-description .icon-tcg {
+  display: inline-block;
+  height: 1.3em;
+  width: auto;
+  vertical-align: middle;
+  margin: 0 0.25em;
+  transform: translateY(-1px);
+}
+.modal-description .icon-energy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4em;
+  height: 1.4em;
+  border-radius: 50%;
+  background-color: #1a1a1a;
+  color: #fff;
+  font-size: 0.85em;
+  font-weight: 800;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  vertical-align: middle;
+  margin: 0 0.25em;
+  transform: translateY(-1px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+.modal-description strong {
+  color: #f0f4f8;
+  font-weight: 700;
+}
+.modal-flavor {
+  color: #627d98;
+  font-size: 0.8rem;
+  font-style: italic;
+  line-height: 1.5;
+  padding: 0.75rem 1rem;
+  border-left: 2px solid rgba(233, 135, 15, 0.3);
+}
+
+/* Modal Close Button */
+.modal-close-btn {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 110;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(10, 17, 40, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #9fb3c8;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.modal-close-btn:hover {
+  background: rgba(233, 135, 15, 0.15);
+  border-color: rgba(233, 135, 15, 0.3);
+  color: #E9870F;
+}
+
+/* Modal Nav Arrows */
+.modal-nav-btn {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 110;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(10, 17, 40, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #9fb3c8;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.modal-nav-btn:hover {
+  background: rgba(233, 135, 15, 0.15);
+  border-color: rgba(233, 135, 15, 0.3);
+  color: #E9870F;
+}
+.modal-nav-btn.prev { left: 0.75rem; }
+.modal-nav-btn.next { right: 0.75rem; }
+@media (max-width: 768px) {
+  .modal-nav-btn { display: none; }
+}
+
+/* ---------- Results Count ---------- */
+.results-count {
+  font-size: 0.8rem;
+  color: #627d98;
+  font-weight: 500;
+}
+.results-count strong {
+  color: #E9870F;
+  font-weight: 700;
+}
