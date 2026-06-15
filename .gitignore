@@ -9,3 +9,13 @@ dist/
 *.log
 build_log.txt
 check_pdf.js
+
+# Side project - Cards Gallery (local only)
+src/pages/cards/
+src/components/CardGallery.tsx
+src/data/cards.json
+src/styles/card-gallery.css
+public/cards/
+scripts/scrape-cards.js
+CARDS_PROJECT.md
+
