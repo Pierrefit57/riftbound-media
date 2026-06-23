@@ -105,7 +105,10 @@ function getTagStyle(tag: string): string {
   if (t.includes('errata')) return 'bg-domain-body/15 text-domain-body border-domain-body/30';
   if (t === 'set 1') return 'bg-[#C5A059]/15 text-[#C5A059] border-[#C5A059]/30';
   if (t === 'set 2') return 'bg-[#A5A9B4]/15 text-[#A5A9B4] border-[#A5A9B4]/30';
-  if (t === 'set 3') return 'bg-[#722d6c]/15 text-[#c46db8] border-[#722d6c]/30';
+  if (t === 'set 3') return 'bg-[#722d6c]/15 text-[#e59cdb] border-[#722d6c]/30';
+  if (t === 'eu') return 'bg-blue-500/15 text-blue-300 border-blue-500/30';
+  if (t === 'us') return 'bg-red-500/15 text-red-300 border-red-500/30';
+  if (t === 'chine') return 'bg-amber-500/15 text-amber-300 border-amber-500/30';
 
   return 'bg-rift-800/50 text-rift-200 border-rift-700/50';
 }
