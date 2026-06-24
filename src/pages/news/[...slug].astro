@@ -109,7 +109,7 @@ htmlContent = htmlContent.replace(
 
 // Proxy: Replace all Supabase Storage URLs with CDN-proxied versions
 const SUPABASE_STORAGE_RE = /https:\/\/otbccpoavhfvjpqpzemz\.supabase\.co\/storage\/v1\/object\/public\/([^"'\s)]+)/g;
-htmlContent = htmlContent.replace(SUPABASE_STORAGE_RE, (_match, path) => `/api/img/${path}`);
+htmlContent = htmlContent.replace(SUPABASE_STORAGE_RE, (match) => proxyUrl(match));
 
 
 const formattedDate = new Date(article.published_at || article.created_at).toLocaleDateString('fr-FR', {
