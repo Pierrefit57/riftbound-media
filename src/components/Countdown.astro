@@ -1,0 +1,90 @@
+---
+interface Props {
+  targetDate: string; // ISO date string
+}
+
+const { targetDate } = Astro.props;
+---
+
+<countdown-timer data-target={targetDate} class="flex flex-col md:flex-row items-center justify-between gap-4 bg-rift-900/80 border border-[#a01c40]/50 rounded-xl px-4 sm:px-6 py-4 shadow-[0_0_15px_rgba(160,28,64,0.25)] backdrop-blur-md z-20 w-full overflow-hidden">
+  <div class="flex items-center gap-3 shrink-0">
+    <div class="w-1.5 h-10 rounded-full bg-[#73be69] hidden lg:block"></div>
+    <h3 class="text-[#a01c40] font-display font-bold text-xs sm:text-sm md:text-base uppercase tracking-wider text-center md:text-left flex items-center justify-center md:justify-start gap-1.5 flex-nowrap whitespace-nowrap">
+      Révélation de notre carte <img src="/vendetta-logo.png" alt="Vendetta" class="inline h-4 sm:h-5 md:h-6 object-contain align-middle drop-shadow-sm" />
+    </h3>
+  </div>
+
+  <div class="flex items-center justify-center gap-2 sm:gap-4 text-white font-display shrink-0">
+    <div class="flex flex-col items-center min-w-[48px]">
+      <span class="days text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-b from-white to-rift-300 bg-clip-text text-transparent">00</span>
+      <span class="text-[9px] sm:text-[10px] text-rift-400 mt-1 uppercase tracking-widest font-medium">Jours</span>
+    </div>
+    <span class="text-lg sm:text-xl md:text-2xl font-bold text-[#a01c40]/50 -mt-3">:</span>
+    <div class="flex flex-col items-center min-w-[48px]">
+      <span class="hours text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-b from-white to-rift-300 bg-clip-text text-transparent">00</span>
+      <span class="text-[9px] sm:text-[10px] text-rift-400 mt-1 uppercase tracking-widest font-medium">Heures</span>
+    </div>
+    <span class="text-lg sm:text-xl md:text-2xl font-bold text-[#a01c40]/50 -mt-3">:</span>
+    <div class="flex flex-col items-center min-w-[48px]">
+      <span class="minutes text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-b from-white to-rift-300 bg-clip-text text-transparent">00</span>
+      <span class="text-[9px] sm:text-[10px] text-rift-400 mt-1 uppercase tracking-widest font-medium">Min</span>
+    </div>
+    <span class="text-lg sm:text-xl md:text-2xl font-bold text-[#a01c40]/50 -mt-3">:</span>
+    <div class="flex flex-col items-center min-w-[48px]">
+      <span class="seconds text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-b from-white to-rift-300 bg-clip-text text-transparent">00</span>
+      <span class="text-[9px] sm:text-[10px] text-rift-400 mt-1 uppercase tracking-widest font-medium">Sec</span>
+    </div>
+  </div>
+</countdown-timer>
+
+<script>
+  class CountdownTimer extends HTMLElement {
+    interval: number | undefined;
+
+    constructor() {
+      super();
+      const targetDate = this.dataset.target;
+      if (!targetDate) return;
+
+      const daysEl = this.querySelector('.days');
+      const hoursEl = this.querySelector('.hours');
+      const minutesEl = this.querySelector('.minutes');
+      const secondsEl = this.querySelector('.seconds');
+
+      const target = new Date(targetDate).getTime();
+
+      const updateCountdown = () => {
+        const now = new Date().getTime();
+        const distance = target - now;
+
+        if (distance < 0) {
+          if (this.interval) clearInterval(this.interval);
+          if (daysEl) daysEl.textContent = '00';
+          if (hoursEl) hoursEl.textContent = '00';
+          if (minutesEl) minutesEl.textContent = '00';
+          if (secondsEl) secondsEl.textContent = '00';
+          return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        if (daysEl) daysEl.textContent = days.toString().padStart(2, '0');
+        if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
+        if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
+        if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
+      };
+
+      updateCountdown();
+      this.interval = window.setInterval(updateCountdown, 1000);
+    }
+
+    disconnectedCallback() {
+      if (this.interval) clearInterval(this.interval);
+    }
+  }
+
+  customElements.define('countdown-timer', CountdownTimer);
+</script>
