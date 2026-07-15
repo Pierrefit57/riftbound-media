@@ -129,9 +129,22 @@ const ongoingEvent = activeEvents
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
-    <style>
+    <style is:global>
       :root {
         color-scheme: light;
+      }
+      /* Spoiler */
+      .article-spoiler.revealed .spoiler-content {
+        filter: blur(0) !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        user-select: auto !important;
+      }
+      .article-spoiler.revealed .spoiler-overlay {
+        display: none !important;
+      }
+      .article-spoiler.revealed {
+        cursor: auto !important;
       }
       /* Rose petals falling */
       .petals-container {
