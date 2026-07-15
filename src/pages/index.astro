@@ -3,7 +3,6 @@ export const prerender = false;
 
 import MainLayout from '../layouts/MainLayout.astro';
 import NewsCard from '../components/NewsCard.astro';
-import Countdown from '../components/Countdown.astro';
 import { proxyUrl } from '../lib/proxy';
 import { supabase } from '../lib/supabase';
 import { getCollection } from 'astro:content';
@@ -84,13 +83,6 @@ const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
       </div>
     </div>
 
-    <!-- Horizontal Countdown Widget -->
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 mt-4 sm:-mt-16 mb-12 relative z-20 animate-fade-in">
-      <!-- Remplacer targetDate par la date réelle de la révélation, ex: 2026-07-15T20:00:00+02:00 -->
-      <Countdown targetDate="2026-07-15T20:00:00+02:00" />
-    </div>
-
-    <!-- Bottom fade removed to eliminate blue band -->
   </section>
 
 
