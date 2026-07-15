@@ -173,6 +173,22 @@ if (successParam === 'created') successMsg = 'Article créé avec succès ! Cont
               </div>
               <input type="file" id="image-file-input" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden" />
             </div>
+
+            <!-- Position Adjustment Slider -->
+            <div id="image-position-container" class="hidden mt-3">
+              <label for="image_position_slider" class="block text-xs font-medium text-rift-400 mb-1 flex justify-between">
+                <span>Ajustement de l'image (Haut/Bas)</span>
+                <span id="image-position-val">50%</span>
+              </label>
+              <input 
+                type="range" 
+                id="image_position_slider" 
+                min="0" 
+                max="100" 
+                value="50"
+                class="w-full accent-accent-cyan cursor-pointer"
+              />
+            </div>
           </div>
 
           <div>
@@ -280,22 +296,30 @@ if (successParam === 'created') successMsg = 'Article créé avec succès ! Cont
               <div class="w-1.5 h-1.5 rounded-full bg-green-500/30"></div>
             </div>
           </div>
-          <div class="article-live-preview px-8 py-10 min-h-[600px] max-h-[calc(100vh-120px)] overflow-y-auto prose prose-invert prose-orange max-w-none scrollbar-thin scrollbar-thumb-rift-800 scrollbar-track-transparent
-            prose-headings:font-display prose-headings:font-bold prose-headings:text-rift-50
-            prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4
-            prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3
-            prose-p:text-rift-200 prose-p:leading-relaxed
-            prose-a:text-accent-spirit prose-a:no-underline hover:prose-a:text-accent-forge hover:prose-a:underline
-            prose-strong:text-rift-50
-            prose-li:text-rift-200
-            prose-blockquote:border-l-4 prose-blockquote:border-accent-spirit/70 prose-blockquote:text-rift-100 prose-blockquote:bg-rift-950/50 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:not-italic prose-blockquote:my-8 prose-blockquote:border-solid
-            prose-img:rounded-none
-            prose-table:text-sm
-            prose-th:text-accent-forge prose-th:font-semibold
-            prose-td:text-rift-200
-            prose-hr:border-rift-700/50">
+          <div class="px-8 py-10 min-h-[600px] max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-thin scrollbar-thumb-rift-800 scrollbar-track-transparent">
+             
+             <!-- Cover image preview -->
+             <div id="live-cover-preview" class="hidden mb-8 w-full h-48 sm:h-64 rounded-xl overflow-hidden shadow-lg border border-rift-700/50 relative">
+               <img id="live-cover-img" src="" alt="Cover" class="w-full h-full object-cover" style="object-position: center 50%;" />
+             </div>
+
              <!-- Rendered by MarkdownEditor.astro -->
-             <div class="text-rift-500 italic text-center py-20">Le rendu s'affichera ici au fur et à mesure...</div>
+             <div class="article-live-preview prose prose-invert prose-orange max-w-none
+               prose-headings:font-display prose-headings:font-bold prose-headings:text-rift-50
+               prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4
+               prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3
+               prose-p:text-rift-200 prose-p:leading-relaxed
+               prose-a:text-accent-spirit prose-a:no-underline hover:prose-a:text-accent-forge hover:prose-a:underline
+               prose-strong:text-rift-50
+               prose-li:text-rift-200
+               prose-blockquote:border-l-4 prose-blockquote:border-accent-spirit/70 prose-blockquote:text-rift-100 prose-blockquote:bg-rift-950/50 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:not-italic prose-blockquote:my-8 prose-blockquote:border-solid
+               prose-img:rounded-none
+               prose-table:text-sm
+               prose-th:text-accent-forge prose-th:font-semibold
+               prose-td:text-rift-200
+               prose-hr:border-rift-700/50">
+               <div class="text-rift-500 italic text-center py-20">Le rendu s'affichera ici au fur et à mesure...</div>
+             </div>
           </div>
         </div>
       </div>
@@ -338,6 +362,48 @@ if (successParam === 'created') successMsg = 'Article créé avec succès ! Cont
     const previewImg = document.getElementById('preview-img') as HTMLImageElement;
     const previewContainer = document.getElementById('image-preview')!;
     const uploadPrompt = document.getElementById('upload-prompt')!;
+    const posContainer = document.getElementById('image-position-container')!;
+    const posSlider = document.getElementById('image_position_slider') as HTMLInputElement;
+    const posValLabel = document.getElementById('image-position-val')!;
+    const liveCoverPreview = document.getElementById('live-cover-preview')!;
+    const liveCoverImg = document.getElementById('live-cover-img') as HTMLImageElement;
+
+    // Helper to get pure URL and position
+    const parseImageUrl = (urlStr: string) => {
+      const match = urlStr.match(/(.*)#pos=(\d+)$/);
+      if (match) return { url: match[1], pos: match[2] };
+      return { url: urlStr, pos: '50' };
+    };
+
+    const updateImagePreviews = (fullUrl: string) => {
+      if (!fullUrl) {
+        previewContainer.classList.add('hidden');
+        uploadPrompt.classList.remove('hidden');
+        posContainer.classList.add('hidden');
+        liveCoverPreview.classList.add('hidden');
+        return;
+      }
+      const { url, pos } = parseImageUrl(fullUrl);
+      
+      // Update inputs/sliders silently
+      posSlider.value = pos;
+      posValLabel.textContent = `${pos}%`;
+      
+      // Update form hidden input
+      imageUrlInput.value = fullUrl;
+
+      // Update upload zone
+      previewImg.src = url;
+      previewImg.style.objectPosition = `center ${pos}%`;
+      previewContainer.classList.remove('hidden');
+      uploadPrompt.classList.add('hidden');
+      posContainer.classList.remove('hidden');
+
+      // Update live preview
+      liveCoverImg.src = url;
+      liveCoverImg.style.objectPosition = `center ${pos}%`;
+      liveCoverPreview.classList.remove('hidden');
+    };
 
     const saveDraft = () => {
       const draft = {
@@ -389,10 +455,7 @@ if (successParam === 'created') successMsg = 'Article créé avec succès ! Cont
           if (draft.summary) summaryInput.value = draft.summary;
           if (draft.tags) tagsInput.value = draft.tags;
           if (draft.image_url) {
-            imageUrlInput.value = draft.image_url;
-            previewImg.src = draft.image_url;
-            previewContainer.classList.remove('hidden');
-            uploadPrompt.classList.add('hidden');
+            updateImagePreviews(draft.image_url);
           }
           if (draft.content) {
             contentInput.value = draft.content;
@@ -422,7 +485,7 @@ if (successParam === 'created') successMsg = 'Article créé avec succès ! Cont
     };
 
     // Auto-save on input
-    const inputs = [titleInput, slugInput, summaryInput, tagsInput, imageUrlInput, contentInput, publishedAtInput, featuredInput, publishedInput];
+    const inputs = [titleInput, slugInput, summaryInput, tagsInput, imageUrlInput, contentInput, publishedAtInput, featuredInput, publishedInput, posSlider];
     inputs.forEach(input => {
       input?.addEventListener('input', saveDraft);
       input?.addEventListener('change', saveDraft);
@@ -462,10 +525,17 @@ if (successParam === 'created') successMsg = 'Article créé avec succès ! Cont
 
     removeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      imageUrlInput.value = '';
-      previewContainer.classList.add('hidden');
-      uploadPrompt.classList.remove('hidden');
+      updateImagePreviews('');
       saveDraft();
+    });
+
+    posSlider.addEventListener('input', () => {
+      const pos = posSlider.value;
+      const { url } = parseImageUrl(imageUrlInput.value);
+      if (url) {
+        const fullUrl = `${url}#pos=${pos}`;
+        updateImagePreviews(fullUrl);
+      }
     });
 
     async function uploadImageAndGetUrl(file: File): Promise<string | null> {
@@ -509,10 +579,9 @@ if (successParam === 'created') successMsg = 'Article créé avec succès ! Cont
       const url = await uploadImageAndGetUrl(file);
 
       if (url) {
-        imageUrlInput.value = url;
-        previewImg.src = url;
+        // default position 50
+        updateImagePreviews(`${url}#pos=50`);
         uploadLoading.classList.add('hidden');
-        previewContainer.classList.remove('hidden');
         saveDraft(); // Save URL to draft
       } else {
         uploadLoading.classList.add('hidden');
@@ -556,6 +625,10 @@ if (successParam === 'created') successMsg = 'Article créé avec succès ! Cont
     // Initial check
     loadDraft();
     updateChipStates();
+    // Initialize previews from database value if not overriden by draft
+    if (!localStorage.getItem(DRAFT_KEY) && imageUrlInput.value) {
+      updateImagePreviews(imageUrlInput.value);
+    }
     tagsInput?.addEventListener('input', () => {
       updateChipStates();
       saveDraft();

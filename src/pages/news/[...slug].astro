@@ -236,7 +236,12 @@ function getTagStyle(tag: string): string {
     <!-- Hero image -->
     <div class="relative w-full overflow-hidden mb-12 rounded-lg border border-rift-700/30">
       {article.image_url ? (
-        <img src={proxyUrl(article.image_url)} alt={article.title} class="w-full h-auto block" />
+        <img 
+          src={proxyUrl(article.image_url.split('#')[0])} 
+          alt={article.title} 
+          class="w-full h-64 sm:h-96 md:h-[500px] object-cover block"
+          style={`object-position: center ${article.image_url.match(/#pos=(\d+)/)?.[1] || '50'}%;`}
+        />
       ) : (
         <>
           <div class="absolute inset-0 bg-gradient-to-br from-accent-sakura/15 via-rift-100 to-accent-forge/10"></div>

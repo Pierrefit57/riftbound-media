@@ -57,7 +57,7 @@ function getTagStyle(tag: string): string {
     <!-- Card image area -->
     <div class="relative h-56 md:h-[230px] overflow-hidden flex-shrink-0">
       {hasImage ? (
-        <img src={image} alt={title} class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+        <img src={image.split('#')[0]} alt={title} class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" style={`object-position: center ${image.match(/#pos=(\d+)/)?.[1] || '50'}%;`} loading="lazy" />
       ) : (
         <>
           <div class="absolute inset-0 bg-gradient-to-br from-accent-sakura/15 via-rift-900 to-accent-forge/10"></div>
@@ -108,7 +108,7 @@ function getTagStyle(tag: string): string {
   <a href={href} class:list={["group block overflow-hidden rounded-2xl border bg-rift-800 hover:border-accent-spirit/30 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 h-full flex flex-col", highlighted ? 'highlighted-card' : 'border-rift-700/50']}>
     <div class="relative h-36 overflow-hidden flex-shrink-0">
       {hasImage ? (
-        <img src={image} alt={title} class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+        <img src={image.split('#')[0]} alt={title} class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" style={`object-position: center ${image.match(/#pos=(\d+)/)?.[1] || '50'}%;`} loading="lazy" />
       ) : (
         <>
           <div class="absolute inset-0 bg-gradient-to-br from-accent-sakura/10 via-rift-900 to-accent-forge/8"></div>
