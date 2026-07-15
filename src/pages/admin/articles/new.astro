@@ -171,7 +171,7 @@ if (Astro.request.method === 'POST') {
             </div>
 
             <!-- Position Adjustment Slider -->
-            <div id="image-position-container" class="hidden mt-3">
+            <div id="image-position-container" class:list={["mt-3", image_url ? '' : 'hidden']}>
               <label for="image_position_slider" class="block text-xs font-medium text-rift-400 mb-1 flex justify-between">
                 <span>Ajustement de l'image (Haut/Bas)</span>
                 <span id="image-position-val">50%</span>
@@ -303,7 +303,7 @@ if (Astro.request.method === 'POST') {
           <div class="px-8 py-10 min-h-[600px] max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-thin scrollbar-thumb-rift-800 scrollbar-track-transparent">
              
              <!-- Cover image preview -->
-             <div id="live-cover-preview" class="hidden mb-8 w-full h-48 sm:h-64 rounded-xl overflow-hidden shadow-lg border border-rift-700/50 relative">
+             <div id="live-cover-preview" class:list={["mb-8 w-full h-48 sm:h-64 rounded-xl overflow-hidden shadow-lg border border-rift-700/50 relative", image_url ? '' : 'hidden']}>
                <img id="live-cover-img" src="" alt="Cover" class="w-full h-full object-cover" style="object-position: center 50%;" />
              </div>
 
@@ -658,8 +658,8 @@ if (Astro.request.method === 'POST') {
 
     // Run on load
     loadDraft();
-    // Initialize previews from database value if not overriden by draft
-    if (!localStorage.getItem(DRAFT_KEY) && imageUrlInput.value) {
+    // Initialize previews from database value (this also fixes DOM state if draft exists but hasn't been restored)
+    if (imageUrlInput.value) {
       updateImagePreviews(imageUrlInput.value);
     }
   </script>
