@@ -341,9 +341,15 @@ try {
 
       this.textarea.addEventListener('input', () => this.updatePreview());
       
-      // Auto-continue blockquotes on Enter
+      // Auto-continue blockquotes on Enter and support Tab for indentation
       this.textarea.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          const start = this.textarea.selectionStart;
+          const end = this.textarea.selectionEnd;
+          this.insertText('  ', start, end);
+          this.textarea.setSelectionRange(start + 2, start + 2);
+        } else if (e.key === 'Enter') {
           const start = this.textarea.selectionStart;
           const text = this.textarea.value;
           const before = text.substring(0, start);
