@@ -8,7 +8,7 @@ import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://riftbound-media.com',
+  site: 'https://www.riftbound-media.fr',
   output: 'server',
   adapter: vercel(),
   integrations: [tailwind(), react(), sitemap()],

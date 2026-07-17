@@ -19,7 +19,7 @@ function toRFC822(date: string | Date): string {
 }
 
 export const GET: APIRoute = async ({ site }) => {
-  const siteUrl = site?.href?.replace(/\/$/, '') || 'https://riftbound-media.com';
+  const siteUrl = site?.href?.replace(/\/$/, '') || 'https://www.riftbound-media.fr';
 
   const { data: articles, error } = await supabase
     .from('articles')
