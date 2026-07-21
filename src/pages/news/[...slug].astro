@@ -18,14 +18,21 @@ const { slug } = Astro.params;
 // Cache navigateur uniquement (pas de cache CDN public pour éviter les conflits de session)
 Astro.response.headers.set('Cache-Control', 'private, max-age=60');
 
-// --- Resolve article: new numeric format OR legacy slug ---
+// --- Resolve article: numeric format OR legacy slug ---
 let article: any = null;
 
-const numMatch = slug?.match(/^(\d+)(?:-|$)/);
+const numMatch = slug?.match(/^(\d+)(-|$)/);
 
 if (numMatch) {
-  // New format: /news/42-katchouze-interview
+  // Format : /news/42  ou  /news/42-ancien-slug (redirect)
   const articleNumber = parseInt(numMatch[1]);
+  const hasTrailingSlug = numMatch[2] === '-';
+
+  if (hasTrailingSlug) {
+    // Ancienne URL /news/42-slug → redirect 301 vers /news/42
+    return Astro.redirect(`/news/${articleNumber}`, 301);
+  }
+
   const { data } = await supabase
     .from('articles')
     .select('*')
@@ -34,7 +41,7 @@ if (numMatch) {
     .single();
   article = data;
 } else {
-  // Legacy format: /news/katchouze-linterview-du-commentateur-...
+  // Legacy format : /news/katchouze-linterview-du-commentateur-...
   const { data } = await supabase
     .from('articles')
     .select('*')
@@ -43,10 +50,9 @@ if (numMatch) {
     .single();
   article = data;
 
-  // 301 redirect to the new short URL for SEO
+  // 301 redirect vers la nouvelle URL propre
   if (article?.article_number) {
-    const shortSlug = article.slug.split('-').slice(0, 4).join('-');
-    return Astro.redirect(`/news/${article.article_number}-${shortSlug}`, 301);
+    return Astro.redirect(`/news/${article.article_number}`, 301);
   }
 }
 
