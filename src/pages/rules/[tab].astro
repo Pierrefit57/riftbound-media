@@ -40,7 +40,28 @@ const { data: visualArticleOrigins } = await supabase
   .eq('slug', 'les-errata-origins')
   .single();
 
+const { data: visualArticleVendetta } = await supabase
+  .from('articles')
+  .select('id, title, slug, summary, image_url, tags, published_at, article_number')
+  .eq('article_number', 51)
+  .single();
+
 const errataArticles = [
+  {
+    title: "Errata Vendetta",
+    content: "https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/PDFrules/errata%20Vendetta.pdf",
+    date: "23-07-2026",
+    activeClass: "bg-[#a01c40] text-white border-[#a01c40] shadow-[#a01c40]/20",
+    textClass: "text-[#a01c40]",
+    visualLink: visualArticleVendetta ? articleUrl(visualArticleVendetta) : "/news/51",
+    visualTitle: visualArticleVendetta?.title || "LES ERRATA VENDETTA",
+    visualSummary: visualArticleVendetta?.summary || "Découvrez les errata pour le set Vendetta.",
+    visualImage: proxyUrl(visualArticleVendetta?.image_url) || undefined,
+    visualDate: visualArticleVendetta?.published_at
+      ? new Date(visualArticleVendetta.published_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+      : "23 juillet 2026",
+    visualTags: visualArticleVendetta?.tags || ["Règles", "Errata"]
+  },
   {
     title: "Errata Unleashed",
     content: "/pdfs/errata-unleashed.pdf",
