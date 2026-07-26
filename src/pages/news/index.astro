@@ -55,12 +55,28 @@ const regularNews = (allNews?.filter((n) => !featuredNews.some(f => f.slug === n
     </div>
 
     {featuredNews.length > 0 && (
-      <section class="mb-14">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="w-1 h-6 rounded-full bg-gradient-to-b from-accent-spirit to-accent-sakura"></div>
-          <h2 class="text-lg font-display font-bold text-rift-100">Épinglés</h2>
+      <section id="featured-section" class="mb-14 transition-all duration-300">
+        <div class="flex flex-col-reverse sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <div class="flex items-center gap-3">
+            <div class="w-1 h-6 rounded-full bg-gradient-to-b from-accent-spirit to-accent-sakura"></div>
+            <h2 id="featured-title" class="text-lg font-display font-bold text-rift-100">Épinglés</h2>
+          </div>
+          <div class="relative w-full sm:w-72">
+            <input
+              type="text"
+              id="news-search"
+              placeholder="Rechercher un article ou tag..."
+              class="w-full pl-9 pr-10 py-2 rounded-xl bg-rift-800 border border-rift-700 text-rift-100 placeholder-rift-500 focus:border-accent-spirit focus:ring-1 focus:ring-accent-spirit outline-none transition-all text-sm font-sans"
+            />
+            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-rift-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <button id="search-clear" class="absolute right-3 top-1/2 -translate-y-1/2 text-rift-500 hover:text-rift-200 transition-colors hidden" aria-label="Effacer">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div id="featured-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 transition-all duration-300">
           {featuredNews.map((article) => (
             <NewsCard
               title={article.title}
@@ -80,26 +96,10 @@ const regularNews = (allNews?.filter((n) => !featuredNews.some(f => f.slug === n
     )}
 
     <section>
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-        <div class="flex items-center gap-3">
-          <div class="w-1 h-6 rounded-full bg-gradient-to-b from-accent-forge to-accent-sakura"></div>
-          <h2 class="text-lg font-display font-bold text-rift-100">Toutes les Actualités</h2>
-          <span id="search-count" class="hidden text-xs text-rift-400 font-mono ml-1"></span>
-        </div>
-        <div class="relative w-full sm:w-72">
-          <input
-            type="text"
-            id="news-search"
-            placeholder="Rechercher un article ou tag..."
-            class="w-full pl-9 pr-10 py-2 rounded-xl bg-rift-800 border border-rift-700 text-rift-100 placeholder-rift-500 focus:border-accent-spirit focus:ring-1 focus:ring-accent-spirit outline-none transition-all text-sm font-sans"
-          />
-          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-rift-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-          </svg>
-          <button id="search-clear" class="absolute right-3 top-1/2 -translate-y-1/2 text-rift-500 hover:text-rift-200 transition-colors hidden" aria-label="Effacer">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-          </button>
-        </div>
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-1 h-6 rounded-full bg-gradient-to-b from-accent-forge to-accent-sakura"></div>
+        <h2 class="text-lg font-display font-bold text-rift-100">Toutes les Actualités</h2>
+        <span id="search-count" class="hidden text-xs text-rift-400 font-mono ml-1"></span>
       </div>
 
       <!-- No results message -->
@@ -152,6 +152,9 @@ const regularNews = (allNews?.filter((n) => !featuredNews.some(f => f.slug === n
     const noResults = document.getElementById('no-results');
     const noResultsQuery = document.getElementById('no-results-query');
     const allItems = document.querySelectorAll('.news-item');
+    const featuredSection = document.getElementById('featured-section');
+    const featuredGrid = document.getElementById('featured-grid');
+    const featuredTitle = document.getElementById('featured-title');
     let isSearchActive = false;
 
     function performSearch(query: string) {
@@ -159,6 +162,25 @@ const regularNews = (allNews?.filter((n) => !featuredNews.some(f => f.slug === n
       isSearchActive = q.length > 0;
 
       if (searchClear) searchClear.classList.toggle('hidden', !isSearchActive);
+
+      // Masquer/afficher la grille des épinglés (le header avec la barre reste visible)
+      if (featuredGrid) {
+        if (isSearchActive) {
+          featuredGrid.style.opacity = '0';
+          featuredGrid.style.pointerEvents = 'none';
+          setTimeout(() => { featuredGrid.style.display = 'none'; }, 300);
+        } else {
+          featuredGrid.style.display = '';
+          requestAnimationFrame(() => {
+            featuredGrid.style.opacity = '1';
+            featuredGrid.style.pointerEvents = '';
+          });
+        }
+      }
+      // Mettre à jour le titre
+      if (featuredTitle) {
+        featuredTitle.textContent = isSearchActive ? 'Recherche' : 'Épinglés';
+      }
 
       if (!isSearchActive) {
         // Reset: show all items, restore unrevealed state for those not yet scrolled to
