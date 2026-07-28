@@ -7,6 +7,7 @@ interface Props {
   type?: 'website' | 'article';
   petalMode?: 'full' | 'sides';
   petals?: boolean;
+  noindex?: boolean;
 }
 
 const { 
@@ -16,7 +17,8 @@ const {
   canonicalURL = new URL(Astro.url.pathname, Astro.site),
   type = 'website',
   petalMode = 'full', 
-  petals = false 
+  petals = false,
+  noindex = false,
 } = Astro.props;
 const currentPath = Astro.url.pathname;
 const user = Astro.locals.user;
@@ -83,6 +85,7 @@ const ongoingEvent = activeEvents
     <meta name="description" content={description} />
     <meta name="keywords" content="Riftbound, TCG, Jeu de cartes, Riftbound Media, JCC Riftbound, Communauté française, Tournois Riftbound, Origins, Spiritforged" />
     <link rel="canonical" href={canonicalURL} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="alternate" type="application/rss+xml" title="Riftbound Media — Actualités" href="/rss.xml" />
 
     <!-- Open Graph / Facebook -->

@@ -118,6 +118,8 @@ function getTagStyle(tag: string): string {
 <MainLayout 
   title={`[Preview] ${article.title}`}
   petalMode="sides"
+  noindex={true}
+  canonicalURL={article.article_number ? `https://www.riftbound-media.fr/news/${article.article_number}` : undefined}
 >
 
   <!-- Preview Banner -->
