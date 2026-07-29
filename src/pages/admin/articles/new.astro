@@ -16,8 +16,6 @@ let featured = false;
 let highlighted = false;
 let published = true;
 let published_at = new Date().toISOString().slice(0, 16);
-let slug = '';
-
 // Auto-populate values if we have a draft and NO post data (client-side JS handles this, but server-side helps on errors)
 // Actually, we rely on client-side JS for the draft restore. Server-side only for POST errors.
 
@@ -26,9 +24,15 @@ if (Astro.request.method === 'POST') {
   
   // Extract values to variables for re-rendering on error
   title = formData.get('title') as string;
-  // Slug is generated from title if empty, or taken from input
-  const rawSlug = (formData.get('slug') as string);
-  slug = rawSlug.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  // Slug auto-généré depuis le titre (les nouveaux articles utilisent article_number pour l'URL)
+  const slug = title
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .split('-').slice(0, 6).join('-') || 'article';
   
   content = formData.get('content') as string;
   summary = formData.get('summary') as string;
@@ -61,9 +65,7 @@ if (Astro.request.method === 'POST') {
 
   if (error) {
     console.error('[articles] Erreur création:', error.message, error.code);
-    errorMsg = error.code === '23505'
-      ? 'Ce slug existe déjà. Choisissez un slug unique.'
-      : 'Erreur lors de la création. Réessayez.';
+    errorMsg = 'Erreur lors de la création. Réessayez.';
       
     // If error, we stay on page. Variables are already set for the form.
   } else {
@@ -128,17 +130,7 @@ if (Astro.request.method === 'POST') {
               />
             </div>
 
-            <div>
-              <label for="slug" class="block text-sm font-medium text-rift-300 mb-2">Slug (URL)</label>
-              <div class="flex items-center gap-2">
-                <span class="text-sm text-rift-500 font-mono">/news/N°-</span>
-                <input type="text" id="slug" name="slug" required
-                  class="flex-1 px-4 py-2.5 rounded-lg bg-rift-950 border border-rift-700/50 text-rift-100 placeholder-rift-600 focus:outline-none focus:border-accent-cyan/50 focus:ring-1 focus:ring-accent-cyan/30 transition-colors font-mono text-sm"
-                  placeholder="mon-article"
-                  value={slug}
-                />
-              </div>
-            </div>
+
           </div>
 
           <!-- Image -->
@@ -345,7 +337,6 @@ if (Astro.request.method === 'POST') {
 
     const form = document.querySelector('form');
     const titleInput = document.getElementById('title') as HTMLInputElement;
-    const slugInput = document.getElementById('slug') as HTMLInputElement;
     const summaryInput = document.getElementById('summary') as HTMLTextAreaElement;
     const tagsInput = document.getElementById('tags') as HTMLInputElement;
     const imageUrlInput = document.getElementById('image_url') as HTMLInputElement;
@@ -404,7 +395,7 @@ if (Astro.request.method === 'POST') {
     const saveDraft = () => {
       const draft = {
         title: titleInput.value,
-        slug: slugInput.value,
+
         summary: summaryInput.value,
         tags: tagsInput.value,
         image_url: imageUrlInput.value,
@@ -431,7 +422,7 @@ if (Astro.request.method === 'POST') {
         const draft = JSON.parse(saved);
         
         // Check if draft contains any actual content to restore
-        const hasContent = draft.title || draft.content || draft.summary || draft.image_url || draft.slug;
+        const hasContent = draft.title || draft.content || draft.summary || draft.image_url;
         if (!hasContent) {
           localStorage.removeItem(DRAFT_KEY);
           return;
@@ -446,10 +437,7 @@ if (Astro.request.method === 'POST') {
         
         restoreBtn.addEventListener('click', () => {
           if (draft.title) titleInput.value = draft.title;
-          if (draft.slug) {
-            slugInput.value = draft.slug;
-            slugEdited = true; // Mark as edited so auto-gen doesn't overwrite
-          }
+
           if (draft.summary) summaryInput.value = draft.summary;
           if (draft.tags) tagsInput.value = draft.tags;
           if (draft.image_url) {
@@ -483,7 +471,7 @@ if (Astro.request.method === 'POST') {
     };
 
     // Auto-save on input
-    const inputs = [titleInput, slugInput, summaryInput, tagsInput, imageUrlInput, contentInput, publishedAtInput, featuredInput, publishedInput, posSlider];
+    const inputs = [titleInput, summaryInput, tagsInput, imageUrlInput, contentInput, publishedAtInput, featuredInput, publishedInput, posSlider];
     inputs.forEach(input => {
       input?.addEventListener('input', saveDraft);
       input?.addEventListener('change', saveDraft);
@@ -499,24 +487,7 @@ if (Astro.request.method === 'POST') {
     });
 
 
-    // Auto-génération du slug depuis le titre
-    let slugEdited = false;
 
-    slugInput?.addEventListener('input', () => { slugEdited = true; });
-
-    titleInput?.addEventListener('input', () => {
-      if (!slugEdited) {
-        slugInput.value = titleInput.value
-          .toLowerCase()
-          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-          .replace(/[^a-z0-9\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/-+/g, '-')
-          .replace(/^-|-$/g, '')
-          .split('-').slice(0, 4).join('-');
-        saveDraft(); // Save the auto-gen slug too
-      }
-    });
 
     // Image upload
     const zone = document.getElementById('image-upload-zone')!;
