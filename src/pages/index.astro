@@ -59,17 +59,27 @@ const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
       
       <!-- Decorative line -->
 
+      <!-- VERSION "UNLEASHED" (désactivée — à réactiver si besoin) -->
+      <!--
+      <div class="flex items-center justify-center gap-4 mb-2 animate-fade-in">
+        <div class="h-px w-12 bg-gradient-to-r from-transparent to-[#BE4594]/50"></div>
+        <span class="text-[#BE4594] text-xs font-display tracking-[0.3em] uppercase">Unleashed</span>
+        <div class="h-px w-12 bg-gradient-to-l from-transparent to-[#BE4594]/50"></div>
+      </div>
+      -->
 
+      <!-- VERSION "VENDETTA" (active) -->
       <div class="flex items-center justify-center gap-4 mb-6 animate-fade-in">
         <div class="h-px w-12 sm:w-24 bg-gradient-to-r from-transparent to-[#A5A9B4]/60"></div>
-        <!-- Remplace le texte par l'image du logo Vendetta. 
-             Taille réduite d'environ 25% (h-8 sm:h-9) -->
         <img src="/vendetta-logo.png" alt="Vendetta" class="h-8 sm:h-9 object-contain opacity-90 drop-shadow-md" />
         <div class="h-px w-12 sm:w-24 bg-gradient-to-l from-transparent to-[#A5A9B4]/60"></div>
       </div>
 
-      <h1 class="font-display font-bold tracking-tight animate-slide-up flex flex-col items-center -mt-20 sm:-mt-32 -mb-10 sm:-mb-24">
-        <img src="/riftbound-logo.png?v=3" alt="Riftbound Media" class="w-[22rem] sm:w-[30rem] md:w-[39rem] h-auto drop-shadow-lg" />
+      <h1 class="font-display font-bold tracking-tight animate-slide-up flex flex-col items-center mb-4">
+        <!-- Logo v1 (original) — à réactiver si besoin -->
+        <!-- <img src="/riftbound-logo.png?v=3" alt="Riftbound Media" class="w-[22rem] sm:w-[30rem] md:w-[39rem] h-auto drop-shadow-lg" style="margin-top: -5rem; margin-bottom: -6rem;" /> -->
+        <!-- Logo v2 (test) -->
+        <img src="/riftbound-logo-v2.png" alt="Riftbound Media" class="w-[18rem] sm:w-[26rem] md:w-[35rem] h-auto drop-shadow-lg" />
         <span class="sr-only">Riftbound Media — Portail Francophone Riftbound TCG</span>
       </h1>
 
