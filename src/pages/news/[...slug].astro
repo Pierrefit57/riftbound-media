@@ -245,7 +245,7 @@ function getTagStyle(tag: string): string {
         <img 
           src={proxyUrl(article.image_url.split('#')[0])} 
           alt={article.title} 
-          class="w-full h-64 sm:h-96 md:h-[500px] object-cover block"
+          class="w-full object-contain block"
           style={`object-position: center ${article.image_url.match(/#pos=(\d+)/)?.[1] || '50'}%;`}
         />
       ) : (
