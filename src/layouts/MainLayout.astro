@@ -132,7 +132,7 @@ const ongoingEvent = activeEvents
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cookie&family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
     <style is:global>
       :root {
@@ -243,6 +243,83 @@ const ongoingEvent = activeEvents
 
       .badge-keyword-red::before { background-color: #E63946; color: #fff; }
       .badge-keyword-red { color: #fff !important; }
+
+      /* ── Buy Me a Coffee pill (Extreme Right Edge) ── */
+      .bmc-pill {
+        position: absolute;
+        right: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        display: inline-flex;
+        align-items: center;
+        background: transparent;
+        border-radius: 9999px;
+        overflow: hidden;
+        text-decoration: none;
+        height: 38px;
+        flex-direction: row;
+        transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        z-index: 60;
+      }
+      .bmc-pill:hover {
+        background: rgba(20, 16, 28, 0.95);
+        border: 1px solid rgba(233, 135, 15, 0.4);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      }
+      .bmc-pill__text {
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        font-size: 0.9rem;
+        color: #fff;
+        white-space: nowrap;
+        letter-spacing: 0.02em;
+        /* hidden by default */
+        max-width: 0;
+        overflow: hidden;
+        opacity: 0;
+        padding: 0;
+        transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease 0.05s, padding 0.3s ease;
+      }
+      .bmc-pill:hover .bmc-pill__text {
+        max-width: 140px;
+        opacity: 1;
+        padding: 0 10px 0 14px;
+      }
+      .bmc-pill__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: #E9870F; /* Site spirit orange */
+        border-radius: 50%;
+        flex-shrink: 0;
+        box-shadow: 0 0 12px rgba(233, 135, 15, 0.4);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .bmc-pill:hover .bmc-pill__icon {
+        transform: scale(1.06);
+        box-shadow: 0 0 18px rgba(233, 135, 15, 0.6);
+      }
+      .bmc-pill__logo {
+        width: 20px;
+        height: 20px;
+        object-fit: contain;
+        display: block;
+        filter: brightness(0) invert(1);
+      }
+      /* Mobile: always show text, no hover needed */
+      .bmc-pill--mobile {
+        background: #2a2318;
+        border-radius: 12px;
+        height: 42px;
+        width: 100%;
+      }
+      .bmc-pill--mobile .bmc-pill__icon {
+        margin: 5px 0 5px 5px;
+        width: 32px;
+        height: 32px;
+      }
     </style>
 
     <style is:global>
@@ -347,7 +424,7 @@ const ongoingEvent = activeEvents
     <!-- Falling Petals removed -->
 
     <!-- Navbar -->
-    <header class="sticky top-0 z-50 bg-rift-900/95 backdrop-blur-sm border-b border-rift-700/50">
+    <header class="sticky top-0 z-50 bg-rift-900/95 backdrop-blur-sm border-b border-rift-700/50 relative">
       <nav class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between relative">
         <!-- Logo -->
         <a href="/" class="flex items-center group">
@@ -419,6 +496,21 @@ const ongoingEvent = activeEvents
         </button>
       </nav>
 
+      <!-- Buy Me a Coffee — Extreme Right Edge of Page Header -->
+      <a
+        href="https://www.buymeacoffee.com/riftboundmedia"
+        target="_blank"
+        rel="noopener noreferrer"
+        id="bmc-btn-header"
+        aria-label="Buy Me a Coffee"
+        class="bmc-pill hidden sm:flex focus:outline-none"
+      >
+        <span class="bmc-pill__text">Buy me a coffee</span>
+        <span class="bmc-pill__icon">
+          <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="Buy me a coffee" class="bmc-pill__logo" />
+        </span>
+      </a>
+
       <!-- Mobile menu -->
       <div id="mobile-menu" class="md:hidden hidden border-t border-rift-700/50 bg-rift-900">
         <div class="px-4 py-3 space-y-1">
@@ -435,6 +527,18 @@ const ongoingEvent = activeEvents
               {link.label}
             </a>
           ))}
+          <!-- Buy Me a Coffee (mobile) -->
+          <a
+            href="https://www.buymeacoffee.com/riftboundmedia"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="bmc-pill bmc-pill--mobile focus:outline-none"
+          >
+            <span class="bmc-pill__icon">
+              <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="" class="bmc-pill__logo" />
+            </span>
+            <span class="font-sans font-medium text-white text-sm pr-3.5">Buy me a coffee</span>
+          </a>
           <hr class="border-rift-200 my-2" />
           {user ? (
             <>
