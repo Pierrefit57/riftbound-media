@@ -244,27 +244,30 @@ const ongoingEvent = activeEvents
       .badge-keyword-red::before { background-color: #E63946; color: #fff; }
       .badge-keyword-red { color: #fff !important; }
 
-      /* ── Buy Me a Coffee pill (Extreme Right Edge) ── */
+      /* ── Buy Me a Coffee pill (Desktop Extreme Right Edge >= 768px) ── */
       .bmc-pill {
-        position: absolute;
-        right: 1.5rem;
-        top: 50%;
-        transform: translateY(-50%);
-        display: inline-flex;
-        align-items: center;
-        background: transparent;
-        border-radius: 9999px;
-        overflow: hidden;
-        text-decoration: none;
-        height: 38px;
-        flex-direction: row;
-        transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-        z-index: 60;
+        display: none;
+      }
+      @media (min-width: 768px) {
+        .bmc-pill {
+          position: absolute;
+          right: 1.5rem;
+          top: 50%;
+          transform: translateY(-50%);
+          display: inline-flex;
+          align-items: center;
+          background: transparent;
+          border-radius: 9999px;
+          overflow: hidden;
+          text-decoration: none;
+          height: 38px;
+          flex-direction: row;
+          transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+          z-index: 60;
+        }
       }
       .bmc-pill:hover {
-        background: rgba(20, 16, 28, 0.95);
-        border: 1px solid rgba(233, 135, 15, 0.4);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        background: transparent;
       }
       .bmc-pill__text {
         font-family: 'Inter', sans-serif;
@@ -307,18 +310,6 @@ const ongoingEvent = activeEvents
         object-fit: contain;
         display: block;
         filter: brightness(0) invert(1);
-      }
-      /* Mobile: always show text, no hover needed */
-      .bmc-pill--mobile {
-        background: #2a2318;
-        border-radius: 12px;
-        height: 42px;
-        width: 100%;
-      }
-      .bmc-pill--mobile .bmc-pill__icon {
-        margin: 5px 0 5px 5px;
-        width: 32px;
-        height: 32px;
       }
     </style>
 
@@ -431,7 +422,7 @@ const ongoingEvent = activeEvents
           <img src="/riftbound-titre.png?v=3" alt="Riftbound Media" class="h-40 w-auto -my-10 -ml-4 object-contain group-hover:scale-105 transition-transform duration-300" />
         </a>
 
-        <!-- Desktop Nav -->
+        <!-- Desktop Nav Links -->
         <div class="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
           {navLinks.map((link) => (
             <div class="relative group">
@@ -452,8 +443,8 @@ const ongoingEvent = activeEvents
           ))}
         </div>
 
-        <!-- Right side: Auth -->
-        <div class="hidden sm:flex items-center gap-3">
+        <!-- Right side: Desktop Auth -->
+        <div class="hidden md:flex items-center gap-3">
           {user ? (
             <>
               {profile && ['admin', 'editor'].includes(profile.role) && (
@@ -462,14 +453,14 @@ const ongoingEvent = activeEvents
                 </a>
               )}
               
-              <!-- Mon Compte Button (Left of separator) -->
+              <!-- Mon Compte Button -->
               <a href="/account" class="px-3 py-1 rounded-full bg-rift-800 text-rift-50 text-xs font-semibold hover:bg-rift-700 transition-colors border border-rift-700">
                 Mon Compte
               </a>
 
-              <!-- User Info Block (Right of separator) -->
-              <a href="/account" class="flex items-center gap-3 pl-4 border-l border-rift-700/50 group">
-                <div class="text-right hidden sm:block">
+              <!-- User Info Block -->
+              <a href="/account" class="flex items-center gap-3 pl-3 border-l border-rift-700/50 group">
+                <div class="text-right hidden lg:block">
                   <p class="text-sm font-display font-bold text-rift-50 group-hover:text-accent-spirit transition-colors">{profile?.username}</p>
                 </div>
                 {profile?.avatar_url ? (
@@ -488,22 +479,29 @@ const ongoingEvent = activeEvents
           )}
         </div>
 
-        <!-- Mobile menu toggle -->
-        <button id="mobile-menu-btn" class="md:hidden p-2 text-rift-600 hover:text-accent-spirit transition-colors" aria-label="Menu">
-          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
+        <!-- Mobile Header Controls (Right side on mobile < md) -->
+        <div class="flex md:hidden items-center gap-2">
+          <!-- Mobile menu toggle button -->
+          <button
+            id="mobile-menu-btn"
+            class="p-2.5 rounded-xl text-rift-200 hover:text-accent-spirit bg-rift-800/60 border border-rift-700/50 hover:bg-rift-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent-spirit/40"
+            aria-label="Menu Mobile"
+          >
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
       </nav>
 
-      <!-- Buy Me a Coffee — Extreme Right Edge of Page Header -->
+      <!-- Buy Me a Coffee — Extreme Right Edge of Header (Desktop) -->
       <a
         href="https://www.buymeacoffee.com/riftboundmedia"
         target="_blank"
         rel="noopener noreferrer"
         id="bmc-btn-header"
         aria-label="Buy Me a Coffee"
-        class="bmc-pill hidden sm:flex focus:outline-none"
+        class="bmc-pill hidden md:flex focus:outline-none"
       >
         <span class="bmc-pill__text">Buy me a coffee</span>
         <span class="bmc-pill__icon">
@@ -512,55 +510,70 @@ const ongoingEvent = activeEvents
       </a>
 
       <!-- Mobile menu -->
-      <div id="mobile-menu" class="md:hidden hidden border-t border-rift-700/50 bg-rift-900">
-        <div class="px-4 py-3 space-y-1">
+      <div id="mobile-menu" class="md:hidden hidden border-t border-rift-700/50 bg-rift-900/98 backdrop-blur-md shadow-2xl">
+        <div class="px-4 py-4 space-y-2">
           {navLinks.map((link) => (
             <a
               href={link.href}
               class:list={[
-                'block px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
+                'block px-4 py-3 rounded-xl text-base font-medium transition-all duration-200',
                 currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href))
-                  ? 'text-accent-spirit bg-accent-spirit/5'
-                  : 'text-rift-600 hover:text-rift-900 hover:bg-rift-100',
+                  ? 'text-accent-spirit bg-accent-spirit/10 border border-accent-spirit/20 font-semibold'
+                  : 'text-rift-200 hover:text-accent-spirit hover:bg-rift-800/60',
               ]}
             >
               {link.label}
             </a>
           ))}
-          <!-- Buy Me a Coffee (mobile) -->
+
+          <!-- Buy Me a Coffee (Integrated in mobile burger menu, non framed) -->
           <a
             href="https://www.buymeacoffee.com/riftboundmedia"
             target="_blank"
             rel="noopener noreferrer"
-            class="bmc-pill bmc-pill--mobile focus:outline-none"
+            class="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-rift-200 hover:text-accent-spirit hover:bg-rift-800/60 transition-all duration-200 group"
           >
-            <span class="bmc-pill__icon">
-              <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="" class="bmc-pill__logo" />
-            </span>
-            <span class="font-sans font-medium text-white text-sm pr-3.5">Buy me a coffee</span>
+            <div class="w-7 h-7 rounded-full bg-accent-spirit flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+              <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="" class="w-3.5 h-3.5 filter brightness-0 invert" />
+            </div>
+            <span>Buy me a coffee</span>
           </a>
-          <hr class="border-rift-200 my-2" />
+
+          <hr class="border-rift-700/50 my-3" />
+
           {user ? (
-            <>
+            <div class="space-y-1 pt-1">
+              <div class="px-4 py-2 flex items-center gap-3 mb-2">
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Avatar" class="w-9 h-9 rounded-full object-cover" />
+                ) : (
+                  <div class="w-9 h-9 rounded-full bg-gradient-to-br from-accent-spirit to-accent-sakura flex items-center justify-center text-sm font-bold text-white">
+                    {profile?.username?.charAt(0)?.toUpperCase() || '?'}
+                  </div>
+                )}
+                <span class="text-sm font-bold text-rift-50">{profile?.username}</span>
+              </div>
               {profile && ['admin', 'editor'].includes(profile.role) && (
-                <a href="/admin" class="block px-4 py-2.5 rounded-lg text-sm font-medium text-rift-300 hover:text-accent-spirit hover:bg-rift-100 transition-all duration-200">
+                <a href="/admin" class="block px-4 py-2.5 rounded-xl text-sm font-medium text-rift-200 hover:text-accent-spirit hover:bg-rift-800/60 transition-all duration-200">
                   Panel Admin
                 </a>
               )}
-              <a href="/account" class="block px-4 py-2.5 rounded-lg text-sm font-medium text-rift-300 hover:text-accent-spirit hover:bg-rift-100 transition-all duration-200">
+              <a href="/account" class="block px-4 py-2.5 rounded-xl text-sm font-medium text-rift-200 hover:text-accent-spirit hover:bg-rift-800/60 transition-all duration-200">
                 Mon Compte
               </a>
               <button 
                 id="mobile-logout-btn" 
-                class="block w-full text-left px-4 py-2.5 text-sm text-rift-500 hover:text-accent-spirit transition-colors duration-200"
+                class="block w-full text-left px-4 py-2.5 text-sm font-medium text-rift-400 hover:text-red-400 transition-colors duration-200"
               >
                 Déconnexion
               </button>
-            </>
+            </div>
           ) : (
-            <a href="/login" class="block px-4 py-2.5 rounded-lg text-sm font-semibold text-accent-spirit">
-              Connexion
-            </a>
+            <div class="pt-1">
+              <a href="/login" class="block w-full text-center px-4 py-3 rounded-xl bg-accent-spirit text-white text-sm font-semibold hover:bg-accent-spirit/90 transition-all duration-200 shadow-spirit">
+                Connexion
+              </a>
+            </div>
           )}
         </div>
       </div>
