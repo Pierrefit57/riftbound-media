@@ -17,6 +17,14 @@ import MainLayout from '../../layouts/MainLayout.astro';
       const spinner = document.querySelector('.animate-spin');
 
       try {
+        // 0. Check for code parameter (PKCE flow or token_hash from query string)
+        const searchParams = new URLSearchParams(window.location.search);
+        const code = searchParams.get('code');
+        if (code) {
+          window.location.href = `/api/auth/callback?code=${encodeURIComponent(code)}`;
+          return;
+        }
+
         // 1. Check for tokens in hash (Implicit Flow from Email Link)
         const hash = window.location.hash;
         

@@ -1,7 +1,12 @@
 import type { APIRoute } from 'astro';
 import { supabase } from '../../../lib/supabase';
 
-export const POST: APIRoute = async ({ request, cookies, redirect }) => {
+export const GET: APIRoute = async ({ request, redirect }) => {
+    const url = new URL(request.url);
+    return redirect(`/auth/confirm${url.search}`, 307);
+};
+
+export const POST: APIRoute = async ({ request, cookies }) => {
     try {
         const { accessToken, refreshToken } = await request.json();
 
@@ -20,21 +25,20 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
         }
 
         // Set cookies for server-side persistence
+        const isProd = import.meta.env.PROD;
+        const domain = isProd ? '.riftbound-media.fr' : undefined;
+
         if (data.session) {
-            cookies.set('sb-access-token', data.session.access_token, {
+            const cookieOptions = {
                 path: '/',
                 httpOnly: true,
                 secure: true,
-                sameSite: 'lax',
+                sameSite: 'lax' as const,
+                domain: domain,
                 maxAge: 60 * 60 * 24 * 7, // 1 week
-            });
-            cookies.set('sb-refresh-token', data.session.refresh_token, {
-                path: '/',
-                httpOnly: true,
-                secure: true,
-                sameSite: 'lax',
-                maxAge: 60 * 60 * 24 * 7, // 1 week
-            });
+            };
+            cookies.set('sb-access-token', data.session.access_token, cookieOptions);
+            cookies.set('sb-refresh-token', data.session.refresh_token, cookieOptions);
         }
 
         return new Response(JSON.stringify({ success: true }), { status: 200 });
