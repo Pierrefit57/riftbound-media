@@ -31,22 +31,34 @@ export const GET: APIRoute = async ({ request }) => {
   });
   const resend = new Resend(resendApiKey);
 
-  // 3. Calculer le début/fin du jour en heure de Paris
-  const parisNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Paris' }));
-  const startOfToday = new Date(parisNow.getFullYear(), parisNow.getMonth(), parisNow.getDate());
-  const endOfToday = new Date(parisNow.getFullYear(), parisNow.getMonth(), parisNow.getDate(), 23, 59, 59);
+  // 3. Calculer le jour en cours en heure de Paris
+  const parisDateStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Paris' });
+  const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA', { timeZone: 'Europe/Paris' });
+  const tomorrow = new Date(Date.now() + 86400000).toLocaleDateString('en-CA', { timeZone: 'Europe/Paris' });
 
-  const startISO = startOfToday.toISOString();
-  const endISO = endOfToday.toISOString();
+  console.log(`[cron] Checking events for date: ${parisDateStr} (Europe/Paris)`);
 
-  console.log(`[cron] Checking events between ${startISO} and ${endISO} (Paris time)`);
-
-  // 4. Récupérer les événements qui commencent aujourd'hui
-  const { data: events, error: eventError } = await supabase
+  // 4. Récupérer les événements avec marge UTC puis filtrer sur le fuseau Paris
+  const { data: rawEvents, error: eventError } = await supabase
     .from('calendar_events')
     .select('id, title, start_date, location, type')
-    .gte('start_date', startISO)
-    .lte('start_date', endISO);
+    .gte('start_date', `${yesterday}T00:00:00`)
+    .lte('start_date', `${tomorrow}T23:59:59`);
+
+  const toParisYMD = (dateStringOrDate: string | Date) => {
+    try {
+      return new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Europe/Paris',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).format(new Date(dateStringOrDate));
+    } catch {
+      return '';
+    }
+  };
+
+  const events = (rawEvents || []).filter(e => toParisYMD(e.start_date) === parisDateStr);
 
   if (eventError) {
     console.error('[cron] Error fetching events:', eventError);

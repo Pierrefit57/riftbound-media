@@ -110,7 +110,7 @@ function getEventColor(type: string) {
                 </div>
                 <div class="flex items-center gap-3 text-xs text-rift-400">
                   <span class="text-accent-spirit/80">
-                    {new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
+                    {new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' })}
                   </span>
                   {event.location && (
                     <>
