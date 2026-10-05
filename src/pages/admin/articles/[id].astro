@@ -73,9 +73,9 @@ if (successParam === 'created') successMsg = 'Article créé avec succès ! Cont
       <h1 class="text-2xl font-bold text-rift-100 font-display uppercase tracking-wider">Éditer l'article</h1>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-      <!-- Left Column: Form -->
-      <div class="lg:col-span-12 xl:col-span-6">
+    <div class="flex flex-col gap-10">
+      <!-- Top Section: Form (Full Width) -->
+      <div class="w-full">
         <form method="POST" class="space-y-6 bg-rift-900/40 p-6 rounded-xl border border-rift-800/50">
           {errorMsg && (
             <div class="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
@@ -286,8 +286,8 @@ if (successParam === 'created') successMsg = 'Article créé avec succès ! Cont
         </form>
       </div>
 
-      <!-- Right Column: Live Preview -->
-      <div class="lg:col-span-12 xl:col-span-6 hidden xl:block sticky top-8">
+      <!-- Bottom Section: Live Preview (Underneath the Writing Panel) -->
+      <div class="w-full">
         <div class="bg-rift-900/30 rounded-xl border border-rift-800/50 flex flex-col shadow-2xl overflow-hidden">
           <div class="px-4 py-3 border-b border-rift-800/50 bg-rift-900/60 flex items-center justify-between">
             <span class="text-xs font-bold text-rift-400 uppercase tracking-widest font-display">Aperçu en temps réel</span>

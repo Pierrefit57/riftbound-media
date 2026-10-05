@@ -46,6 +46,7 @@ export default {
                     forge: '#fabc2a',        // Or doré
                     steel: '#7a8599',        // Acier
                     glow: '#ffddd2',         // Lueur orange douce
+                    cyan: '#0ea5e9',         // Cyan / Bleu clair
                 },
                 // Domains du jeu
                 'domain': {
