@@ -286,35 +286,48 @@ if (Astro.request.method === 'POST') {
       <div class="w-full">
         <div class="bg-rift-900/30 rounded-xl border border-rift-800/50 flex flex-col shadow-2xl overflow-hidden">
           <div class="px-4 py-3 border-b border-rift-800/50 bg-rift-900/60 flex items-center justify-between">
-            <span class="text-xs font-bold text-rift-400 uppercase tracking-widest font-display">Aperçu en temps réel</span>
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-bold text-rift-400 uppercase tracking-widest font-display">Aperçu en temps réel</span>
+              <!-- Zoom Controls -->
+              <div class="flex items-center gap-1 bg-rift-950/80 px-2 py-0.5 rounded-lg border border-rift-800/80">
+                <span class="text-[10px] text-rift-500 uppercase font-mono mr-0.5">Zoom</span>
+                <button type="button" id="preview-zoom-out" class="w-5 h-5 flex items-center justify-center text-xs text-rift-300 hover:text-rift-50 hover:bg-rift-800 rounded transition-colors" title="Dézoomer (−5%)">−</button>
+                <span id="preview-zoom-label" class="text-xs text-accent-spirit font-mono min-w-[36px] text-center font-bold">85%</span>
+                <button type="button" id="preview-zoom-in" class="w-5 h-5 flex items-center justify-center text-xs text-rift-300 hover:text-rift-50 hover:bg-rift-800 rounded transition-colors" title="Zoomer (+5%)">+</button>
+                <button type="button" id="preview-zoom-reset" class="ml-1 text-[10px] text-rift-400 hover:text-rift-100 px-1.5 py-0.5 rounded hover:bg-rift-800 transition-colors border border-rift-800" title="Réinitialiser à 100%">100%</button>
+              </div>
+            </div>
             <div class="flex gap-1">
               <div class="w-1.5 h-1.5 rounded-full bg-red-500/30"></div>
               <div class="w-1.5 h-1.5 rounded-full bg-amber-500/30"></div>
               <div class="w-1.5 h-1.5 rounded-full bg-green-500/30"></div>
             </div>
           </div>
-          <div class="px-8 py-10 min-h-[600px] max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-thin scrollbar-thumb-rift-800 scrollbar-track-transparent">
+          <div class="px-4 sm:px-8 py-10 min-h-[600px] max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-thin scrollbar-thumb-rift-800 scrollbar-track-transparent">
              
-             <!-- Cover image preview -->
-             <div id="live-cover-preview" class:list={["mb-8 w-full h-48 sm:h-64 rounded-xl overflow-hidden shadow-lg border border-rift-700/50 relative", image_url ? '' : 'hidden']}>
-               <img id="live-cover-img" src="" alt="Cover" class="w-full h-full object-cover" style="object-position: center 50%;" />
-             </div>
+             <!-- Centered max-w-4xl container matching the actual published article with zoom -->
+             <div id="preview-zoom-container" class="max-w-4xl mx-auto w-full origin-top" style="zoom: 0.85;">
+               <!-- Cover image preview -->
+               <div id="live-cover-preview" class:list={["mb-8 w-full h-48 sm:h-64 rounded-xl overflow-hidden shadow-lg border border-rift-700/50 relative", image_url ? '' : 'hidden']}>
+                 <img id="live-cover-img" src="" alt="Cover" class="w-full h-full object-cover" style="object-position: center 50%;" />
+               </div>
 
-             <div class="article-live-preview prose prose-invert prose-orange max-w-none
-               prose-headings:font-display prose-headings:font-bold prose-headings:text-rift-50
-               prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4
-               prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3
-               prose-p:text-rift-200 prose-p:leading-relaxed
-               prose-a:text-accent-spirit prose-a:no-underline hover:prose-a:text-accent-forge hover:prose-a:underline
-               prose-strong:text-rift-50
-               prose-li:text-rift-200
-               prose-blockquote:border-l-4 prose-blockquote:border-accent-spirit/70 prose-blockquote:text-rift-100 prose-blockquote:bg-rift-950/50 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:not-italic prose-blockquote:my-8 prose-blockquote:border-solid
-               prose-img:rounded-none
-               prose-table:text-sm
-               prose-th:text-accent-forge prose-th:font-semibold
-               prose-td:text-rift-200
-               prose-hr:border-rift-700/50">
-               <div class="text-rift-500 italic text-center py-20">Le rendu s'affichera ici au fur et à mesure...</div>
+               <div class="article-live-preview prose prose-invert prose-orange max-w-none
+                 prose-headings:font-display prose-headings:font-bold prose-headings:text-rift-50
+                 prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4
+                 prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3
+                 prose-p:text-rift-200 prose-p:leading-relaxed
+                 prose-a:text-accent-spirit prose-a:no-underline hover:prose-a:text-accent-forge hover:prose-a:underline
+                 prose-strong:text-rift-50
+                 prose-li:text-rift-200
+                 prose-blockquote:border-l-4 prose-blockquote:border-accent-spirit/70 prose-blockquote:text-rift-100 prose-blockquote:bg-rift-950/50 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:not-italic prose-blockquote:my-8 prose-blockquote:border-solid
+                 prose-img:rounded-none
+                 prose-table:text-sm
+                 prose-th:text-accent-forge prose-th:font-semibold
+                 prose-td:text-rift-200
+                 prose-hr:border-rift-700/50">
+                 <div class="text-rift-500 italic text-center py-20">Le rendu s'affichera ici au fur et à mesure...</div>
+               </div>
              </div>
           </div>
         </div>
@@ -634,5 +647,35 @@ if (Astro.request.method === 'POST') {
     if (imageUrlInput.value) {
       updateImagePreviews(imageUrlInput.value);
     }
+
+    // Preview Zoom Controller
+    const zoomContainer = document.getElementById('preview-zoom-container');
+    const zoomLabel = document.getElementById('preview-zoom-label');
+    const zoomOutBtn = document.getElementById('preview-zoom-out');
+    const zoomInBtn = document.getElementById('preview-zoom-in');
+    const zoomResetBtn = document.getElementById('preview-zoom-reset');
+
+    const ZOOM_KEY = 'article_preview_zoom';
+    let currentZoom = parseFloat(localStorage.getItem(ZOOM_KEY) || '0.85');
+
+    const applyZoom = (zoom: number) => {
+      currentZoom = Math.min(Math.max(Math.round(zoom * 100) / 100, 0.4), 1.5);
+      const percent = Math.round(currentZoom * 100);
+      if (zoomContainer) {
+        // @ts-ignore
+        zoomContainer.style.zoom = currentZoom;
+      }
+      if (zoomLabel) {
+        zoomLabel.textContent = `${percent}%`;
+      }
+      localStorage.setItem(ZOOM_KEY, currentZoom.toString());
+    };
+
+    zoomOutBtn?.addEventListener('click', () => applyZoom(currentZoom - 0.05));
+    zoomInBtn?.addEventListener('click', () => applyZoom(currentZoom + 0.05));
+    zoomResetBtn?.addEventListener('click', () => applyZoom(1));
+
+    // Initialize with default 85% or saved zoom
+    applyZoom(currentZoom);
   </script>
 </AdminLayout>
