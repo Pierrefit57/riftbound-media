@@ -22,6 +22,12 @@ Astro.response.headers.set('Cache-Control', 'private, max-age=60');
 const activeTab = tab!;
 
 // Fetch metadata for the visual errata articles
+const { data: visualArticleRadiance } = await supabase
+  .from('articles')
+  .select('id, title, slug, summary, image_url, tags, published_at, article_number')
+  .eq('article_number', 68)
+  .single();
+
 const { data: visualArticleUnleashed } = await supabase
   .from('articles')
   .select('id, title, slug, summary, image_url, tags, published_at, article_number')
@@ -47,6 +53,21 @@ const { data: visualArticleVendetta } = await supabase
   .single();
 
 const errataArticles = [
+  {
+    title: "Errata Radiance",
+    content: "https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/PDFrules/Errata%20Radiance.pdf",
+    date: "09-10-2026",
+    activeClass: "bg-[#7c8ce4] text-rift-950 border-[#7c8ce4] shadow-[#7c8ce4]/20",
+    textClass: "text-[#7c8ce4]",
+    visualLink: visualArticleRadiance ? articleUrl(visualArticleRadiance) : "/news/68",
+    visualTitle: visualArticleRadiance?.title || "LES ERRATA RADIANCE",
+    visualSummary: visualArticleRadiance?.summary || "Retrouvez les derniers errata pour le Set 5 Radiance. Les textes des cartes corrigés pour plus de compréhension.",
+    visualImage: proxyUrl(visualArticleRadiance?.image_url) || undefined,
+    visualDate: visualArticleRadiance?.published_at
+      ? new Date(visualArticleRadiance.published_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+      : "10 octobre 2026",
+    visualTags: visualArticleRadiance?.tags || ["Mise à jour", "Errata", "Set 5"]
+  },
   {
     title: "Errata Vendetta",
     content: "https://otbccpoavhfvjpqpzemz.supabase.co/storage/v1/object/public/PDFrules/errata%20Vendetta.pdf",
@@ -112,7 +133,7 @@ const errataArticles = [
 const tabMeta: Record<string, { title: string; description: string }> = {
   base:    { title: "Règles de base – Riftbound",    description: "Les règles officielles du jeu Riftbound. Tout ce qu'il faut savoir pour jouer." },
   tournoi: { title: "Règles de tournoi – Riftbound", description: "Les règles officielles pour les tournois Riftbound." },
-  errata:  { title: "Errata et FAQ – Riftbound",     description: "Les errata et la FAQ officielle pour les sets Origins, Spiritforged et Unleashed." },
+  errata:  { title: "Errata et FAQ – Riftbound",     description: "Les errata et la FAQ officielle pour les sets Origins, Spiritforged, Unleashed, Vendetta et Radiance." },
 };
 const meta = tabMeta[activeTab];
 ---
