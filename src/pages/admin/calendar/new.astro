@@ -9,10 +9,8 @@ let errorMsg = '';
 let title = '';
 let description = '';
 let start_date = "";
-// Set default to current local time in YYYY-MM-DDTHH:mm format
-const now = new Date();
-const offset = now.getTimezoneOffset() * 60000;
-start_date = new Date(now.getTime() - offset).toISOString().slice(0, 16);
+// Set default to current Paris time in YYYY-MM-DDTHH:mm format
+start_date = new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Paris' }).replace(' ', 'T').slice(0, 16);
 let end_date = '';
 let type = 'community';
 let url = '';

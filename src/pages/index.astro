@@ -53,7 +53,7 @@ const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
 
   <!-- Hero -->
   <section class="relative overflow-hidden">
-    <div class="absolute inset-x-0 top-0 h-[500px] pointer-events-none z-0" style="background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(160,28,64,0.23), transparent);"></div>
+    <div class="absolute inset-x-0 top-0 h-[500px] pointer-events-none z-0" style="background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124,140,228,0.23), transparent);"></div>
 
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-16 pb-12 sm:pb-24 text-center z-10">
       
@@ -68,11 +68,21 @@ const sortedRules = allRules.sort((a, b) => a.data.order - b.data.order);
       </div>
       -->
 
-      <!-- VERSION "VENDETTA" (active) -->
+      <!-- VERSION "VENDETTA" (désactivée — à réactiver si besoin) -->
+      <!--
       <div class="flex items-center justify-center gap-4 mb-6 animate-fade-in">
         <div class="h-px w-12 sm:w-24 bg-gradient-to-r from-transparent to-[#A5A9B4]/60"></div>
         <img src="/vendetta-logo.png" alt="Vendetta" class="h-8 sm:h-9 object-contain opacity-90 drop-shadow-md" />
         <div class="h-px w-12 sm:w-24 bg-gradient-to-l from-transparent to-[#A5A9B4]/60"></div>
+      </div>
+      -->
+
+      <!-- VERSION "RADIANCE" (active) -->
+      <div class="flex items-center justify-center gap-4 mb-6 animate-fade-in">
+        <div class="h-px w-12 sm:w-24 bg-gradient-to-r from-transparent to-[#7c8ce4]/60"></div>
+        <img src="/radiance-logo.png" alt="Radiance" class="h-8 sm:h-9 object-contain opacity-90 drop-shadow-md" onerror="this.style.display='none'; document.getElementById('radiance-text-fallback')?.classList.remove('hidden')" />
+        <span id="radiance-text-fallback" class="hidden text-[#7c8ce4] text-xs font-display tracking-[0.3em] uppercase font-semibold">Radiance</span>
+        <div class="h-px w-12 sm:w-24 bg-gradient-to-l from-transparent to-[#7c8ce4]/60"></div>
       </div>
 
       <h1 class="font-display font-bold tracking-tight animate-slide-up flex flex-col items-center mb-4">

@@ -15,7 +15,8 @@ let tagsStr = '';
 let featured = false;
 let highlighted = false;
 let published = true;
-let published_at = new Date().toISOString().slice(0, 16);
+// Date et heure de Paris par défaut (évite le décalage UTC de -2h en été / -1h en hiver)
+let published_at = new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Paris' }).replace(' ', 'T').slice(0, 16);
 // Auto-populate values if we have a draft and NO post data (client-side JS handles this, but server-side helps on errors)
 // Actually, we rely on client-side JS for the draft restore. Server-side only for POST errors.
 
