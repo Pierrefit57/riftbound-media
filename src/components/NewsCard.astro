@@ -56,16 +56,16 @@ function getTagStyle(tag: string): string {
 {featured ? (
   <a href={href} class:list={["group w-full block relative overflow-hidden rounded-2xl border bg-rift-800 hover:border-accent-spirit/40 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-0.5 h-full flex flex-col", highlighted ? 'highlighted-card' : 'border-rift-700/50']}>
     <!-- Card image area -->
-    <div class="relative aspect-video w-full overflow-hidden flex-shrink-0">
+    <div class="relative w-full overflow-hidden flex-shrink-0">
       {hasImage ? (
-        <img src={image.split('#')[0]} alt={title} class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" style={`object-position: center ${image.match(/#pos=(\d+)/)?.[1] || '50'}%;`} loading="lazy" />
+        <img src={image.split('#')[0]} alt={title} class="w-full h-auto block group-hover:scale-105 transition-transform duration-500" loading="lazy" />
       ) : (
-        <>
+        <div class="h-52 w-full relative">
           <div class="absolute inset-0 bg-gradient-to-br from-accent-sakura/15 via-rift-900 to-accent-forge/10"></div>
           <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,107,53,0.15),transparent_60%)]"></div>
           <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_60%,rgba(250,188,42,0.1),transparent_60%)]"></div>
           <div class="absolute inset-0 opacity-[0.04]" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22><circle cx=%2220%22 cy=%2220%22 r=%221.5%22 fill=%22%23ff6b35%22/></svg>'); background-size: 40px 40px;"></div>
-        </>
+        </div>
       )}
       <!-- Featured badge -->
       <div class="absolute top-4 left-4 z-10">
@@ -107,15 +107,15 @@ function getTagStyle(tag: string): string {
   </a>
 ) : (
   <a href={href} class:list={["group block overflow-hidden rounded-2xl border bg-rift-800 hover:border-accent-spirit/30 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 h-full flex flex-col", highlighted ? 'highlighted-card' : 'border-rift-700/50']}>
-    <div class="relative aspect-video w-full overflow-hidden flex-shrink-0">
+    <div class="relative w-full overflow-hidden flex-shrink-0">
       {hasImage ? (
-        <img src={image.split('#')[0]} alt={title} class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" style={`object-position: center ${image.match(/#pos=(\d+)/)?.[1] || '50'}%;`} loading="lazy" />
+        <img src={image.split('#')[0]} alt={title} class="w-full h-auto block group-hover:scale-105 transition-transform duration-500" loading="lazy" />
       ) : (
-        <>
+        <div class="h-52 w-full relative">
           <div class="absolute inset-0 bg-gradient-to-br from-accent-sakura/10 via-rift-900 to-accent-forge/8"></div>
           <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,107,53,0.1),transparent_70%)]"></div>
           <div class="absolute inset-0 opacity-[0.03]" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2230%22 height=%2230%22><circle cx=%2215%22 cy=%2215%22 r=%221%22 fill=%22%23ff6b35%22/></svg>'); background-size: 30px 30px;"></div>
-        </>
+        </div>
       )}
     </div>
     <div class="p-4 md:p-5 relative z-10 flex flex-col flex-1">
