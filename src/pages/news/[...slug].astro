@@ -112,6 +112,11 @@ htmlContent = htmlContent.replace(
   /(?<!\*)\*(?!\*)([^*]+)(?<!\*)\*(?!\*)/g,
   '<em>$1</em>'
 );
+// Underline shortcode fallback: [u]text[/u] -> <u>text</u>
+htmlContent = htmlContent.replace(
+  /\[u\]([\s\S]*?)\[\/u\]/g,
+  '<u>$1</u>'
+);
 
 // Proxy: Replace all Supabase Storage URLs with CDN-proxied versions
 const SUPABASE_STORAGE_RE = /https:\/\/otbccpoavhfvjpqpzemz\.supabase\.co\/storage\/v1\/object\/public\/([^"'\s)]+)/g;
@@ -671,6 +676,15 @@ function getTagStyle(tag: string): string {
     margin-left: auto !important;
     margin-right: auto !important;
     display: block !important;
+  }
+
+  /* Article Underline - Site spirit orange (#E9870F) */
+  .prose u,
+  .prose ins {
+    text-decoration: underline;
+    text-decoration-color: #E9870F;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
   }
 
 </style>

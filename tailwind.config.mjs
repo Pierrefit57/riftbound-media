@@ -118,6 +118,12 @@ export default {
                     css: {
                         'blockquote p:first-of-type::before': { content: 'none' },
                         'blockquote p:last-of-type::after': { content: 'none' },
+                        'u, ins': {
+                            textDecoration: 'underline',
+                            textDecorationColor: '#E9870F',
+                            textUnderlineOffset: '3px',
+                            textDecorationThickness: '2px',
+                        },
                     },
                 },
             },

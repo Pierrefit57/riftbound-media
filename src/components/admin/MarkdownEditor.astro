@@ -97,7 +97,7 @@ try {
           { color: '#d946ef', title: 'Fuchsia' },
           { color: '#f43f5e', title: 'Rose' },
           { color: '#ff6b35', title: 'Rift Forge' },
-          { color: '#eab308', title: 'Rift Spirit' },
+          { color: '#E9870F', title: 'Rift Spirit' },
           { color: '#0ea5e9', title: 'Rift Cyan' }
         ].map(item => (
           <button 
@@ -341,8 +341,25 @@ try {
 
       this.textarea.addEventListener('input', () => this.updatePreview());
       
-      // Auto-continue blockquotes on Enter and support Tab for indentation
+      // Auto-continue blockquotes on Enter, support Tab for indentation, and formatting shortcuts
       this.textarea.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+          const key = e.key.toLowerCase();
+          if (key === 'b') {
+            e.preventDefault();
+            this.handleAction('bold');
+            return;
+          } else if (key === 'i') {
+            e.preventDefault();
+            this.handleAction('italic');
+            return;
+          } else if (key === 'u') {
+            e.preventDefault();
+            this.handleAction('underline');
+            return;
+          }
+        }
+
         if (e.key === 'Tab') {
           e.preventDefault();
           const start = this.textarea.selectionStart;
@@ -406,6 +423,7 @@ try {
       html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
       html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
       html = html.replace(/(?<!\*)\*(?!\*)([^*]+)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+      html = html.replace(/\[u\]([\s\S]*?)\[\/u\]/g, '<u>$1</u>');
       
       if (html.trim() === '' && rawValue.trim() !== '') {
         html = '<p>' + rawValue + '</p>';
@@ -508,6 +526,7 @@ try {
           break;
         case 'underline':
           if (toggleWrap('<u>', '</u>')) return;
+          if (toggleWrap('[u]', '[/u]')) return;
           prefix = '<u>'; suffix = '</u>';
           if (!content) content = 'souligné';
           break;
@@ -872,6 +891,18 @@ try {
     }
 
     /* Sync with News Article styling */
+    .article-live-preview u,
+    .article-live-preview ins,
+    .article-live-preview .prose u,
+    .article-live-preview .prose ins,
+    .prose u,
+    .prose ins {
+      text-decoration: underline !important;
+      text-decoration-color: #E9870F !important;
+      text-decoration-thickness: 2px !important;
+      text-underline-offset: 3px !important;
+    }
+
     .article-live-preview .prose blockquote {
       border-left: 4px solid rgba(234, 179, 8, 0.7) !important; /* accent-spirit/70 */
       background-color: rgba(10, 10, 10, 0.5) !important; /* rift-950/50 */

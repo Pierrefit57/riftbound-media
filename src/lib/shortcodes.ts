@@ -33,6 +33,9 @@ export function parseShortcodes(text: string): string {
   // 6. Color: [color:#ff0000]...[/color]
   processed = processed.replace(/\[color:([^\]]+)\]([\s\S]*?)\[\/color\]/g, '<span style="color: $1">$2</span>');
 
+  // 6b. Underline: [u]...[/u] -> <u>$1</u>
+  processed = processed.replace(/\[u\]([\s\S]*?)\[\/u\]/g, '<u>$1</u>');
+
   // 7. Blockquote: [quote]...[/quote]
   processed = processed.replace(/\[quote\]([\s\S]*?)\[\/quote\]/g, '<blockquote>\n\n$1\n\n</blockquote>');
   
